@@ -18,7 +18,7 @@ ui:
 
 asciidoc:
   attributes:
-    cluster-domain: ''
+    cluster-domain: '__CLUSTER_DOMAIN__'
 
 output:
   dir: ./www

@@ -33,3 +33,43 @@ video {
     width: 100%;
     background-color: #131313;
 }
+
+/* Cluster domain form in navbar */
+.cluster-domain-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.cluster-domain-form input {
+    padding: 6px 10px;
+    border: 1px solid #6a6e73;
+    border-radius: 4px;
+    font-size: 13px;
+    min-width: 200px;
+    max-width: 320px;
+    background: #fff;
+}
+.cluster-domain-form input:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+.cluster-domain-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: #0066cc;
+    color: #fff;
+}
+.cluster-domain-btn:hover {
+    background: #0052a3;
+}
+.cluster-domain-btn-clear {
+    background: #6a6e73;
+}
+.cluster-domain-btn-clear:hover {
+    background: #525252;
+}

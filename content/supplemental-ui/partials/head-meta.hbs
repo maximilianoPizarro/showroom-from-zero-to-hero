@@ -2,3 +2,43 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <link rel="icon" href="{{uiRootPath}}/img/favicon.ico" type="image/x-icon">
+
+<script>
+(function() {
+  var PLACEHOLDER = '__CLUSTER_DOMAIN__';
+  var re = new RegExp(PLACEHOLDER.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+  function getStoredDomain() { return localStorage.getItem('CLUSTER_DOMAIN') || ''; }
+  function replacePlaceholders(domain) {
+    if (!domain) return;
+    document.querySelectorAll('a[href*="' + PLACEHOLDER + '"]').forEach(function(a) {
+      a.setAttribute('href', a.getAttribute('href').replace(re, domain));
+    });
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    var nodes = [];
+    while (walker.nextNode()) {
+      if (walker.currentNode.textContent.indexOf(PLACEHOLDER) !== -1) nodes.push(walker.currentNode);
+    }
+    nodes.forEach(function(n) { n.textContent = n.textContent.replace(re, domain); });
+  }
+  function init() {
+    var input = document.getElementById('cluster-domain-input');
+    var saveBtn = document.getElementById('cluster-domain-save');
+    var clearBtn = document.getElementById('cluster-domain-clear');
+    if (input) input.value = getStoredDomain();
+    replacePlaceholders(getStoredDomain());
+    if (saveBtn) saveBtn.onclick = function() {
+      var val = input.value.trim().replace(/^https?:\/\//, '').split('/')[0];
+      if (!val) { alert('Please enter a cluster domain'); return; }
+      localStorage.setItem('CLUSTER_DOMAIN', val);
+      location.reload();
+    };
+    if (clearBtn) clearBtn.onclick = function() {
+      localStorage.removeItem('CLUSTER_DOMAIN');
+      if (input) input.value = '';
+      location.reload();
+    };
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>

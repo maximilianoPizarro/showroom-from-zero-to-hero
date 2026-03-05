@@ -16,6 +16,11 @@
     </div>
     <div id="topbar-nav" class="navbar-menu">
       <div class="navbar-end">
+        <div class="navbar-item cluster-domain-form">
+          <input type="text" id="cluster-domain-input" placeholder="Cluster domain (e.g. apps.cluster-xxx.region.openshiftapps.com)" title="Enter your cluster domain to auto-complete links">
+          <button type="button" id="cluster-domain-save" class="cluster-domain-btn">Save</button>
+          <button type="button" id="cluster-domain-clear" class="cluster-domain-btn cluster-domain-btn-clear">Clear</button>
+        </div>
         {{#if page.attributes.links}}
         <div class="navbar-item navbar-item-right-dropdown has-dropdown is-hoverable">
           <a class="navbar-link" href="#">Links</a>
