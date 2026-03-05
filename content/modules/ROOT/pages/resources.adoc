@@ -3,6 +3,14 @@
 
 This section provides additional resources and alternative installation methods for the Neuralbank workshop and infrastructure setup.
 
+== Key Resources
+
+* *Source Code*: https://github.com/pkstaz/neuralbank-workshop[neuralbank-workshop]
+* *Workshop*: https://github.com/maximilianoPizarro/rhoai-roadshow-from-zero-to-hero[rhoai-roadshow-from-zero-to-hero]
+* *Ansible Setup*: https://github.com/panchoraposo/rh1-demo-rhoai3[rh1-demo-rhoai3]
+* *Helm Chart*: https://github.com/maximilianoPizarro/neuralbank-stack[neuralbank-stack]
+* *Connectivity Link*: https://developers.redhat.com/articles/2026/02/12/build-zero-trust-environment-red-hat-connectivity-link[Build a zero trust environment with Red Hat Connectivity Link]
+
 == Source Code
 
 === Neuralbank Workshop Repository
