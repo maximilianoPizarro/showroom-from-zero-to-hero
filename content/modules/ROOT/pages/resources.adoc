@@ -27,11 +27,13 @@ This repository contains:
 
 Automated deployment using Ansible playbooks for a complete Internal Developer Platform (IDP) setup on Red Hat OpenShift.
 
-*Repository*: https://github.com/panchoraposo/rh1-demo[rh1-demo]
+*Repository*: https://github.com/panchoraposo/rh1-demo-rhoai3[rh1-demo-rhoai3]
 
 This Ansible-based setup provisions:
 
 * OpenShift GitOps (Argo CD)
+* OpenShift Service Mesh (Istio)
+* Red Hat Connectivity Link (Kuadrant, Authorino, Limitador)
 * Keycloak for identity management
 * HashiCorp Vault + External Secrets Operator
 * GitLab + OpenShift Pipelines
@@ -40,7 +42,7 @@ This Ansible-based setup provisions:
 * OpenShift Dev Spaces
 * Full observability and logging stack
 
-*Installation Time*: ~40 minutes
+*Installation Time*: ~45-60 minutes
 
 === Helm Chart
 
@@ -109,7 +111,7 @@ This GitOps approach provides:
 
 |Ansible Setup
 |Automated IDP deployment
-|https://github.com/panchoraposo/rh1-demo[rh1-demo]
+|https://github.com/panchoraposo/rh1-demo-rhoai3[rh1-demo-rhoai3]
 
 |Helm Chart
 |Quick deployment option
