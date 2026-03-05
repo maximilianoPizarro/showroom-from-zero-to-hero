@@ -79,8 +79,8 @@ By completing this workshop, you will have:
 
 == Key Resources
 
-* *Source Code*: https://github.com/maximilianoPizarro/rhoai-roadshow-from-zero-to-hero[rhoai-roadshow-from-zero-to-hero]
+* *Source Code*: https://github.com/pkstaz/neuralbank-workshop[neuralbank-workshop]
+* *Workshop*: https://github.com/maximilianoPizarro/rhoai-roadshow-from-zero-to-hero[rhoai-roadshow-from-zero-to-hero]
 * *Ansible Setup*: https://github.com/panchoraposo/rh1-demo-rhoai3[rh1-demo-rhoai3]
-* *Neuralbank Workshop*: https://github.com/pkstaz/neuralbank-workshop[neuralbank-workshop]
 * *Helm Chart*: https://github.com/maximilianoPizarro/neuralbank-stack[neuralbank-stack]
 * *Connectivity Link*: https://developers.redhat.com/articles/2026/02/12/build-zero-trust-environment-red-hat-connectivity-link[Build a zero trust environment with Red Hat Connectivity Link]

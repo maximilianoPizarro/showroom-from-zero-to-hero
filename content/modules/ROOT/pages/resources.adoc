@@ -109,6 +109,10 @@ This GitOps approach provides:
 |Complete Neuralbank workshop code
 |https://github.com/pkstaz/neuralbank-workshop[neuralbank-workshop]
 
+|Workshop
+|IA Development From Zero To Hero documentation
+|https://github.com/maximilianoPizarro/rhoai-roadshow-from-zero-to-hero[rhoai-roadshow-from-zero-to-hero]
+
 |Ansible Setup
 |Automated IDP deployment
 |https://github.com/panchoraposo/rh1-demo-rhoai3[rh1-demo-rhoai3]
