@@ -83,4 +83,4 @@ By completing this workshop, you will have:
 * *Ansible Setup*: https://github.com/panchoraposo/rh1-demo[rh1-demo]
 * *Neuralbank Workshop*: https://github.com/pkstaz/neuralbank-workshop[neuralbank-workshop]
 * *Helm Chart*: https://github.com/maximilianoPizarro/neuralbank-stack[neuralbank-stack]
-* *Connectivity Link*: https://maximilianopizarro.github.io/connectivity-link/[connectivity-link]
+* *Connectivity Link*: https://developers.redhat.com/articles/2026/02/12/build-zero-trust-environment-red-hat-connectivity-link[Build a zero trust environment with Red Hat Connectivity Link]

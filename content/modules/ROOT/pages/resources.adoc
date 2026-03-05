@@ -73,7 +73,7 @@ The topology shows the complete system architecture including:
 
 Alternative installation path using GitOps principles with ArgoCD for declarative infrastructure management.
 
-*Documentation*: https://maximilianopizarro.github.io/connectivity-link/[connectivity-link]
+*Documentation*: https://developers.redhat.com/articles/2026/02/12/build-zero-trust-environment-red-hat-connectivity-link[Build a zero trust environment with Red Hat Connectivity Link]
 
 This GitOps approach provides:
 
@@ -117,7 +117,7 @@ This GitOps approach provides:
 
 |GitOps Guide
 |ArgoCD installation path
-|https://maximilianopizarro.github.io/connectivity-link/[connectivity-link]
+|https://developers.redhat.com/articles/2026/02/12/build-zero-trust-environment-red-hat-connectivity-link[Build a zero trust environment with Red Hat Connectivity Link]
 |===
 
 == Choosing the Right Installation Method
