@@ -1,18 +1,20 @@
-* xref:index.adoc[What is Showroom?]
+* xref:index.adoc[IA Development From Zero To Hero]
 
-.Content Developer Guide
-* xref:quick-start.adoc[Quick Start]
-* xref:content-repo.adoc[Creating a Content Repository]
-* xref:agnosticv-config.adoc[AgnosticV Configuration]
-* xref:ui-config.adoc[UI Configuration]
-* xref:user-data.adoc[User Data and Variables]
-* xref:ocp4-role-reference.adoc[OCP4 Role Reference]
-* xref:vm-role-reference.adoc[VM Role Reference]
+.Getting Connected
+* xref:0.5-workshop-overview.adoc[Workshop Overview]
+* xref:0-business-case.adoc[Neuralbank Business Case]
+* xref:2-configure-environment.adoc[Configure Environment]
 
-.Showroom Developer Guide
-* xref:architecture.adoc[Architecture]
-* xref:deployer.adoc[Showroom Deployer]
-* xref:images.adoc[Showroom Images]
-* xref:nookbag.adoc[Nookbag UI]
-* xref:ocp-integration.adoc[OCP Integration]
-* xref:contributing.adoc[Contributing]
+.MCP Agents & Tools
+* xref:0-intro.adoc[Introduction to MCP Agents]
+* xref:1-golden-path.adoc[Golden Path & Developer Hub]
+* xref:2-devspaces.adoc[Working with DevSpaces]
+* xref:2.5-keycloak-user-management.adoc[Keycloak User Management]
+* xref:3-build-mcp-agent.adoc[Build MCP Agent]
+* xref:3.5-connectivity-link.adoc[Connectivity Link]
+* xref:4-mcp-inspector.adoc[Test with MCP Inspector]
+* xref:5-deploy-integrate.adoc[Deploy & Integrate]
+* xref:6-opentelemetry.adoc[OpenTelemetry Observability]
+
+.Resources
+* xref:resources.adoc[Resources]

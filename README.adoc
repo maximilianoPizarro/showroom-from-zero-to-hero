@@ -1,21 +1,19 @@
-= Showroom Template
+= IA Development From Zero To Hero
 
-A template for creating Red Hat Showroom lab guides and demo content, built with https://antora.org[Antora].
+A workshop for building MCP Agents on Red Hat OpenShift AI, based on the https://github.com/maximilianoPizarro/rhoai-roadshow-from-zero-to-hero[rhoai-roadshow-from-zero-to-hero] content. Built with https://antora.org[Antora] and antora-viewer format.
 
-* 0% cruft
-* Red Hat Demo Platform UI Bundle default
-* Dev Mode extension that displays the asciidoc attributes you have to work with
+== About This Workshop
 
-== Documentation
+This workshop takes you through a complete journey from understanding a business use case (Neuralbank) to deploying a production-ready AI solution using Model Context Protocol (MCP) Agents.
 
-Full documentation — getting started, content structure, configuration, local development, and AI-assisted content creation — is available at:
-
-https://rhpds.github.io/showroom_template_nookbag/
+* *Business Case*: Neuralbank - a financial institution automating credit risk assessment
+* *Your Role*: Kevin, Java developer building the customer-service-mcp MCP Agent
+* *Technologies*: OpenShift AI, LlamaStack, Quarkus, Keycloak, Connectivity Link, OpenTelemetry
 
 == Quick Start
 
-. https://github.com/rhpds/showroom_template_nookbag/generate[Create a repo from this template] (suggested naming: `showroom_<lab-name>`)
-. Clone your new repo and preview locally:
+. Clone this repository
+. Preview locally with antora-viewer:
 +
 [source,sh]
 ----
@@ -25,10 +23,14 @@ podman run --rm --name antora -v $PWD:/antora -p 8080:8080 -i -t ghcr.io/juliaaa
 On SELinux systems, append `:z` to the volume mount.
 
 . Edit content in `content/modules/ROOT/pages/`
-. See the https://rhpds.github.io/showroom_template_nookbag/modules/content-repo.html[Content Repository] docs for directory layout, Podman Compose with live reload, dev mode, and more.
+. Set your cluster domain in the UI (if using showroom deployment)
 
-== Create Content with AI
+== Documentation Structure
 
-The https://github.com/rhpds/rhdp-skills-marketplace[RHDP Skills Marketplace] provides skills for Cursor IDE and Claude Code that generate labs, demos, and validate content against Red Hat standards.
+* *Getting Connected*: Workshop overview, Neuralbank business case, environment configuration
+* *MCP Agents & Tools*: Golden Path, DevSpaces, Keycloak, Build MCP Agent, Connectivity Link, MCP Inspector, Deploy & Integrate, OpenTelemetry
+* *Resources*: Source code, installation methods (Ansible, Helm, GitOps)
 
-See the https://rhpds.github.io/showroom_template_nookbag/modules/content-repo.html#_creating_content_with_ai_tools[AI Tools documentation] for details.
+== Source
+
+Content adapted from: https://github.com/maximilianoPizarro/rhoai-roadshow-from-zero-to-hero[rhoai-roadshow-from-zero-to-hero]

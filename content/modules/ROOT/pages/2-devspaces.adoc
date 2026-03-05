@@ -1,0 +1,185 @@
+= Working with DevSpaces
+:navtitle: Working with DevSpaces
+
+== What is DevSpaces?
+
+*Red Hat DevSpaces* (formerly CodeReady Workspaces) provides cloud-based development environments that run directly on your OpenShift cluster. This means:
+
+* *No Local Setup*: Everything runs in the cloud
+* *Consistent Environment*: Same setup for all developers
+* *Resource Efficiency*: Share cluster resources
+* *Easy Collaboration*: Share workspaces with team members
+
+For Kevin, DevSpaces means you can:
+
+* Develop directly on OpenShift
+* Access all cluster resources
+* Test against real services
+* Work with the generated `customer-service-mcp` code
+
+== Accessing Your DevSpaces Workspace
+
+The Golden Path template automatically creates a DevSpaces workspace configuration. Here's how to access it:
+
+=== Step 1: Access from Developer Hub
+
+The easiest way to open your DevSpaces workspace is directly from Developer Hub:
+
+. *Navigate to Developer Hub*: https://backstage-developer-hub-backstage.apps.{cluster-domain}[backstage-developer-hub-backstage.apps.{cluster-domain}]
+. *Find Your Component*: Look for the `customer-service-mcp` component
+. *Open DevSpaces*: Click on the DevSpaces link or use the direct URL to open DevSpaces for customer-service-mcp
+
+=== Step 2: Alternative Access Methods
+
+You can also access DevSpaces through:
+
+. *From OpenShift Console*: Go to *Applications* → *Red Hat DevSpaces*
+. *Direct URL*: https://devspaces.apps.{cluster-domain}[devspaces.apps.{cluster-domain}]
+
+=== Step 3: Open Your Workspace
+
+. *Find Your Workspace*: Look for a workspace named `customer-service-mcp`
+. *Click to Open*: This will launch your development environment
+
+=== Step 4: Wait for Startup
+
+The workspace will automatically:
+
+* Clone the generated repository
+* Start all required containers
+* Configure the development environment
+* Install necessary tools and dependencies
+
+image::devspaces-workspaces.png[DevSpaces Workspaces]
+
+image::devspaces-init.png[DevSpaces Initialization]
+
+image::devspaces-running.png[DevSpaces Running]
+
+== Workspace Features
+
+|===
+|Feature |Description
+
+|*Integrated Terminal*
+|Access to OpenShift CLI (`oc`), direct access to cluster resources, run build and test commands, Git operations
+
+|*Code Editor*
+|Full IDE experience in the browser, IntelliSense and code completion, Git integration, extension support, multi-file editing
+
+|*Port Forwarding*
+|Access services running in the cluster, test MCP Agent endpoints locally, connect to databases, debug running applications
+
+|*Volume Mounts*
+|Persistent storage for your code, shared volumes between containers, ConfigMap and Secret mounts, workspace data persistence
+|===
+
+== Development Workflow
+
+In your DevSpaces workspace:
+
+. *Navigate to Code*: The generated `customer-service-mcp` code is already cloned
+. *Review Structure*: Explore the generated code structure
+. *Uncomment Code*: Find and uncomment the relevant sections (as mentioned in the template)
+. *Build*: Run `mvn clean install` to build the project
+. *Test*: Execute unit and integration tests
+. *Run Locally*: Use Quarkus dev mode for local testing
+. *Commit Changes*: Commit your uncommented code to start working
+
+image::devspaces-build.png[DevSpaces Build]
+
+== Preview MCP Service
+
+To preview and test the MCP service locally in your DevSpaces workspace:
+
+. *Open Terminal*: Open a terminal in your DevSpaces workspace
+. *Navigate to Project*:
++
+[source,bash]
+----
+cd customer-service-mcp
+----
+
+. *Check README*: Review the README.md file for specific commands:
++
+[source,bash]
+----
+cat README.md
+----
+
+image::devspaces-readme.png[DevSpaces README]
+
+. *Run MCP Service*: Execute the commands from the README to start the MCP service in development mode. Typically:
++
+[source,bash]
+----
+mvn quarkus:dev
+----
+
+. *Access MCP Endpoint*: The MCP service will be available at:
+** *Endpoint*: `http://localhost:8081/mcp/sse`
+** *Protocol*: HTTP
+** *Port*: 8081
+
+. *Test MCP Connection*: You can test the MCP endpoint using curl or MCP Inspector:
++
+[source,bash]
+----
+curl http://localhost:8081/mcp/sse
+----
+
+.TIP
+The MCP service uses Server-Sent Events (SSE) for real-time communication. Make sure to configure your MCP client (like Playground or Cursor) to use `http://localhost:8081/mcp/sse` when testing locally in DevSpaces.
+
+== Congratulations!
+
+You've successfully set up your DevSpaces workspace! You've learned how to:
+
+* Access and configure DevSpaces workspaces
+* Navigate the development environment
+* Preview the MCP service locally
+* Understand the development workflow
+
+Your development environment is now ready! You can start building and testing your MCP Agent.
+
+== Working with the Generated Code
+
+The template generates code with commented sections. Your tasks:
+
+. *Uncomment Tools*: Find `QueryCreditRiskTool.java` and `UpdateCreditRiskTool.java`
+. *Review Implementation*: Understand how the tools work
+. *Configure Properties*: Update `application.properties` with your settings
+. *Test Locally*: Use Quarkus dev mode to test
+. *Commit*: Once ready, commit to enable Cursor and Playground integration
+
+== Connecting to Cluster Services
+
+From your DevSpaces workspace, you can:
+
+* *Access Keycloak*: Test authentication flows
+* *Connect to Credit Risk Service*: Test integration via Connectivity Link
+* *Use Connectivity Link*: Verify service-to-service communication
+* *Access OpenTelemetry*: View traces and metrics
+* *View Topology*: Access OpenShift topology view to see the architecture
+
+== Viewing the Neuralbank Topology
+
+To observe the complete Neuralbank architecture:
+
+. *OpenShift Console*: Navigate to your project (`neuralbank` - Neuralbank project)
+. *Topology View*: Click on "Topology" in the left menu
+. *View Architecture*: You'll see all services including:
+** Frontend services
+** Keycloak
+** Connectivity Link components
+** Backend services
+** Your `customer-service-mcp` (once deployed)
+
+.NOTE
+You may need to authenticate in the OpenShift console to view the topology. Use your provided credentials.
+
+== Next Steps
+
+Now that your DevSpaces workspace is ready, let's start *building and configuring the MCP Agent* (`customer-service-mcp`) that will query and update credit risk information.
+
+Click xref:3-build-mcp-agent.adoc[Build MCP Agent] to continue.

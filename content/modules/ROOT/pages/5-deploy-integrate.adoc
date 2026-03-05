@@ -1,0 +1,170 @@
+= Deploy & Integrate
+:navtitle: Deploy & Integrate
+
+Now that your `customer-service-mcp` is built and tested in DevSpaces, let's integrate it with Playground (via OpenShift AI) so commercial agents can use it.
+
+== Development Approach
+
+.IMPORTANT
+The `customer-service-mcp` service is *not deployed using `oc` commands*. Instead:
+
+* *Developed in DevSpaces*: All development happens in your DevSpaces workspace
+* *Tested Locally*: Use Quarkus dev mode for local testing
+* *Integrated via Git*: Committed code is automatically available to Playground
+* *Runtime in OpenShift*: The service runs automatically when accessed via Playground
+
+== Integration with Playground
+
+The `customer-service-mcp` integrates with Playground (via OpenShift AI), allowing commercial agents to interact with the credit risk system through a chat interface.
+
+=== Step 1: Verify Service is Committed
+
+Ensure your uncommented code is committed:
+
+[source,bash]
+----
+# Check git status
+git status
+
+# If there are uncommitted changes, commit them
+git add .
+git commit -m "Uncomment and configure MCP tools"
+git push
+----
+
+=== Step 2: Access Playground via OpenShift AI
+
+. *Navigate to OpenShift AI Console*: https://console-openshift-console.apps.{cluster-domain}[console-openshift-console.apps.{cluster-domain}]
+** Login with `admin` / `Welcome123`
+
+. *Access Playground*:
+** Navigate to *OpenShift AI* → *Playground*
+** Or directly access: https://llama-stack-playground-llama-stack.apps.{cluster-domain}[llama-stack-playground-llama-stack.apps.{cluster-domain}]
+
+. *Login*: Authenticate via Keycloak (see xref:2.5-keycloak-user-management.adoc[Keycloak User Management])
+
+image::llama-stack-playground.png[LlamaStack Playground]
+
+=== Step 3: Configure MCP Server
+
+. *Open MCP Settings*: In Playground, navigate to MCP server configuration
+. *Configure customer-service-mcp*:
+** *Name*: `customer-service-mcp`
+** *Endpoint*: `http://customer-service-mcp.neuralbank.apps.{cluster-domain}/mcp/sse`
+** *Protocol*: HTTP (SSE - Server-Sent Events)
+** *Port*: 8081
+. *Verify Connection*: Ensure the service is connected and tools are available
+
+.NOTE
+Use the external route URL (`http://customer-service-mcp.neuralbank.apps.{cluster-domain}/mcp/sse`) for access from Playground. The internal `svc.cluster.local` URL is only accessible from within the cluster.
+
+image::llama-stack-mcp-configuration.png[LlamaStack MCP Configuration]
+
+=== Step 4: Test Query Tool
+
+. *Open Chat*: Start a new chat session in Playground
+. *Query Credit Risk*: Type:
++
+----
+"What is the credit risk for customer CUST-12345?"
+----
+
+. *Review Response*: The MCP agent should return credit risk information
+
+=== Step 5: Test Update Tool
+
+. *Update Request*: Type:
++
+----
+"Update credit risk for customer CUST-12345 with a $50,000 home improvement loan"
+----
+
+. *Review Response*: Should show updated risk level
+
+image::update-risk-level.png[Update Risk Level]
+
+=== Before vs After MCP Integration
+
+*Before MCP Integration*: Loan requests cannot be automatically processed. Without the MCP integration, the system cannot access credit risk information, resulting in loan rejection.
+
+*After MCP Integration*: When a commercial agent processes a loan through Playground, the MCP service queries and updates the credit risk information, allowing for intelligent loan approval.
+
+image::loan-rejected.png[Loan Rejected - Before MCP]
+
+image::loan-approved.png[Loan Approved - After MCP]
+
+== End-to-End Flow
+
+[source,text]
+----
+1. Commercial Agent (Playground)
+   │ "Update credit risk for CUST-12345" (Authenticated via Keycloak)
+   ▼
+2. Playground (OpenShift AI)
+   │ MCP Protocol Request
+   ▼
+3. customer-service-mcp (DevSpaces/OpenShift)
+   │ Authenticate via Keycloak, Call Credit Risk Service via Connectivity Link
+   ▼
+4. Credit Risk Service (Backend)
+   │ Update Database
+   ▼
+5. customer-service-mcp
+   │ Return Updated Risk via MCP
+   ▼
+6. Playground (OpenShift AI)
+   │ Display Result
+   ▼
+7. Commercial Agent - "Credit risk updated from MEDIUM to LOW"
+----
+
+== CI/CD Pipeline
+
+The generated project includes a CI/CD pipeline that automates the deployment of the MCP service. The pipeline uses *OpenShift Pipelines* (Tekton) for:
+
+* *Build*: Compiles and packages the Quarkus application
+* *Test*: Runs unit and integration tests
+* *Container Image*: Builds and pushes container images to Quay
+* *Deploy*: Deploys to OpenShift using the generated Kubernetes manifests
+
+== GitOps with ArgoCD
+
+The `customer-service-mcp` service can also be deployed using *GitOps* principles with *ArgoCD*. This provides declarative infrastructure management and automated synchronization.
+
+== Troubleshooting
+
+=== Service Not Available in Playground
+
+* *Check Git Commit*: Ensure code is committed and pushed
+* *Verify Service Running*: Check if service is running in DevSpaces
+* *Check MCP Configuration*: Verify MCP server configuration
+
+=== Authentication Issues
+
+* *Keycloak Login*: Ensure you're logged in via Keycloak
+* *Token Validity*: Check if tokens are expired
+* *User Permissions*: Verify user has required roles
+
+=== Connectivity Link Issues
+
+* *Service Discovery*: Check if services are discoverable
+* *Network Policies*: Verify network policies allow communication
+* *Rate Limits*: Check if rate limits are being hit
+
+== Congratulations!
+
+You've successfully deployed and integrated your MCP Agent! You've learned how to:
+
+* Configure MCP server in LlamaStack Playground
+* Test loan approval scenarios (rejected → approved)
+* Integrate with Cursor for AI-assisted development
+* Understand CI/CD pipeline with OpenShift Pipelines
+* Explore GitOps deployment with ArgoCD
+
+Your MCP Agent is now live and helping commercial agents make faster credit decisions!
+
+== Next Steps
+
+Excellent! Your `customer-service-mcp` is integrated with Playground. Now let's set up *OpenTelemetry* to monitor distributed traces and ensure everything is working correctly.
+
+Click xref:6-opentelemetry.adoc[OpenTelemetry Observability] to continue.

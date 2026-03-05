@@ -1,7 +1,7 @@
 ---
 site:
-  title: Showroom Template Demo
-  url: https://github.com/rhpds/showroom_template_nookbag
+  title: IA Development From Zero To Hero
+  url: https://github.com/maximilianoPizarro/rhoai-roadshow-from-zero-to-hero
   start_page: modules::index.adoc
 
 content:
@@ -22,7 +22,7 @@ antora:
 
 asciidoc:
   attributes:
-    showroom-collection-version: v1.5.2
+    cluster-domain: ''
 
 output:
   dir: ./www

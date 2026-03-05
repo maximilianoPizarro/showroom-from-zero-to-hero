@@ -1,0 +1,168 @@
+= Golden Path & Developer Hub
+:navtitle: Golden Path & Developer Hub
+
+== What is the Golden Path?
+
+The *Golden Path* is a curated set of best practices, standards, and tools that the Platform Engineering team has established to improve Developer Experience. It provides:
+
+* *Pre-configured Templates*: Software Templates with everything you need
+* *Best Practices*: Industry-standard patterns and conventions
+* *Quality Standards*: Built-in testing, security, and compliance checks
+* *Quick Start*: Get productive in minutes, not days
+
+For Kevin (and you), the Golden Path means you can:
+
+. Find a Software Template that matches your needs
+. Generate a complete development environment
+. Start coding immediately with all dependencies configured
+. Deploy with confidence knowing best practices are followed
+
+== Developer Hub
+
+*Red Hat Developer Hub* is a centralized portal where developers can discover and use Software Templates. It integrates with tools like *Cursor* to provide a seamless development experience.
+
+=== Accessing Developer Hub
+
+. Navigate to the Developer Hub: https://backstage-developer-hub-backstage.apps.{cluster-domain}[backstage-developer-hub-backstage.apps.{cluster-domain}]
+. *User*: Use `dev1` / `backstage` for the remaining activities
+. You'll see a catalog of available Software Templates
+
+image::developer-hub.png[Developer Hub]
+
+== Using the Golden Path Template
+
+The Platform Engineering team has created a specific template for Neuralbank MCP Agents called *Quarkus MCP Server*. This template generates the `customer-service-mcp` service with:
+
+* Quarkus MCP server skeleton code
+* Java service integration examples
+* Keycloak authentication setup
+* Connectivity Link configuration
+* OpenTelemetry instrumentation
+* DevSpaces workspace configuration
+* Testing framework setup
+* CI/CD pipeline templates
+
+=== Step 1: Find the Template
+
+. *Open Developer Hub*: Navigate to Developer Hub in your browser
+. *Search for Template*: Look for "Quarkus MCP Server" or "customer-service-mcp"
+. *View Template Source* (Optional): You can review the template definition in GitLab:
+** *URL*: Template YAML
+** *Access*: Login as `root` / `backstage` to view the template source code
+
+image::quarkus-mcp-template.png[Quarkus MCP Template]
+
+=== Step 2: Create from Template
+
+. *Click on Template*: Select the "Quarkus MCP Server" template
+. *Fill in Parameters*:
+** *Application Name*: `customer-service-mcp`
+** *Project Name*: `neuralbank` (Neuralbank project)
+** *Git Repository*: Your repository URL (or leave default)
+** *Namespace*: `neuralbank` (Neuralbank project)
+** *User*: Use `dev1` / `backstage` for the remaining activities
+
+image::customer-service-mcp-template.png[Customer Service MCP Template]
+
+=== Step 3: Generate the Project
+
+. *Click "Create"*: This will generate the project structure
+. *Wait for Generation*: The template will create:
+** Source code structure
+** Configuration files
+** CI/CD pipelines
+** Documentation
+** Test suites
+
+image::customer-service-mcp-template-2.png[Customer Service MCP Template 2]
+
+image::customer-service-mcp-template-3.png[Customer Service MCP Template 3]
+
+=== Step 4: Review Generated Code
+
+. *Review Configuration*: The template will show you what will be generated
+. *View in Developer Hub*: After generation, you can view the component in Developer Hub
+. *View Code in GitLab*: The generated code is available in GitLab for review and development
+
+image::customer-service-mcp-template-review.png[Customer Service MCP Template Review]
+
+image::customer-service-mcp-template-run.png[Customer Service MCP Template Run]
+
+image::customer-service-gitlab.png[Customer Service GitLab]
+
+The template generates a Quarkus-based MCP server with:
+
+* *MCP Server Implementation*: Ready-to-use MCP protocol implementation
+* *Credit Risk Tools*: Skeleton code for query and update operations
+* *Integration Layer*: Connectivity Link and Keycloak integration
+* *OpenTelemetry*: Pre-configured observability
+
+== What Gets Generated
+
+The Golden Path template generates a structure based on the Quarkus MCP archetype. The generated project follows this structure:
+
+image::quarkus-mcp-server.png[Quarkus MCP Server]
+
+=== Quarkus MCP Extension
+
+The generated project uses the *Quarkus MCP Extension* (`quarkus-mcp`), which provides:
+
+* *MCP Protocol Support*: Native implementation of the Model Context Protocol
+* *Server-Sent Events (SSE)*: Real-time communication via `/mcp/sse` endpoint
+* *Tool Registration*: Automatic discovery and registration of `@Tool` annotated methods
+* *Resource Management*: Built-in support for MCP resources and prompts
+* *Integration*: Seamless integration with Quarkus ecosystem (REST Client, CDI, etc.)
+
+The extension automatically configures the MCP server endpoint at `http://localhost:8081/mcp/sse` when running in development mode, and exposes it on port 8081 in production deployments.
+
+[source,text]
+----
+customer-service-mcp/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/neuralbank/mcp/
+│   │   │       ├── CustomerServiceMCPServer.java
+│   │   │       ├── tools/
+│   │   │       │   ├── QueryCreditRiskTool.java
+│   │   │       │   └── UpdateCreditRiskTool.java
+│   │   │       └── ...
+│   │   └── resources/
+│   │       ├── application.properties
+│   │       └── mcp-config.yaml
+│   └── test/
+│       └── java/
+│           └── com/neuralbank/mcp/
+│               └── ...
+├── .devcontainer/
+│   └── devcontainer.json
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml
+├── k8s/
+│   ├── deployment.yaml
+│   └── service.yaml
+├── pom.xml
+├── README.md
+└── .gitignore
+----
+
+== Important: Code is Pre-configured
+
+The generated code includes *commented-out sections* that Kevin needs to uncomment and configure. This is intentional - it allows you to:
+
+. Understand the code structure
+. Learn by doing
+. Configure for your specific needs
+
+*Kevin's First Task*: After the template generates the code, you'll need to:
+
+. Uncomment the relevant code sections
+. Review and understand the implementation
+. Commit the changes to start working with Cursor and Playground
+
+== Next Steps
+
+Now that you understand the Golden Path and Developer Hub, let's set up your *DevSpaces workspace* to start developing directly on OpenShift.
+
+Click xref:2-devspaces.adoc[Working with DevSpaces] to continue.
