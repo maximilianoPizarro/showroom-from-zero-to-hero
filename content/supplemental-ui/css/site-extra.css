@@ -73,3 +73,32 @@ video {
 .cluster-domain-btn-clear:hover {
     background: #525252;
 }
+
+/* Cluster domain bar - injected at top of content (visible in showroom iframe) */
+.cluster-domain-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    flex-wrap: wrap;
+}
+.cluster-domain-bar label {
+    color: #fff;
+    font-size: 14px;
+    margin: 0;
+}
+.cluster-domain-bar input {
+    padding: 6px 10px;
+    border: 1px solid #6a6e73;
+    border-radius: 4px;
+    font-size: 13px;
+    min-width: 220px;
+    max-width: 400px;
+    background: #fff;
+}
+.cluster-domain-bar input:focus {
+    outline: none;
+    border-color: #0066cc;
+}

@@ -6,12 +6,16 @@ on:
     paths:
       - 'content/**'
       - 'site.yml'
+      - 'ui-config.yml'
+      - 'zero-touch-config.yml'
       - '.github/workflows/gh-pages.yml'
   pull_request:
     branches: [main]
     paths:
       - 'content/**'
       - 'site.yml'
+      - 'ui-config.yml'
+      - 'zero-touch-config.yml'
       - '.github/workflows/gh-pages.yml'
   workflow_dispatch:
 
@@ -38,6 +42,8 @@ jobs:
         run: npm i -g @antora/cli@3.1 @antora/site-generator@3.1 @sntke/antora-mermaid-extension@0.0.9
       - name: antora generate
         run: antora --fetch site.yml
+      - name: copy showroom config
+        run: cp zero-touch-config.yml ui-config.yml www/ 2>/dev/null || true
       - name: upload pages artifact
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3

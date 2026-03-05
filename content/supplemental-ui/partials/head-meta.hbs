@@ -10,24 +10,39 @@
   function getStoredDomain() { return localStorage.getItem('CLUSTER_DOMAIN') || ''; }
   function replacePlaceholders(domain) {
     if (!domain) return;
-    document.querySelectorAll('a[href*="' + PLACEHOLDER + '"]').forEach(function(a) {
-      a.setAttribute('href', a.getAttribute('href').replace(re, domain));
+    var doc = document;
+    doc.querySelectorAll('a[href*="' + PLACEHOLDER + '"]').forEach(function(a) {
+      var href = a.getAttribute('href');
+      if (href && href.indexOf(PLACEHOLDER) !== -1) a.setAttribute('href', href.replace(re, domain));
     });
-    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
     var nodes = [];
     while (walker.nextNode()) {
       if (walker.currentNode.textContent.indexOf(PLACEHOLDER) !== -1) nodes.push(walker.currentNode);
     }
     nodes.forEach(function(n) { n.textContent = n.textContent.replace(re, domain); });
   }
+  function runReplace() { replacePlaceholders(getStoredDomain()); }
+  function injectClusterDomainBar() {
+    if (document.getElementById('cluster-domain-bar')) return;
+    var bar = document.createElement('div');
+    bar.id = 'cluster-domain-bar';
+    bar.className = 'cluster-domain-bar';
+    bar.innerHTML = '<label>Cluster domain:</label><input type="text" id="cluster-domain-input" placeholder="e.g. cluster-xxx.dynamic.redhatworkshops.io"><button type="button" id="cluster-domain-save" class="cluster-domain-btn">Save</button><button type="button" id="cluster-domain-clear" class="cluster-domain-btn cluster-domain-btn-clear">Clear</button>';
+    var body = document.body;
+    if (body.firstChild) body.insertBefore(bar, body.firstChild);
+    else body.appendChild(bar);
+  }
   function init() {
+    injectClusterDomainBar();
     var input = document.getElementById('cluster-domain-input');
     var saveBtn = document.getElementById('cluster-domain-save');
     var clearBtn = document.getElementById('cluster-domain-clear');
     if (input) input.value = getStoredDomain();
-    replacePlaceholders(getStoredDomain());
+    runReplace();
+    [100, 500, 1000, 2000].forEach(function(ms) { setTimeout(runReplace, ms); });
     if (saveBtn) saveBtn.onclick = function() {
-      var val = input.value.trim().replace(/^https?:\/\//, '').split('/')[0];
+      var val = (input.value || '').trim().replace(/^https?:\/\//, '').split('/')[0];
       if (!val) { alert('Please enter a cluster domain'); return; }
       localStorage.setItem('CLUSTER_DOMAIN', val);
       location.reload();
