@@ -7,7 +7,7 @@
 (function() {
   var VARS = [
     { key: 'CLUSTER_DOMAIN', placeholder: '__CLUSTER_DOMAIN__', label: 'Cluster domain', hint: 'apps.cluster-xxx.dynamic.redhatworkshops.io' },
-    { key: 'USER_NAME',      placeholder: '__USER_NAME__',      label: 'Username',       hint: 'user1' }
+    { key: 'USER_NAME',      placeholder: '%USER_NAME%',        label: 'Username',       hint: 'user1' }
   ];
 
   function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
