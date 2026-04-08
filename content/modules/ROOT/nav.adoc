@@ -1,17 +1,17 @@
-* xref:index.adoc[Red Hat Developer Hub: De Cero a Producción]
+* xref:index.adoc[Red Hat Developer Hub: From Zero To Hero]
 
-.Introducción
-* xref:01-developer-hub-value.adoc[Propuesta de Valor de Developer Hub]
-* xref:02-architecture-overview.adoc[Arquitectura General]
+.Introduction
+* xref:01-developer-hub-value.adoc[Developer Hub Value Proposition]
+* xref:02-architecture-overview.adoc[Architecture Overview]
 
 .Software Templates
-* xref:03-software-templates.adoc[Entender Software Templates]
-* xref:04-deploy-backend.adoc[Desplegar Backend con Templates]
-* xref:05-explore-pipelines.adoc[Explorar Pipelines y Topology]
+* xref:03-software-templates.adoc[Understanding Software Templates]
+* xref:04-deploy-backend.adoc[Deploy Backend with Templates]
+* xref:05-explore-pipelines.adoc[Explore Pipelines and Topology]
 
-.Frontend y Gateway
-* xref:06-deploy-frontend-gateway.adoc[Desplegar Frontend y Gateway]
-* xref:07-explore-argocd-apis.adoc[Explorar ArgoCD y APIs]
+.Frontend and Gateway
+* xref:06-deploy-frontend-gateway.adoc[Deploy Frontend and Gateway]
+* xref:07-explore-argocd-apis.adoc[Explore ArgoCD and APIs]
 
-.DevSpaces y CI/CD
-* xref:08-devspaces-update.adoc[Actualizar Código con DevSpaces]
+.DevSpaces and CI/CD
+* xref:08-devspaces-update.adoc[Update Code with DevSpaces]

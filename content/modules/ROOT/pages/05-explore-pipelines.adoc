@@ -1,71 +1,71 @@
-= Explorar pipelines y Topology
+= Explore Pipelines and Topology
 
-Tras desplegar **neuralbank-backend**, conviene inspeccionar cómo **Tekton** materializó el CI/CD y cómo **OpenShift** representa la aplicación en la vista de topología. Este módulo guía esa exploración y enlaza con el **Software Catalog** de Developer Hub.
+After deploying **neuralbank-backend**, it is useful to inspect how **Tekton** materialized CI/CD and how **OpenShift** represents the application in the topology view. This module guides that exploration and links to the **Software Catalog** in Developer Hub.
 
-== Abrir la consola de Pipelines
+== Open the Pipelines console
 
-. Inicia sesión en la **OpenShift Console**.
-. Selecciona el proyecto **`{user_name}-neuralbank`**.
-. En el menú lateral, ve a **Pipelines** (o **CI/CD -> Pipelines** según la versión de la consola).
+. Log in to the **OpenShift Console**.
+. Select project **`{user_name}-neuralbank`**.
+. In the sidebar, go to **Pipelines** (or **CI/CD -> Pipelines** depending on console version).
 
-Aquí verás la definición del **Pipeline** y los **PipelineRuns** recientes generados al crear o actualizar el repositorio.
+Here you will see the **Pipeline** definition and recent **PipelineRuns** generated when creating or updating the repository.
 
-== Localizar el PipelineRun de neuralbank-backend
+== Locate the neuralbank-backend PipelineRun
 
-. En la pestaña **PipelineRuns**, ordena por **Started** (más reciente primero).
-. Identifica una ejecución cuyo nombre o etiquetas referencien `neuralbank-backend` o el repositorio en Gitea.
+. On the **PipelineRuns** tab, sort by **Started** (most recent first).
+. Identify a run whose name or labels reference `neuralbank-backend` or the Gitea repository.
 
-NOTE: Si no ves ejecuciones, confirma que el trigger o el PipelineRun inicial se creó desde la plantilla; puede ser necesario un push al repo para disparar el pipeline según la configuración del taller.
+NOTE: If you see no runs, confirm that the trigger or initial PipelineRun was created from the template; a push to the repo may be required to fire the pipeline depending on the workshop configuration.
 
-== Revisar las tareas del pipeline
+== Review pipeline tasks
 
-Abre el **PipelineRun** y examina la lista de **Tasks** en orden. Un flujo típico del taller incluye:
+Open the **PipelineRun** and examine the list of **Tasks** in order. A typical workshop flow includes:
 
 [cols="1,2",options="header"]
 |===
-|Tarea |Qué observar
+|Task |What to look for
 
 |`git-clone`
-|Repositorio y revisión clonados; revisa los parámetros (URL de Gitea, rama).
+|Repository and revision cloned; check parameters (Gitea URL, branch).
 
 |`maven-build`
-|Compilación Java; logs de `mvn` y artefacto generado.
+|Java build; `mvn` logs and generated artifact.
 
 |`build-image`
-|Construcción de imagen de contenedor (Buildah/Kaniko u otra herramienta según plantilla).
+|Container image build (Buildah/Kaniko or another tool per template).
 
 |`deploy`
-|Actualización del Deployment en OpenShift; comprueba que la imagen nueva se referencia en el recurso.
+|Deployment update on OpenShift; verify the new image is referenced on the resource.
 |===
 
-Para cada tarea, abre los **logs** y confirma que terminó en **Succeeded**. Si alguna falla, el mensaje suele indicar credenciales, límites de recursos o errores de compilación.
+For each task, open the **logs** and confirm it ended in **Succeeded**. If any fail, the message usually points to credentials, resource limits, or build errors.
 
-== Usar la vista Topology
+== Use the Topology view
 
-. En la consola, abre la vista **Topology** del proyecto `{user_name}-neuralbank`.
-. Localiza el **Deployment** del backend (icono circular con anillo de estado).
-. Haz clic en el nodo para ver el panel lateral: **Pods**, **Services**, **Routes** y eventos recientes.
+. In the console, open the **Topology** view for project `{user_name}-neuralbank`.
+. Locate the backend **Deployment** (circular icon with status ring).
+. Click the node to open the side panel: **Pods**, **Services**, **Routes**, and recent events.
 
-La topología muestra relaciones visuales entre componentes: por ejemplo, cómo el **Service** enlaza el tráfico hacia los **Pods** del Deployment.
+Topology shows visual relationships between components—for example, how the **Service** routes traffic to the Deployment **Pods**.
 
-== Explorar detalles de la aplicación
+== Explore application details
 
-Desde el panel del componente en Topology o desde los menús dedicados:
+From the component panel in Topology or dedicated menus:
 
-* **Pods**: número de réplicas, estado `Running`, reinicios y métricas rápidas.
-* **Services**: puertos internos y selectores que apuntan al Deployment.
-* **Routes**: URL pública o del cluster para probar la API (coherente con el módulo de despliegue).
+* **Pods**: replica count, `Running` state, restarts, and quick metrics.
+* **Services**: internal ports and selectors pointing to the Deployment.
+* **Routes**: public or cluster URL to try the API (consistent with the deployment module).
 
-NOTE: Si el taller añade **HorizontalPodAutoscaler** u otros operadores, pueden aparecer recursos adicionales enlazados al mismo Deployment.
+NOTE: If the workshop adds **HorizontalPodAutoscaler** or other operators, additional resources may appear linked to the same Deployment.
 
-== Volver al Developer Hub
+== Return to Developer Hub
 
-. Abre **Developer Hub**.
-. Localiza el componente **neuralbank-backend** en el catálogo.
-. Desde la ficha, comprueba enlaces a **source** (Gitea), documentación y cualquier anotación de **CI/CD** que exponga el plugin de pipelines o Git.
+. Open **Developer Hub**.
+. Locate component **neuralbank-backend** in the catalog.
+. From the entity card, check links to **source** (Gitea), documentation, and any **CI/CD** annotation exposed by the pipelines or Git plugin.
 
-Así conectas la vista "infraestructura" (OpenShift/Tekton) con la vista "producto" (catálogo y ownership en el Hub).
+This connects the “infrastructure” view (OpenShift/Tekton) with the “product” view (catalog and ownership in the Hub).
 
-== Resumen
+== Summary
 
-Has seguido un **PipelineRun** tarea a tarea, validado el estado del despliegue en **Topology** del namespace `{user_name}-neuralbank` y relacionado el componente con su entrada en **Developer Hub**. Esto completa la visión operativa del backend Neuralbank antes de añadir frontend y MCP.
+You followed a **PipelineRun** task by task, validated deployment state in **Topology** for namespace `{user_name}-neuralbank`, and related the component to its entry in **Developer Hub**. This completes the operational picture of the Neuralbank backend before adding frontend and MCP.

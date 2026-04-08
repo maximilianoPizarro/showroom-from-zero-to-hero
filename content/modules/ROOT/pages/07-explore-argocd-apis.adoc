@@ -1,69 +1,69 @@
-= Explorar Argo CD y APIs
+= Explore Argo CD and APIs
 
-Este módulo conecta la vista **GitOps** en Argo CD con el **Software Catalog** de Developer Hub y las **políticas** aplicadas en el clúster, para que entiendas el estado de cada componente Neuralbank de punta a punta.
+This module connects the **GitOps** view in Argo CD with the **Software Catalog** in Developer Hub and **policies** applied in the cluster, so you understand each Neuralbank component end to end.
 
-== Abrir el panel de Argo CD
+== Open the Argo CD UI
 
-. Navega a **Argo CD**: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
-. En la lista de **Applications**, filtra por tu namespace `{user_name}-neuralbank`.
+. Go to **Argo CD**: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
+. In **Applications**, filter by your namespace `{user_name}-neuralbank`.
 
-Deberías ver aplicaciones correspondientes a **neuralbank-backend**, **neuralbank-frontend** y **customer-service-mcp** (los nombres exactos dependen de cómo la plantilla registró la Application).
+You should see applications for **neuralbank-backend**, **neuralbank-frontend**, and **customer-service-mcp** (exact names depend on how the template registered the Application).
 
-== Explorar el árbol de recursos
+== Explore the resource tree
 
-Para cada aplicación:
+For each application:
 
-. Haz clic en el nombre para abrir la vista de **Tree** o **Network**.
-. Observa **Deployments**, **Services**, **Routes**, **ConfigMaps**, **Secrets** (referenciados, no valores), y en el caso MCP los recursos de **Gateway API** y políticas.
+. Click the name to open **Tree** or **Network** view.
+. Observe **Deployments**, **Services**, **Routes**, **ConfigMaps**, **Secrets** (referenced, not values), and for MCP the **Gateway API** resources and policies.
 
-Comprueba el **Sync Status**:
+Check **Sync Status**:
 
-* *Synced* indica que el clúster coincide con el manifiesto en Git.
-* *OutOfSync* señala cambios pendientes o drift; el botón **Sync** aplica el estado deseado si tienes permisos.
+* *Synced* means the cluster matches the manifest in Git.
+* *OutOfSync* means pending changes or drift; **Sync** applies desired state if you have permission.
 
-Revisa también **Health**:
+Also review **Health**:
 
-* *Healthy*, *Progressing* y *Degraded* explican si los pods y rutas están en el estado esperado.
+* *Healthy*, *Progressing*, and *Degraded* describe whether pods and routes are in the expected state.
 
-NOTE: Si un recurso aparece como desconocido para Argo CD, puede faltar la anotación `argocd.argoproj.io` o el recurso puede ser gestionado por otro Application.
+NOTE: If a resource is unknown to Argo CD, the `argocd.argoproj.io` annotation may be missing or the resource may be managed by another Application.
 
-== Sincronización y eventos
+== Sync and events
 
-En la pestaña de **Events** o en la vista detallada, revisa mensajes recientes de despliegue. Útil cuando una imagen nueva no arranca o un hook de sync falla.
+On the **Events** tab or detail view, review recent deployment messages. Useful when a new image fails to start or a sync hook fails.
 
-== Developer Hub: dependencias del componente
+== Developer Hub: component dependencies
 
-. Abre **Developer Hub** y entra en la ficha de **neuralbank-backend**.
-. Busca la sección de **dependencies** o diagrama de relaciones (según plugins instalados).
-. Identifica vínculos hacia **APIs**, **systems** u otros **components** (frontend, MCP).
+. Open **Developer Hub** and open the **neuralbank-backend** entity card.
+. Find **dependencies** or the relationship diagram (depending on installed plugins).
+. Identify links to **APIs**, **systems**, or other **components** (frontend, MCP).
 
-Esta vista complementa Argo CD: Argo CD muestra *recursos*; el Hub muestra *intención de producto* y ownership.
+This complements Argo CD: Argo CD shows *resources*; the Hub shows *product intent* and ownership.
 
-== Entidad API y OpenAPI
+== API entity and OpenAPI
 
-Muchas plantillas registran una entidad **API** junto al **Component**:
+Many templates register an **API** entity alongside the **Component**:
 
-. En el catálogo, abre la entidad **API** asociada al backend (nombre acorde al dominio Neuralbank).
-. Revisa la definición **OpenAPI** incrustada o enlazada (según cómo se publicó en `catalog-info.yaml`).
+. In the catalog, open the **API** entity associated with the backend (name aligned with the Neuralbank domain).
+. Review the embedded or linked **OpenAPI** definition (as published in `catalog-info.yaml`).
 
-La definición OpenAPI documenta paths, esquemas y a veces ejemplos; es la referencia para consumidores del servicio y para el frontend.
+The OpenAPI definition documents paths, schemas, and sometimes examples; it is the reference for service consumers and the frontend.
 
 [.console-input]
 ----
-Developer Hub -> Catalog -> API -> ver documentación OpenAPI / Swagger
+Developer Hub -> Catalog -> API -> view OpenAPI / Swagger documentation
 ----
 
-== Políticas Kuadrant en OpenShift
+== Kuadrant policies on OpenShift
 
-Para el servicio MCP (y otros expuestos con el mismo patrón), inspecciona en la consola los objetos:
+For the MCP service (and others exposed with the same pattern), inspect these objects in the console:
 
-* **OIDCPolicy** — requisitos de autenticación OIDC (integración con Keycloak u otro IdP).
-* **RateLimitPolicy** — límites de tasa aplicados al tráfico que coincide con la HTTPRoute.
+* **OIDCPolicy** — OIDC authentication requirements (integration with Keycloak or another IdP).
+* **RateLimitPolicy** — rate limits applied to traffic matching the HTTPRoute.
 
-La ubicación en la UI depende de los CRD instalados; usa **Search** en la consola con el tipo de recurso si no aparece en el menú lateral.
+Where they appear in the UI depends on installed CRDs; use **Search** in the console with the resource type if they are not in the sidebar.
 
-NOTE: Si no ves políticas, revisa que los CRD de Kuadrant estén instalados en el cluster. Todos los recursos deberían estar en `{user_name}-neuralbank`.
+NOTE: If you do not see policies, confirm Kuadrant CRDs are installed on the cluster. All resources should be in `{user_name}-neuralbank`.
 
-== Resumen
+== Summary
 
-Has correlacionado el **estado GitOps** en Argo CD con las **fichas de catálogo** en Developer Hub, has localizado la **API** y su **OpenAPI**, y has situado las **políticas OIDC y de rate limit** en el contexto de Kuadrant. Esto cierra el circuito entre despliegue declarativo, documentación viva y seguridad perimetral.
+You correlated **GitOps state** in Argo CD with **catalog cards** in Developer Hub, located the **API** and its **OpenAPI**, and placed **OIDC and rate limit policies** in the Kuadrant context. This closes the loop between declarative deployment, living documentation, and edge security.

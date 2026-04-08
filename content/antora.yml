@@ -1,5 +1,5 @@
 name: modules
-title: IA Development From Zero To Hero
+title: From Zero To Hero with Red Hat Developer Hub
 version: ~
 nav:
   - modules/ROOT/nav.adoc

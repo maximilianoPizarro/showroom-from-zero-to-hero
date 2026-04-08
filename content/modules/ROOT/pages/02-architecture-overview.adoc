@@ -1,128 +1,128 @@
-= Arquitectura general del workshop
+= Workshop Architecture Overview
 
-Esta página describe la arquitectura lógica del escenario Neuralbank: cómo encajan Red Hat Developer Hub, GitOps, CI/CD, identidad y exposición segura de APIs frente a un clúster OpenShift.
+This page describes the logical architecture of the Neuralbank scenario: how Red Hat Developer Hub, GitOps, CI/CD, identity, and secure API exposure fit together in front of an OpenShift cluster.
 
-== Vista de componentes
+== Component View
 
-El siguiente diagrama muestra los componentes principales del workshop y cómo interactúan entre sí:
+The following diagram shows the main workshop components and how they interact:
 
-image::02-component-view.svg[Diagrama de componentes del workshop, width=100%, link=_images/02-component-view.svg]
+image::02-component-view.svg[Workshop component diagram, width=100%, link=_images/02-component-view.svg]
 
-Cada bloque tiene un rol claro: el Hub orquesta la experiencia; Git es la fuente de verdad; Argo CD aplica el modelo declarativo; Tekton automatiza la cadena de suministro de software; la capa de gateway y políticas expone y protege el tráfico; Dev Spaces acerca el desarrollo al entorno real del clúster.
+Each block has a clear role: the Hub orchestrates the experience; Git is the source of truth; Argo CD applies the declarative model; Tekton automates the software supply chain; the gateway and policy layer exposes and protects traffic; Dev Spaces brings development close to the cluster’s real environment.
 
-== Flujo principal: de la plantilla al despliegue
+== Main Flow: From Template to Deployment
 
-El recorrido típico que seguirás en el workshop es:
+The typical path you will follow in the workshop is:
 
-image::02-scaffolding-flow.svg[Flujo de scaffolding desde Developer Hub hasta el despliegue, width=100%, link=_images/02-scaffolding-flow.svg]
+image::02-scaffolding-flow.svg[Scaffolding flow from Developer Hub to deployment, width=100%, link=_images/02-scaffolding-flow.svg]
 
-. El desarrollador abre **Developer Hub** y lanza una **Software Template** (por ejemplo Neuralbank Backend).
-. La plantilla **genera o publica** un repositorio en **Gitea** con código, manifiestos, `devfile` y definición de pipeline.
-. **Argo CD** detecta la aplicación (Application) asociada y **sincroniza** manifiestos hacia el namespace `{user_name}-neuralbank` en OpenShift.
-. **Tekton** ejecuta un **PipelineRun** (clonado, build Maven, build de imagen, despliegue) según los recursos creados en el repo.
-. OpenShift **programa los pods**, expone **Services** y, según el caso, recursos de **Gateway API** y rutas HTTP.
-. El componente queda **registrado en el catálogo** de Developer Hub para descubrimiento, documentación y relaciones (por ejemplo APIs).
+. The developer opens **Developer Hub** and runs a **Software Template** (for example Neuralbank Backend).
+. The template **generates or publishes** a repository in **Gitea** with code, manifests, `devfile`, and pipeline definition.
+. **Argo CD** detects the associated Application and **synchronizes** manifests to the `{user_name}-neuralbank` namespace on OpenShift.
+. **Tekton** runs a **PipelineRun** (clone, Maven build, image build, deployment) according to the resources created in the repo.
+. OpenShift **schedules pods**, exposes **Services**, and, depending on the case, **Gateway API** resources and HTTP routes.
+. The component is **registered in the Developer Hub catalog** for discovery, documentation, and relationships (for example APIs).
 
-Este patrón une **golden path** (plantilla) con **GitOps** (Argo CD) y **CI/CD** (Tekton), manteniendo trazabilidad desde el primer clic en el Hub hasta el pod en ejecución.
+This pattern joins **golden path** (template) with **GitOps** (Argo CD) and **CI/CD** (Tekton), keeping traceability from the first click in the Hub to the running pod.
 
-== Patrón Connectivity Link (Gateway + rutas + políticas)
+== Connectivity Link Pattern (Gateway + routes + policies)
 
-Para exponer servicios hacia el exterior o entre equipos con controles uniformes, el escenario utiliza un patrón alineado con **Gateway API** e integración con **Istio** y **Kuadrant** para políticas:
+To expose services externally or between teams with uniform controls, the scenario uses a pattern aligned with **Gateway API** and integration with **Istio** and **Kuadrant** for policies:
 
-image::02-connectivity-link.svg[Patrón Connectivity Link con Gateway API e Istio, width=100%, link=_images/02-connectivity-link.svg]
+image::02-connectivity-link.svg[Connectivity Link pattern with Gateway API and Istio, width=100%, link=_images/02-connectivity-link.svg]
 
-* **Gateway**: define el punto de entrada del tráfico (host, listeners, TLS según configuración).
-* **HTTPRoute**: enlaza hostnames y reglas de enrutamiento con los Services backend.
-* **OIDCPolicy**: exige autenticación OIDC coherente con tu IdP (p. ej. Keycloak), protegiendo el tráfico de la API expuesta.
-* **RateLimitPolicy**: aplica límites de tasa para proteger backends y cumplir políticas de uso justo o defensa ante abuso.
+* **Gateway**: defines the traffic entry point (host, listeners, TLS per configuration).
+* **HTTPRoute**: binds hostnames and routing rules to backend Services.
+* **OIDCPolicy**: requires OIDC authentication consistent with your IdP (e.g. Keycloak), protecting exposed API traffic.
+* **RateLimitPolicy**: applies rate limits to protect backends and meet fair-use or abuse-defense policies.
 
-En conjunto, estas piezas forman un **connectivity link** declarativo: el mismo enfoque GitOps que el resto del sistema, revisable en Git y aplicado por operadores en el clúster.
+Together, these pieces form a declarative **connectivity link**: the same GitOps approach as the rest of the system, reviewable in Git and applied by operators on the cluster.
 
-== Glosario de acrónimos
+== Acronym Glossary
 
 [cols="1,3",options="header"]
 |===
-|Acrónimo |Significado
+|Acronym |Meaning
 
 |RHDH
-|Red Hat Developer Hub — portal del desarrollador basado en Backstage
+|Red Hat Developer Hub — developer portal based on Backstage
 
 |IDP
-|Internal Developer Portal — portal interno de desarrollo
+|Internal Developer Portal — internal development portal
 
 |SSO
-|Single Sign-On — autenticación única (Keycloak)
+|Single Sign-On — unified authentication (Keycloak)
 
 |OIDC
-|OpenID Connect — protocolo de autenticación sobre OAuth 2.0
+|OpenID Connect — authentication protocol on OAuth 2.0
 
 |RBAC
-|Role-Based Access Control — control de acceso basado en roles
+|Role-Based Access Control — role-based access control
 
 |MCP
-|Model Context Protocol — protocolo para servidores de herramientas de IA
+|Model Context Protocol — protocol for AI tool servers
 
 |OLS
-|OpenShift Lightspeed — asistente AI integrado en OpenShift
+|OpenShift Lightspeed — AI assistant integrated in OpenShift
 
 |CI/CD
 |Continuous Integration / Continuous Delivery
 
 |GitOps
-|Gestión declarativa de infraestructura y aplicaciones desde Git
+|Declarative management of infrastructure and applications from Git
 
 |CRD
-|Custom Resource Definition — extensiones del API de Kubernetes
+|Custom Resource Definition — Kubernetes API extensions
 
 |HPA
-|Horizontal Pod Autoscaler — escalado automático de pods
+|Horizontal Pod Autoscaler — automatic pod scaling
 
 |TLS
-|Transport Layer Security — cifrado de comunicaciones
+|Transport Layer Security — encryption of communications
 
 |SPA
-|Single Page Application — aplicación web de página única
+|Single Page Application — single-page web application
 
 |LLM
-|Large Language Model — modelo de lenguaje grande
+|Large Language Model — large language model
 |===
 
-== Rol de cada componente
+== Role of Each Component
 
 [cols="1,3",options="header"]
 |===
-|Componente |Rol
+|Component |Role
 
 |Developer Hub
-|Portal del desarrollador: catálogo, plantillas, documentación y plugins hacia GitOps, pipelines y entornos.
+|Developer portal: catalog, templates, documentation, and plugins toward GitOps, pipelines, and environments.
 
 |Gitea
-|Repositorio Git interno: código fuente, manifiestos y triggers para pipelines.
+|Internal Git repository: source code, manifests, and pipeline triggers.
 
 |Argo CD
-|Sincronización continua desde Git al estado del clúster; salud y drift visibles en el dashboard de Argo CD.
+|Continuous synchronization from Git to cluster state; health and drift visible in the Argo CD dashboard.
 
 |Tekton
-|Ejecución de pipelines como recursos de Kubernetes; encadena tareas de CI/CD.
+|Pipeline execution as Kubernetes resources; chains CI/CD tasks.
 
 |Keycloak
-|Identidad y SSO; alimenta políticas OIDC y acceso al Hub.
+|Identity and SSO; feeds OIDC policies and Hub access.
 
 |Dev Spaces
-|Entornos de desarrollo basados en `devfile`, conectados al mismo repo que GitOps y Tekton.
+|Development environments based on `devfile`, connected to the same repo as GitOps and Tekton.
 
 |Gateway API / Istio / Kuadrant
-|Entrada norte-sur del tráfico, enrutamiento y políticas (OIDC, rate limit) sobre las APIs expuestas.
+|North-south traffic ingress, routing, and policies (OIDC, rate limit) on exposed APIs.
 
 |OpenShift Lightspeed (OLS)
-|Asistente AI integrado con MCP Gateway para operaciones de clúster vía herramientas.
+|AI assistant integrated with MCP Gateway for cluster operations via tools.
 
 |LiteLLM
-|Proxy de modelos LLM; gestiona Virtual Keys, rate limits y routing entre proveedores de AI.
+|LLM model proxy; manages Virtual Keys, rate limits, and routing between AI providers.
 |===
 
-== Lectura para el workshop
+== Reading for the Workshop
 
-Durante los módulos posteriores volverás a este mapa mental: cada vez que crees una plantilla, mira el repo en Gitea; cada vez que sincronice Argo CD, revisa el namespace en OpenShift; cuando el pipeline termine, valida imagen y despliegue; cuando expongas el MCP o APIs, relaciona Gateway, HTTPRoute y políticas con lo que ves en consola y en el catálogo.
+In later modules you will return to this mental map: each time you create a template, look at the repo in Gitea; each time Argo CD syncs, check the namespace in OpenShift; when the pipeline finishes, validate image and deployment; when you expose the MCP or APIs, relate Gateway, HTTPRoute, and policies to what you see in the console and in the catalog.
 
-Con esta arquitectura, **Developer Hub** actúa como fachada humana sobre un sistema declarativo y automatizado que lleva el software desde el repositorio hasta producción de forma repetible.
+With this architecture, **Developer Hub** acts as the human-facing layer over a declarative, automated system that takes software from repository to production in a repeatable way.

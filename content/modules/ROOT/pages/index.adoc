@@ -1,51 +1,51 @@
 = From Zero To Hero with Red Hat Developer Hub
 
-== Bienvenido al Workshop
+== Welcome to the Workshop
 
-En este workshop aprenderás a utilizar **Red Hat Developer Hub** como portal de desarrollo self-service para construir, desplegar y gestionar aplicaciones en OpenShift.
+In this workshop you will learn to use **Red Hat Developer Hub** as a self-service development portal to build, deploy, and manage applications on OpenShift.
 
-=== Qué vas a aprender
+=== What You Will Learn
 
-* Comprender la propuesta de valor de Red Hat Developer Hub
-* Explorar la arquitectura: Developer Hub, ArgoCD, Tekton, DevSpaces, Gitea, Keycloak
-* Crear servicios backend y frontend usando **Software Templates**
-* Explorar pipelines automatizados, topology view y detalles de la aplicación
-* Desplegar y configurar API Gateways con seguridad (OIDCPolicy, RateLimitPolicy)
-* Actualizar código fuente usando **Red Hat OpenShift Dev Spaces** con CI/CD automatizado
+* Understand the value proposition of Red Hat Developer Hub
+* Explore the architecture: Developer Hub, ArgoCD, Tekton, DevSpaces, Gitea, Keycloak
+* Create backend and frontend services using **Software Templates**
+* Explore automated pipelines, topology view, and application details
+* Deploy and configure API Gateways with security (OIDCPolicy, RateLimitPolicy)
+* Update source code using **Red Hat OpenShift Dev Spaces** with automated CI/CD
 
-=== El caso de negocio: Neuralbank
+=== The Business Case: Neuralbank
 
-Neuralbank es una entidad financiera que necesita modernizar su stack tecnológico. Como desarrollador, vas a construir tres componentes:
+Neuralbank is a financial institution that needs to modernize its technology stack. As a developer, you will build three components:
 
-1. **Customer Service MCP** - Un servidor MCP (Model Context Protocol) para atención al cliente
-2. **Neuralbank Backend** - API REST para gestión de créditos
-3. **Neuralbank Frontend** - Interfaz web para visualización de créditos
+1. **Customer Service MCP** - An MCP (Model Context Protocol) server for customer support
+2. **Neuralbank Backend** - REST API for credit management
+3. **Neuralbank Frontend** - Web interface for credit visualization
 
-=== Acceso al entorno
+=== Environment Access
 
-Al registrarte en el portal, se te asignó automáticamente un usuario y contraseña:
+When you registered on the portal, a username and password were assigned to you automatically:
 
-* **Usuario**: `%USER_NAME%`
-* **Contraseña**: `Welcome123!`
+* **Username**: `%USER_NAME%`
+* **Password**: `Welcome123!`
 
-Tu namespace de trabajo es **`%USER_NAME%-neuralbank`**. Todos los servicios que crees con las Software Templates se desplegarán ahí.
+Your workspace namespace is **`%USER_NAME%-neuralbank`**. All services you create with the Software Templates will be deployed there.
 
-NOTE: Podés ver tu usuario asignado en el badge de la barra superior. Si necesitás cambiarlo, hacé click en el ícono de edición (lápiz).
+NOTE: You can see your assigned username in the badge in the top bar. If you need to change it, click the edit (pencil) icon.
 
 * **Developer Hub**: https://backstage-developer-hub-developer-hub.{cluster_domain}
 * **Gitea**: https://gitea-gitea.{cluster_domain}
 * **ArgoCD**: https://openshift-gitops-server-openshift-gitops.{cluster_domain}
 * **DevSpaces**: https://devspaces.{cluster_domain}
-* **Terminal Web**: disponible en el panel derecho de este showroom (tab **Terminal**) para ejecutar `oc`, `curl`, `git` y más
-* **Lightspeed (AI Assistant)**: disponible desde la consola OpenShift
+* **Web Terminal**: available in the right panel of this showroom (**Terminal** tab) to run `oc`, `curl`, `git`, and more
+* **Lightspeed (AI Assistant)**: available from the OpenShift console
 
-=== Interfaces del entorno
+=== Environment Interfaces
 
 [cols="1,1", frame=none, grid=none]
 |===
 a|image::05-hub-login.png[Developer Hub Login, 400, link=_images/05-hub-login.png]
 
-_Developer Hub — Login OIDC_
+_Developer Hub — OIDC Login_
 
 a|image::02-gitea-dashboard.png[Gitea Dashboard, 400, link=_images/02-gitea-dashboard.png]
 
@@ -57,7 +57,7 @@ _Argo CD — Login_
 
 a|image::04-devspaces-login.png[DevSpaces Login, 400, link=_images/04-devspaces-login.png]
 
-_Dev Spaces — Login OpenShift_
+_Dev Spaces — OpenShift Login_
 |===
 
-TIP: Hacé click en cualquier imagen para agrandarla.
+TIP: Click any image to enlarge it.

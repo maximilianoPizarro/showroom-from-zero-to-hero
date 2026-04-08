@@ -1,84 +1,84 @@
-= Entender Software Templates
+= Understanding Software Templates
 
-Las **Software Templates** son uno de los pilares de Backstage y de Red Hat Developer Hub. Permiten que la organización empaquete opiniones, estándares y automatización en flujos que el desarrollador ejecuta con un formulario seguro.
+**Software Templates** are one of the pillars of Backstage and Red Hat Developer Hub. They let the organization package opinions, standards, and automation into flows the developer runs through a secure form.
 
-== ¿Qué son las Software Templates?
+== What Are Software Templates?
 
-Una Software Template es una definición declarativa que describe:
+A Software Template is a declarative definition that describes:
 
-* **Qué** se va a generar (código, manifiestos, pipelines, catalog-info, etc.).
-* **Qué parámetros** debe introducir el usuario (nombre del componente, propietario, visibilidad).
-* **Qué pasos** ejecuta el motor de plantillas en secuencia (sustituir archivos, publicar en Git, registrar en el catálogo).
+* **What** will be generated (code, manifests, pipelines, catalog-info, etc.).
+* **What parameters** the user must provide (component name, owner, visibility).
+* **What steps** the template engine runs in sequence (substitute files, publish to Git, register in the catalog).
 
-En la práctica, convierten un procedimiento interno de varias horas en un flujo de minutos con trazabilidad y cumplimiento.
+In practice, they turn an internal multi-hour procedure into a minutes-long flow with traceability and compliance.
 
-== Estructura típica: `template.yaml` y `skeleton/`
+== Typical Structure: `template.yaml` and `skeleton/`
 
-En un repositorio de plantillas encontrarás habitualmente:
+In a templates repository you will usually find:
 
-* **`template.yaml`** (o equivalente): metadatos de la plantilla (`apiVersion`, `kind: Template`), secciones `parameters` y `steps`. Aquí se declara el nombre visible en el Hub, los campos del formulario y las acciones.
-* **Directorio `skeleton/`**: árbol de archivos plantilla con **marcadores** que el motor reemplaza con los valores de los parámetros (por ejemplo nombre del proyecto, grupo, rutas de imagen).
+* **`template.yaml`** (or equivalent): template metadata (`apiVersion`, `kind: Template`), `parameters` and `steps` sections. This is where the Hub-visible name, form fields, and actions are declared.
+* **`skeleton/` directory**: tree of template files with **placeholders** the engine replaces with parameter values (for example project name, group, image paths).
 
-El directorio `skeleton` puede contener:
+The `skeleton` directory may contain:
 
-* Código fuente (Java, Node, etc.).
-* Manifiestos de Kubernetes/OpenShift (`deployment`, `service`, `route`, recursos de Gateway API).
-* `devfile.yaml` para **Dev Spaces**.
-* `tekton/pipeline.yaml` u otros recursos de CI/CD.
-* `catalog-info.yaml` para el **Backstage Catalog**.
+* Source code (Java, Node, etc.).
+* Kubernetes/OpenShift manifests (`deployment`, `service`, `route`, Gateway API resources).
+* `devfile.yaml` for **Dev Spaces**.
+* `tekton/pipeline.yaml` or other CI/CD resources.
+* `catalog-info.yaml` for the **Backstage Catalog**.
 
-== Parámetros y pasos comunes
+== Common Parameters and Steps
 
-Los **parámetros** suelen incluir:
+**Parameters** typically include:
 
-* Nombre del componente o repositorio.
-* Propietario (`owner`) o equipo, alineado con el modelo de entidades del catálogo.
-* A veces URL del clúster, visibilidad o etiquetas—siempre acotadas por quien mantenga la plantilla.
+* Component or repository name.
+* Owner (`owner`) or team, aligned with the catalog entity model.
+* Sometimes cluster URL, visibility, or tags—always bounded by whoever maintains the template.
 
-Los **pasos** frecuentes en ecosistemas GitOps son:
+Frequent **steps** in GitOps ecosystems are:
 
-* **`fetch:template`** (o equivalente): copia el `skeleton` y aplica sustituciones desde los parámetros.
-* **`publish:gitea`** / **`publish:github`** / similar: crea o actualiza el repositorio remoto con el contenido generado.
-* **`catalog:register`**: registra el componente (y a veces la API) en el Software Catalog para que aparezca en Developer Hub con enlaces y metadatos.
+* **`fetch:template`** (or equivalent): copies the `skeleton` and applies substitutions from parameters.
+* **`publish:gitea`** / **`publish:github`** / similar: creates or updates the remote repository with the generated content.
+* **`catalog:register`**: registers the component (and sometimes the API) in the Software Catalog so it appears in Developer Hub with links and metadata.
 
-La nomenclatura exacta depende de los **scaffolder actions** instalados en tu instancia; lo importante es reconocer el patrón: *generar → publicar en Git → registrar*.
+The exact naming depends on the **scaffolder actions** installed in your instance; what matters is recognizing the pattern: *generate → publish to Git → register*.
 
-== Plantillas Neuralbank disponibles en el workshop
+== Neuralbank Templates Available in the Workshop
 
-Para el caso Neuralbank trabajarás con tres plantillas pensadas para encajar entre sí:
+For the Neuralbank case you will work with three templates designed to fit together:
 
 [cols="1,2",options="header"]
 |===
-|Plantilla |Propósito
+|Template |Purpose
 
 |`customer-service-mcp`
-|Servidor **MCP** (Model Context Protocol) para atención al cliente; incluye piezas de exposición y políticas asociadas al patrón de conectividad.
+|**MCP** (Model Context Protocol) server for customer support; includes exposure pieces and policies associated with the connectivity pattern.
 
 |`neuralbank-backend`
-|API REST (por ejemplo Quarkus) para **créditos** y dominio bancario; incluye pipeline de build/despliegue y registro de **API** en el catálogo.
+|REST API (for example Quarkus) for **credits** and banking domain; includes build/deploy pipeline and **API** registration in the catalog.
 
 |`neuralbank-frontend`
-|Interfaz web para **visualización** de créditos, alineada con el backend y el despliegue en OpenShift.
+|Web interface for **visualizing** credits, aligned with the backend and deployment on OpenShift.
 |===
 
-Cada una implementa un **golden path** distinto pero coherente con el mismo dominio de negocio.
+Each implements a distinct but coherent **golden path** for the same business domain.
 
-== ¿Qué genera cada plantilla?
+== What Does Each Template Generate?
 
-En líneas generales, al ejecutar una plantilla Neuralbank obtendrás:
+In general, when you run a Neuralbank template you will get:
 
-* **Código** listo para compilar y extender (fuentes, `pom.xml` o equivalente, Dockerfile si aplica).
-* **Manifiestos** de despliegue en OpenShift (Deployment, Service, Route u objetos de enrutamiento según el caso).
-* **Definición de pipeline Tekton** alineada con el repo (para build de imagen y despliegue).
-* **`devfile.yaml`** para abrir el proyecto en **Red Hat OpenShift Dev Spaces** con herramientas y comandos preconfigurados.
-* **Objetos de connectivity link** donde corresponda—en especial en el escenario **MCP**—: recursos como **Gateway**, **HTTPRoute**, **OIDCPolicy** y **RateLimitPolicy**, para exponer el servicio con autenticación OIDC y límites de tasa.
+* **Code** ready to compile and extend (sources, `pom.xml` or equivalent, Dockerfile if applicable).
+* **OpenShift deployment manifests** (Deployment, Service, Route or routing objects as appropriate).
+* **Tekton pipeline definition** aligned with the repo (for image build and deployment).
+* **`devfile.yaml`** to open the project in **Red Hat OpenShift Dev Spaces** with preconfigured tools and commands.
+* **Connectivity link objects** where applicable—especially in the **MCP** scenario—: resources such as **Gateway**, **HTTPRoute**, **OIDCPolicy**, and **RateLimitPolicy**, to expose the service with OIDC authentication and rate limits.
 
-Además, el **`catalog-info.yaml`** (u otro mecanismo de registro) permite que Developer Hub muestre el componente con **owner**, **system** y relaciones hacia APIs y dependencias.
+In addition, **`catalog-info.yaml`** (or another registration mechanism) lets Developer Hub show the component with **owner**, **system**, and relationships to APIs and dependencies.
 
-== Buenas prácticas al usar plantillas
+== Best Practices When Using Templates
 
-* Revisa los **valores por defecto** y la **descripción** de cada parámetro antes de crear el componente.
-* Tras la creación, abre el **repositorio en Gitea** y confirma que la estructura coincide con lo esperado.
-* Localiza en el catálogo la **entidad Component** (y **API** si aplica) para enlazar documentación y pipelines.
+* Review **default values** and each parameter’s **description** before creating the component.
+* After creation, open the **repository in Gitea** and confirm the structure matches expectations.
+* Find the **Component** entity (and **API** if applicable) in the catalog to link documentation and pipelines.
 
-Dominar las Software Templates es dominar el **contrato** entre desarrollo y plataforma: tú aportas el contexto de negocio en el formulario; la plataforma aplica el resto de forma repetible.
+Mastering Software Templates means mastering the **contract** between development and platform: you supply business context in the form; the platform applies the rest in a repeatable way.
