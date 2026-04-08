@@ -23,11 +23,11 @@ Neuralbank es una entidad financiera que necesita modernizar su stack tecnológi
 
 === Acceso al entorno
 
-Tu usuario es `user\{n}` (donde `\{n}` es tu número asignado). La contraseña es `Welcome123!`.
+Tu usuario es `{user_name}`. La contraseña es `Welcome123!`.
 
-* **Developer Hub**: https://backstage-developer-hub-developer-hub.{cluster-domain}
-* **Gitea**: https://gitea.{cluster-domain}
-* **ArgoCD**: https://openshift-gitops-server-openshift-gitops.{cluster-domain}
-* **DevSpaces**: https://devspaces.{cluster-domain}
+NOTE: El atributo `{user_name}` se rellena automáticamente según tu inicio de sesión en OpenShift.
 
-NOTE: Reemplaza `{cluster-domain}` con el dominio de tu cluster.
+* **Developer Hub**: https://backstage-developer-hub-developer-hub.{cluster_domain}
+* **Gitea**: https://gitea.{cluster_domain}
+* **ArgoCD**: https://openshift-gitops-server-openshift-gitops.{cluster_domain}
+* **DevSpaces**: https://devspaces.{cluster_domain}

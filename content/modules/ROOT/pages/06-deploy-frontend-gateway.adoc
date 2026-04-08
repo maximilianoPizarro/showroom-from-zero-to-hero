@@ -13,14 +13,14 @@ Ya deberías tener **neuralbank-backend** en ejecución. Ahora añadirás:
 
 . En **Developer Hub**, ve a **Create** y elige la plantilla **Neuralbank: Frontend** (nombre puede variar ligeramente).
 . Completa el formulario con un nombre coherente, por ejemplo `neuralbank-frontend`.
-. Asigna el **owner** a tu usuario de taller (`userN`, mismo criterio que en el backend).
+. Asigna el **owner** a tu usuario de taller (`{user_name}`, mismo criterio que en el backend).
 . Ejecuta **Create** y espera a que finalicen los pasos del scaffolder.
 
 [.console-input]
 ----
 Developer Hub -> Create -> "Neuralbank: Frontend"
 nombre: neuralbank-frontend
-owner: userN
+owner: {user_name}
 ----
 
 NOTE: Si el frontend espera una URL de API configurable, comprueba en el repo generado (Gitea) variables de entorno o `ConfigMap` que apunten al backend; ajústalas solo si el taller lo indica.
@@ -35,7 +35,7 @@ NOTE: Si el frontend espera una URL de API configurable, comprueba en el repo ge
 ----
 Developer Hub -> Create -> "Neuralbank: Customer Service MCP"
 nombre: customer-service-mcp
-owner: userN
+owner: {user_name}
 ----
 
 Esta plantilla no solo genera código: materializa el patrón de **connectivity link** con objetos como **Gateway**, **HTTPRoute**, **OIDCPolicy** y **RateLimitPolicy**, según la convención del repositorio de plantillas del workshop.

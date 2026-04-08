@@ -16,8 +16,7 @@ ui:
   supplemental_files: ./content/supplemental-ui
 
 asciidoc:
-  attributes:
-    cluster-domain: '__CLUSTER_DOMAIN__'
+  attributes: {}
 
 output:
   dir: ./www

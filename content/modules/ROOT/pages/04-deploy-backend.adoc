@@ -4,10 +4,8 @@ En este módulo desplegarás **Neuralbank Backend** usando una Software Template
 
 == Prerrequisitos
 
-* Acceso a Developer Hub con tu usuario (formato `user\{n}`) y contraseña `Welcome123!`.
+* Acceso a Developer Hub con tu usuario (`{user_name}`) y contraseña `Welcome123!`.
 * Permisos para crear componentes desde plantillas en el catálogo del workshop.
-
-NOTE: Sustituye `\{n}` por tu número de usuario asignado en todos los pasos donde aparezca `userN`.
 
 == Paso 1: Abrir la creación desde plantilla
 
@@ -25,12 +23,12 @@ Navegación: Developer Hub -> Create -> Software Template -> "Neuralbank: Backen
 Rellena los campos solicitados por la plantilla. Valores orientativos:
 
 * **Nombre del componente / repositorio**: `neuralbank-backend`
-* **Propietario (owner)**: tu entidad de catálogo, por ejemplo `user1`, `user2`, … según tu usuario del workshop (`userN`).
+* **Propietario (owner)**: tu entidad de catálogo; usa `{user_name}` (el mismo valor que tu usuario del taller).
 
 [.console-input]
 ----
 name = neuralbank-backend
-owner = userN    # usa tu número real, p. ej. user3
+owner = {user_name}
 ----
 
 WARNING: No uses espacios en el nombre del repositorio si la plantilla no lo permite. Respeta mayúsculas/minúsculas si el pipeline o Argo CD las esperan fijas.
