@@ -1,6 +1,6 @@
 ---
 site:
-  title: "Red Hat Developer Hub: De Cero a Producción"
+  title: "From Zero To Hero with Red Hat Developer Hub"
   url: https://github.com/maximilianoPizarro/showroom-from-zero-to-hero
   start_page: modules::index.adoc
 

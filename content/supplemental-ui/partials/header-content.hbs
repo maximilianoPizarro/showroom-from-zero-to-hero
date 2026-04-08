@@ -10,11 +10,16 @@
       <div class="navbar-end">
         <div class="navbar-item" style="gap:8px;flex-wrap:wrap;">
           <label style="color:#fff;font-size:0.85rem;">Cluster domain:</label>
-          <input type="text" id="cluster-domain-input" style="width:280px;padding:2px 6px;border-radius:4px;border:1px solid #ccc;font-size:0.85rem;" placeholder="apps.cluster-xxx.dynamic.redhatworkshops.io">
-          <label style="color:#fff;font-size:0.85rem;margin-left:8px;">Username:</label>
-          <input type="text" id="user-name-input" style="width:100px;padding:2px 6px;border-radius:4px;border:1px solid #ccc;font-size:0.85rem;" placeholder="user1">
-          <button type="button" id="vars-save" class="cluster-domain-btn" style="background:#0066cc;color:#fff;border:none;padding:3px 12px;border-radius:4px;cursor:pointer;font-size:0.85rem;">Save</button>
-          <button type="button" id="vars-clear" class="cluster-domain-btn cluster-domain-btn-clear" style="background:#6a6e73;color:#fff;border:none;padding:3px 12px;border-radius:4px;cursor:pointer;font-size:0.85rem;">Clear</button>
+          <input type="text" id="cluster-domain-input" style="width:220px;padding:2px 6px;border-radius:4px;border:1px solid #ccc;font-size:0.85rem;" placeholder="apps.cluster-xxx...">
+          <label style="color:#fff;font-size:0.85rem;margin-left:4px;">User:</label>
+          <input type="text" id="user-name-input" style="width:80px;padding:2px 6px;border-radius:4px;border:1px solid #ccc;font-size:0.85rem;" placeholder="user1">
+          <button type="button" id="vars-save" style="background:#0066cc;color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:0.8rem;">Save</button>
+          <button type="button" id="vars-clear" style="background:#6a6e73;color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:0.8rem;">Clear</button>
+          <span style="color:#555;margin:0 2px;">|</span>
+          <div id="lang-switcher" style="display:inline-flex;gap:2px;">
+            <button type="button" class="lang-btn" data-lang="es" style="background:#EE0000;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:0.8rem;font-weight:bold;">ES</button>
+            <button type="button" class="lang-btn" data-lang="en" style="background:#3c3c3c;color:#ccc;border:1px solid #555;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:0.8rem;">EN</button>
+          </div>
         </div>
       </div>
     </div>
@@ -43,7 +48,81 @@
       if (ui) ui.value = '';
       location.reload();
     };
+
+    // Language switcher via Google Translate
+    var currentLang = localStorage.getItem('SHOWROOM_LANG') || 'es';
+    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      var lang = btn.getAttribute('data-lang');
+      if (lang === currentLang) {
+        btn.style.background = '#EE0000';
+        btn.style.color = '#fff';
+        btn.style.border = 'none';
+        btn.style.fontWeight = 'bold';
+      } else {
+        btn.style.background = '#3c3c3c';
+        btn.style.color = '#ccc';
+        btn.style.border = '1px solid #555';
+        btn.style.fontWeight = 'normal';
+      }
+      btn.onclick = function() {
+        localStorage.setItem('SHOWROOM_LANG', lang);
+        if (lang === 'en') {
+          translatePage('es', 'en');
+        } else {
+          undoTranslation();
+        }
+        document.querySelectorAll('.lang-btn').forEach(function(b) {
+          if (b.getAttribute('data-lang') === lang) {
+            b.style.background = '#EE0000'; b.style.color = '#fff'; b.style.border = 'none'; b.style.fontWeight = 'bold';
+          } else {
+            b.style.background = '#3c3c3c'; b.style.color = '#ccc'; b.style.border = '1px solid #555'; b.style.fontWeight = 'normal';
+          }
+        });
+      };
+    });
+
+    if (currentLang === 'en') {
+      setTimeout(function() { translatePage('es', 'en'); }, 800);
+    }
   }
+
+  // In-browser translation using Google Translate element
+  var gtScriptLoaded = false;
+  function translatePage(from, to) {
+    if (!gtScriptLoaded) {
+      window.googleTranslateElementInit = function() {
+        new google.translate.TranslateElement({ pageLanguage: from, includedLanguages: to, autoDisplay: false }, 'google_translate_element');
+        setTimeout(function() {
+          var sel = document.querySelector('.goog-te-combo');
+          if (sel) { sel.value = to; sel.dispatchEvent(new Event('change')); }
+        }, 1000);
+      };
+      var s = document.createElement('script');
+      s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      document.body.appendChild(s);
+      var d = document.createElement('div');
+      d.id = 'google_translate_element';
+      d.style.display = 'none';
+      document.body.appendChild(d);
+      gtScriptLoaded = true;
+    } else {
+      var sel = document.querySelector('.goog-te-combo');
+      if (sel) { sel.value = to; sel.dispatchEvent(new Event('change')); }
+    }
+  }
+
+  function undoTranslation() {
+    var iframe = document.querySelector('.goog-te-banner-frame');
+    if (iframe) {
+      var btn = iframe.contentDocument.querySelector('.goog-close-link');
+      if (btn) btn.click();
+    }
+    var sel = document.querySelector('.goog-te-combo');
+    if (sel) { sel.value = ''; sel.dispatchEvent(new Event('change')); }
+    // Fallback: reload
+    setTimeout(function() { location.reload(); }, 300);
+  }
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
