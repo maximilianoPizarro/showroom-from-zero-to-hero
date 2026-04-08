@@ -34,3 +34,26 @@ NOTE: Ingresá tu username en el campo **Username** de la barra superior para qu
 * **ArgoCD**: https://openshift-gitops-server-openshift-gitops.{cluster_domain}
 * **DevSpaces**: https://devspaces.{cluster_domain}
 * **Terminal Web**: disponible en el panel derecho de este showroom (tab **Terminal**) para ejecutar `oc`, `curl`, `git` y más
+
+=== Interfaces del entorno
+
+[cols="1,1", frame=none, grid=none]
+|===
+a|image::05-hub-login.png[Developer Hub Login, 400, link=_images/05-hub-login.png]
+
+_Developer Hub — Login OIDC_
+
+a|image::02-gitea-dashboard.png[Gitea Dashboard, 400, link=_images/02-gitea-dashboard.png]
+
+_Gitea — Dashboard_
+
+a|image::03-argocd-apps.png[ArgoCD Login, 400, link=_images/03-argocd-apps.png]
+
+_Argo CD — Login_
+
+a|image::04-devspaces-login.png[DevSpaces Login, 400, link=_images/04-devspaces-login.png]
+
+_Dev Spaces — Login OpenShift_
+|===
+
+TIP: Hacé click en cualquier imagen para agrandarla.
