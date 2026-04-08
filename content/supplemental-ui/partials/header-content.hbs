@@ -8,24 +8,43 @@
     </div>
     <div id="topbar-nav" class="navbar-menu">
       <div class="navbar-end">
-        <div class="navbar-item cluster-domain-form">
-          <input type="text" id="cluster-domain-input" placeholder="Cluster domain (e.g. apps.cluster-xxx.region.openshiftapps.com)" title="Enter your cluster domain to auto-complete links">
-          <button type="button" id="cluster-domain-save" class="cluster-domain-btn">Save</button>
-          <button type="button" id="cluster-domain-clear" class="cluster-domain-btn cluster-domain-btn-clear">Clear</button>
+        <div class="navbar-item" style="gap:8px;flex-wrap:wrap;">
+          <label style="color:#fff;font-size:0.85rem;">Cluster domain:</label>
+          <input type="text" id="cluster-domain-input" style="width:280px;padding:2px 6px;border-radius:4px;border:1px solid #ccc;font-size:0.85rem;" placeholder="apps.cluster-xxx.dynamic.redhatworkshops.io">
+          <label style="color:#fff;font-size:0.85rem;margin-left:8px;">Username:</label>
+          <input type="text" id="user-name-input" style="width:100px;padding:2px 6px;border-radius:4px;border:1px solid #ccc;font-size:0.85rem;" placeholder="user1">
+          <button type="button" id="vars-save" class="cluster-domain-btn" style="background:#0066cc;color:#fff;border:none;padding:3px 12px;border-radius:4px;cursor:pointer;font-size:0.85rem;">Save</button>
+          <button type="button" id="vars-clear" class="cluster-domain-btn cluster-domain-btn-clear" style="background:#6a6e73;color:#fff;border:none;padding:3px 12px;border-radius:4px;cursor:pointer;font-size:0.85rem;">Clear</button>
         </div>
-        {{#if page.attributes.links}}
-        <div class="navbar-item navbar-item-right-dropdown has-dropdown is-hoverable">
-          <a class="navbar-link" href="#">Links</a>
-          <div class="navbar-dropdown navbar-dropdown-right">
-            <a class="navbar-item navbar-item-right-content" href="{{page.attributes.rhoai_dashboard_url}}" target="_blank">OpenShift AI Dashboard</a>
-            <a class="navbar-item navbar-item-right-content" href="{{page.attributes.openshift_cluster_console_url}}" target="_blank">OpenShift Console</a>
-          </div>
-        </div>
-        {{/if}}
-        {{#if page.attributes.user}}
-        <div class="navbar-item">You are {{page.attributes.user}}</div>
-        {{/if}}
       </div>
     </div>
   </nav>
 </header>
+<script>
+(function() {
+  function init() {
+    var di = document.getElementById('cluster-domain-input');
+    var ui = document.getElementById('user-name-input');
+    var save = document.getElementById('vars-save');
+    var clear = document.getElementById('vars-clear');
+    if (di) di.value = localStorage.getItem('CLUSTER_DOMAIN') || '';
+    if (ui) ui.value = localStorage.getItem('USER_NAME') || '';
+    if (save) save.onclick = function() {
+      var d = (di.value || '').trim().replace(/^https?:\/\//, '').split('/')[0];
+      var u = (ui.value || '').trim();
+      if (d) localStorage.setItem('CLUSTER_DOMAIN', d);
+      if (u) localStorage.setItem('USER_NAME', u);
+      location.reload();
+    };
+    if (clear) clear.onclick = function() {
+      localStorage.removeItem('CLUSTER_DOMAIN');
+      localStorage.removeItem('USER_NAME');
+      if (di) di.value = '';
+      if (ui) ui.value = '';
+      location.reload();
+    };
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>

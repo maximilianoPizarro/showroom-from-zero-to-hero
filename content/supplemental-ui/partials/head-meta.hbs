@@ -5,54 +5,42 @@
 
 <script>
 (function() {
-  var PLACEHOLDER = '__CLUSTER_DOMAIN__';
-  var re = new RegExp(PLACEHOLDER.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-  function getStoredDomain() { return localStorage.getItem('CLUSTER_DOMAIN') || ''; }
-  function replacePlaceholders(domain) {
-    if (!domain) return;
-    var doc = document;
-    doc.querySelectorAll('a[href*="' + PLACEHOLDER + '"]').forEach(function(a) {
-      var href = a.getAttribute('href');
-      if (href && href.indexOf(PLACEHOLDER) !== -1) a.setAttribute('href', href.replace(re, domain));
+  var VARS = [
+    { key: 'CLUSTER_DOMAIN', placeholder: '__CLUSTER_DOMAIN__', label: 'Cluster domain', hint: 'apps.cluster-xxx.dynamic.redhatworkshops.io' },
+    { key: 'USER_NAME',      placeholder: '__USER_NAME__',      label: 'Username',       hint: 'user1' }
+  ];
+
+  function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function get(k) { return localStorage.getItem(k) || ''; }
+  function set(k,v) { localStorage.setItem(k, v); }
+  function del(k) { localStorage.removeItem(k); }
+
+  function replacePlaceholders() {
+    VARS.forEach(function(v) {
+      var val = get(v.key);
+      if (!val) return;
+      var re = new RegExp(esc(v.placeholder), 'g');
+      document.querySelectorAll('a[href*="' + v.placeholder + '"]').forEach(function(a) {
+        var h = a.getAttribute('href');
+        if (h) a.setAttribute('href', h.replace(re, val));
+      });
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      var nodes = [];
+      while (walker.nextNode()) {
+        if (walker.currentNode.textContent.indexOf(v.placeholder) !== -1) nodes.push(walker.currentNode);
+      }
+      nodes.forEach(function(n) { n.textContent = n.textContent.replace(re, val); });
+      document.querySelectorAll('code').forEach(function(el) {
+        if (el.innerHTML.indexOf(v.placeholder) !== -1) el.innerHTML = el.innerHTML.replace(re, val);
+      });
     });
-    var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
-    var nodes = [];
-    while (walker.nextNode()) {
-      if (walker.currentNode.textContent.indexOf(PLACEHOLDER) !== -1) nodes.push(walker.currentNode);
-    }
-    nodes.forEach(function(n) { n.textContent = n.textContent.replace(re, domain); });
   }
-  function runReplace() { replacePlaceholders(getStoredDomain()); }
-  function injectClusterDomainBar() {
-    if (document.getElementById('cluster-domain-bar')) return;
-    var bar = document.createElement('div');
-    bar.id = 'cluster-domain-bar';
-    bar.className = 'cluster-domain-bar';
-    bar.innerHTML = '<label>Cluster domain:</label><input type="text" id="cluster-domain-input" placeholder="e.g. cluster-xxx.dynamic.redhatworkshops.io"><button type="button" id="cluster-domain-save" class="cluster-domain-btn">Save</button><button type="button" id="cluster-domain-clear" class="cluster-domain-btn cluster-domain-btn-clear">Clear</button>';
-    var body = document.body;
-    if (body.firstChild) body.insertBefore(bar, body.firstChild);
-    else body.appendChild(bar);
-  }
+
   function init() {
-    injectClusterDomainBar();
-    var input = document.getElementById('cluster-domain-input');
-    var saveBtn = document.getElementById('cluster-domain-save');
-    var clearBtn = document.getElementById('cluster-domain-clear');
-    if (input) input.value = getStoredDomain();
-    runReplace();
-    [100, 500, 1000, 2000].forEach(function(ms) { setTimeout(runReplace, ms); });
-    if (saveBtn) saveBtn.onclick = function() {
-      var val = (input.value || '').trim().replace(/^https?:\/\//, '').split('/')[0];
-      if (!val) { alert('Please enter a cluster domain'); return; }
-      localStorage.setItem('CLUSTER_DOMAIN', val);
-      location.reload();
-    };
-    if (clearBtn) clearBtn.onclick = function() {
-      localStorage.removeItem('CLUSTER_DOMAIN');
-      if (input) input.value = '';
-      location.reload();
-    };
+    replacePlaceholders();
+    [100, 500, 1000, 2000].forEach(function(ms) { setTimeout(replacePlaceholders, ms); });
   }
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
