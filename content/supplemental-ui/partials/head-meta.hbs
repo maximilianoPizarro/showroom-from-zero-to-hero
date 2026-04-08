@@ -37,6 +37,15 @@
   }
 
   function init() {
+    var params = new URLSearchParams(window.location.search);
+    var changed = false;
+    VARS.forEach(function(v) {
+      var qp = params.get(v.key);
+      if (qp) { set(v.key, qp); changed = true; }
+    });
+    if (changed) {
+      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+    }
     replacePlaceholders();
     [100, 500, 1000, 2000].forEach(function(ms) { setTimeout(replacePlaceholders, ms); });
   }

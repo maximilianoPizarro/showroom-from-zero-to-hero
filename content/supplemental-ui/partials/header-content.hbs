@@ -32,6 +32,11 @@
     var ui = document.getElementById('user-name-input');
     var save = document.getElementById('vars-save');
     var clear = document.getElementById('vars-clear');
+    var params = new URLSearchParams(window.location.search);
+    var qpDomain = params.get('CLUSTER_DOMAIN');
+    var qpUser = params.get('USER_NAME');
+    if (qpDomain) localStorage.setItem('CLUSTER_DOMAIN', qpDomain);
+    if (qpUser) localStorage.setItem('USER_NAME', qpUser);
     if (di) di.value = localStorage.getItem('CLUSTER_DOMAIN') || '';
     if (ui) ui.value = localStorage.getItem('USER_NAME') || '';
     if (save) save.onclick = function() {

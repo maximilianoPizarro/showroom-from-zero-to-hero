@@ -11,5 +11,9 @@ view_switcher:
 tabs:
   - name: Developer Hub
     url: 'https://backstage-developer-hub-developer-hub.${DOMAIN}'
+  - name: Gitea
+    url: 'https://gitea-gitea.${DOMAIN}'
+  - name: DevSpaces
+    url: 'https://devspaces.${DOMAIN}'
   - name: Terminal
     url: '/terminal/'

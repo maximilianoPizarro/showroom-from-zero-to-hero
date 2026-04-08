@@ -34,6 +34,8 @@ NOTE: Ingresá tu username en el campo **Username** de la barra superior para qu
 * **ArgoCD**: https://openshift-gitops-server-openshift-gitops.{cluster_domain}
 * **DevSpaces**: https://devspaces.{cluster_domain}
 * **Terminal Web**: disponible en el panel derecho de este showroom (tab **Terminal**) para ejecutar `oc`, `curl`, `git` y más
+* **n8n (Workflow Automation)**: https://n8n.{cluster_domain}
+* **Lightspeed (AI Assistant)**: disponible desde la consola OpenShift
 
 === Interfaces del entorno
 
