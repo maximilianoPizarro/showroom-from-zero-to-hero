@@ -1,0 +1,102 @@
+= Desplegar el backend con Software Templates
+
+En este módulo desplegarás **Neuralbank Backend** usando una Software Template en Red Hat Developer Hub. Al finalizar tendrás un repositorio en Gitea, una aplicación en Argo CD, un pipeline Tekton ejecutado y la API accesible en OpenShift.
+
+== Prerrequisitos
+
+* Acceso a Developer Hub con tu usuario (formato `user\{n}`) y contraseña `Welcome123!`.
+* Permisos para crear componentes desde plantillas en el catálogo del workshop.
+
+NOTE: Sustituye `\{n}` por tu número de usuario asignado en todos los pasos donde aparezca `userN`.
+
+== Paso 1: Abrir la creación desde plantilla
+
+. Inicia sesión en Developer Hub.
+. En el menú principal, selecciona **Create** (o **Crear** según localización).
+. Busca la plantilla **Neuralbank: Backend API** (el nombre exacto puede incluir el prefijo `Neuralbank`).
+
+[.console-input]
+----
+Navegación: Developer Hub -> Create -> Software Template -> "Neuralbank: Backend API"
+----
+
+== Paso 2: Completar el formulario
+
+Rellena los campos solicitados por la plantilla. Valores orientativos:
+
+* **Nombre del componente / repositorio**: `neuralbank-backend`
+* **Propietario (owner)**: tu entidad de catálogo, por ejemplo `user1`, `user2`, … según tu usuario del workshop (`userN`).
+
+[.console-input]
+----
+name = neuralbank-backend
+owner = userN    # usa tu número real, p. ej. user3
+----
+
+WARNING: No uses espacios en el nombre del repositorio si la plantilla no lo permite. Respeta mayúsculas/minúsculas si el pipeline o Argo CD las esperan fijas.
+
+== Paso 3: Crear y esperar el scaffolding
+
+. Pulsa **Create** (o **Review** y luego **Create** si hay un paso de revisión).
+. Permanece en la pantalla de progreso hasta que todos los pasos del *scaffolder* finalicen (publicación en Git, registro en catálogo, etc.).
+
+NOTE: Si un paso falla, copia el mensaje de error y revisa permisos en Gitea o cuotas de namespace; en entornos compartidos a veces hay conflictos de nombres si otro usuario ya creó `neuralbank-backend`.
+
+== Paso 4: Verificar el repositorio en Gitea
+
+. Abre la URL de **Gitea** de tu entorno.
+. Localiza el repositorio `neuralbank-backend` (o el nombre que indicaste).
+. Confirma que existen el código fuente (por ejemplo proyecto Java/Quarkus), carpeta de manifiestos, `tekton` y `catalog-info.yaml` si la plantilla los incluye.
+
+[.console-input]
+----
+Gitea -> Repositorios -> neuralbank-backend -> comprobar estructura (src/, manifests/, tekton/, devfile.yaml)
+----
+
+== Paso 5: Verificar la aplicación en Argo CD
+
+. Abre el dashboard de **Argo CD** del clúster.
+. Busca una **Application** asociada al backend (nombre alineado con el componente o el namespace del workshop).
+. Comprueba **Sync Status** y **Health**; si está *OutOfSync*, ejecuta **Sync** si tu rol lo permite.
+
+NOTE: El primer sync puede tardar mientras se crean namespaces, secretos o imágenes; refresca el árbol de recursos hasta ver Deployments y Services en verde.
+
+== Paso 6: Validar el despliegue en OpenShift
+
+. Entra en la **OpenShift Console** con las mismas credenciales o las indicadas por el instructor.
+. Cambia al **namespace** donde se desplegó el backend (según la convención del workshop).
+. En **Workloads -> Pods**, verifica que los pods del backend están **Running** y sin reinicios continuos.
+. En **Networking -> Routes** (o **Routes / Ingress** según versión), localiza la ruta HTTP(S) del servicio.
+
+[.console-input]
+----
+OpenShift Console -> Project (namespace del taller) -> Pods -> Estado Running
+OpenShift Console -> Networking -> Route -> URL pública del backend
+----
+
+== Paso 7: Probar los endpoints de la API
+
+Desde tu navegador o con `curl`, prueba los recursos expuestos por la API de demostración. Rutas típicas del taller:
+
+* `/api/customers`
+* `/api/credits`
+
+[.console-input]
+----
+curl -sk "https://<host-del-route>/api/customers"
+curl -sk "https://<host-del-route>/api/credits"
+----
+
+Sustituye `<host-del-route>` por el hostname que muestra la Route en OpenShift.
+
+NOTE: Si recibes redirecciones de autenticación o `401/403`, puede haber una política OIDC o RBAC delante; consulta con el instructor si el taller prevé acceso anónimo en estos endpoints.
+
+== Paso 8: Confirmar el registro en el catálogo
+
+. Vuelve a **Developer Hub**.
+. Busca el componente **neuralbank-backend** en el **Catalog**.
+. Abre la ficha y revisa enlaces al repositorio, documentación y relaciones (por ejemplo entidad **API**).
+
+== Resumen
+
+Has recorrido el camino completo **Hub → plantilla → Gitea → Argo CD → Tekton → OpenShift**, validando además la API en `/api/customers` y `/api/credits`. Este flujo es la base para los módulos de pipelines, frontend y Dev Spaces.

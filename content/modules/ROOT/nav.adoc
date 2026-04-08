@@ -1,20 +1,17 @@
-* xref:index.adoc[IA Development From Zero To Hero]
+* xref:index.adoc[Red Hat Developer Hub: De Cero a Producción]
 
-.Getting Connected
-* xref:0.5-workshop-overview.adoc[Workshop Overview]
-* xref:0-business-case.adoc[Neuralbank Business Case]
-* xref:2-configure-environment.adoc[Configure Environment]
+.Introducción
+* xref:01-developer-hub-value.adoc[Propuesta de Valor de Developer Hub]
+* xref:02-architecture-overview.adoc[Arquitectura General]
 
-.MCP Agents & Tools
-* xref:0-intro.adoc[Introduction to MCP Agents]
-* xref:1-golden-path.adoc[Golden Path & Developer Hub]
-* xref:2-devspaces.adoc[Working with DevSpaces]
-* xref:2.5-keycloak-user-management.adoc[Keycloak User Management]
-* xref:3-build-mcp-agent.adoc[Build MCP Agent]
-* xref:3.5-connectivity-link.adoc[Connectivity Link]
-* xref:4-mcp-inspector.adoc[Test with MCP Inspector]
-* xref:5-deploy-integrate.adoc[Deploy & Integrate]
-* xref:6-opentelemetry.adoc[OpenTelemetry Observability]
+.Software Templates
+* xref:03-software-templates.adoc[Entender Software Templates]
+* xref:04-deploy-backend.adoc[Desplegar Backend con Templates]
+* xref:05-explore-pipelines.adoc[Explorar Pipelines y Topology]
 
-.Resources
-* xref:resources.adoc[Resources]
+.Frontend y Gateway
+* xref:06-deploy-frontend-gateway.adoc[Desplegar Frontend y Gateway]
+* xref:07-explore-argocd-apis.adoc[Explorar ArgoCD y APIs]
+
+.DevSpaces y CI/CD
+* xref:08-devspaces-update.adoc[Actualizar Código con DevSpaces]

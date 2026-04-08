@@ -1,7 +1,7 @@
 ---
 site:
-  title: IA Development From Zero To Hero
-  url: https://github.com/maximilianoPizarro/rhoai-roadshow-from-zero-to-hero
+  title: "Red Hat Developer Hub: De Cero a Producción"
+  url: https://github.com/maximilianoPizarro/showroom-from-zero-to-hero
   start_page: modules::index.adoc
 
 content:
