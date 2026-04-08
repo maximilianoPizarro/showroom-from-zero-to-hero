@@ -37,7 +37,7 @@ El recorrido típico que seguirás en el workshop es:
 
 . El desarrollador abre **Developer Hub** y lanza una **Software Template** (por ejemplo Neuralbank Backend).
 . La plantilla **genera o publica** un repositorio en **Gitea** con código, manifiestos, `devfile` y definición de pipeline.
-. **Argo CD** detecta la aplicación (Application) asociada y **sincroniza** manifiestos hacia el namespace de OpenShift.
+. **Argo CD** detecta la aplicación (Application) asociada y **sincroniza** manifiestos hacia el namespace `{user_name}-neuralbank` en OpenShift.
 . **Tekton** ejecuta un **PipelineRun** (clonado, build Maven, build de imagen, despliegue) según los recursos creados en el repo.
 . OpenShift **programa los pods**, expone **Services** y, según el caso, recursos de **Gateway API** y rutas HTTP.
 . El componente queda **registrado en el catálogo** de Developer Hub para descubrimiento, documentación y relaciones (por ejemplo APIs).

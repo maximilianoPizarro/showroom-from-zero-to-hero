@@ -4,8 +4,8 @@ Este módulo conecta la vista **GitOps** en Argo CD con el **Software Catalog** 
 
 == Abrir el panel de Argo CD
 
-. Navega a la URL de **Argo CD** de tu entorno e inicia sesión (credenciales del taller o SSO según configuración).
-. En la lista de **Applications**, filtra por proyecto o por prefijo de nombre usado en el workshop.
+. Navega a **Argo CD**: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
+. En la lista de **Applications**, filtra por tu namespace `{user_name}-neuralbank`.
 
 Deberías ver aplicaciones correspondientes a **neuralbank-backend**, **neuralbank-frontend** y **customer-service-mcp** (los nombres exactos dependen de cómo la plantilla registró la Application).
 
@@ -62,7 +62,7 @@ Para el servicio MCP (y otros expuestos con el mismo patrón), inspecciona en la
 
 La ubicación en la UI depende de los CRD instalados; usa **Search** en la consola con el tipo de recurso si no aparece en el menú lateral.
 
-NOTE: Si no ves políticas, el entorno puede usar solo parte del stack o un namespace distinto; pide al instructor el namespace de referencia.
+NOTE: Si no ves políticas, revisa que los CRD de Kuadrant estén instalados en el cluster. Todos los recursos deberían estar en `{user_name}-neuralbank`.
 
 == Resumen
 

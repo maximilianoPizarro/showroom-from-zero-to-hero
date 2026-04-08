@@ -5,7 +5,7 @@ Tras desplegar **neuralbank-backend**, conviene inspeccionar cómo **Tekton** ma
 == Abrir la consola de Pipelines
 
 . Inicia sesión en la **OpenShift Console**.
-. Selecciona el **namespace** donde se creó el backend Neuralbank.
+. Selecciona el proyecto **`{user_name}-neuralbank`**.
 . En el menú lateral, ve a **Pipelines** (o **CI/CD -> Pipelines** según la versión de la consola).
 
 Aquí verás la definición del **Pipeline** y los **PipelineRuns** recientes generados al crear o actualizar el repositorio.
@@ -42,7 +42,7 @@ Para cada tarea, abre los **logs** y confirma que terminó en **Succeeded**. Si 
 
 == Usar la vista Topology
 
-. En la consola, abre la vista **Topology** del mismo proyecto.
+. En la consola, abre la vista **Topology** del proyecto `{user_name}-neuralbank`.
 . Localiza el **Deployment** del backend (icono circular con anillo de estado).
 . Haz clic en el nodo para ver el panel lateral: **Pods**, **Services**, **Routes** y eventos recientes.
 
@@ -64,8 +64,8 @@ NOTE: Si el taller añade **HorizontalPodAutoscaler** u otros operadores, pueden
 . Localiza el componente **neuralbank-backend** en el catálogo.
 . Desde la ficha, comprueba enlaces a **source** (Gitea), documentación y cualquier anotación de **CI/CD** que exponga el plugin de pipelines o Git.
 
-Así conectas la vista “infraestructura” (OpenShift/Tekton) con la vista “producto” (catálogo y ownership en el Hub).
+Así conectas la vista "infraestructura" (OpenShift/Tekton) con la vista "producto" (catálogo y ownership en el Hub).
 
 == Resumen
 
-Has seguido un **PipelineRun** tarea a tarea, validado el estado del despliegue en **Topology** y relacionado el componente con su entrada en **Developer Hub**. Esto completa la visión operativa del backend Neuralbank antes de añadir frontend y MCP.
+Has seguido un **PipelineRun** tarea a tarea, validado el estado del despliegue en **Topology** del namespace `{user_name}-neuralbank` y relacionado el componente con su entrada en **Developer Hub**. Esto completa la visión operativa del backend Neuralbank antes de añadir frontend y MCP.
