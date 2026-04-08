@@ -15,5 +15,7 @@ tabs:
     url: 'https://gitea-gitea.${DOMAIN}'
   - name: DevSpaces
     url: 'https://devspaces.${DOMAIN}'
+  - name: OpenShift Console
+    url: 'https://console-openshift-console.${DOMAIN}'
   - name: Terminal
     url: '/terminal/'
