@@ -9,6 +9,10 @@
     <div id="topbar-nav" class="navbar-menu">
       <div class="navbar-end">
         <div class="navbar-item" style="gap:8px;flex-wrap:wrap;align-items:center;">
+          <a id="link-gitea" href="#" target="_blank" style="color:#73bcf7;font-size:0.8rem;text-decoration:none;padding:3px 8px;border:1px solid #444;border-radius:4px;" title="Open Gitea"><i class="fa fa-code-fork" style="margin-right:3px;"></i>Gitea</a>
+          <a id="link-devspaces" href="#" target="_blank" style="color:#73bcf7;font-size:0.8rem;text-decoration:none;padding:3px 8px;border:1px solid #444;border-radius:4px;" title="Open DevSpaces"><i class="fa fa-cloud" style="margin-right:3px;"></i>DevSpaces</a>
+          <a id="link-console" href="#" target="_blank" style="color:#73bcf7;font-size:0.8rem;text-decoration:none;padding:3px 8px;border:1px solid #444;border-radius:4px;" title="Open OpenShift Console"><i class="fa fa-cube" style="margin-right:3px;"></i>Console</a>
+          <span style="border-left:1px solid #555;height:20px;margin:0 4px;"></span>
           <span id="user-badge" style="display:none;background:#292929;color:#fff;padding:4px 12px;border-radius:16px;font-size:0.85rem;border:1px solid #444;">
             <i class="fa fa-user" style="margin-right:4px;"></i>
             <span id="user-badge-name"></span>
@@ -92,6 +96,16 @@
         location.reload();
       }
     };
+
+    var domain = localStorage.getItem('CLUSTER_DOMAIN') || '';
+    if (domain) {
+      var lg = document.getElementById('link-gitea');
+      var ld = document.getElementById('link-devspaces');
+      var lc = document.getElementById('link-console');
+      if (lg) lg.href = 'https://gitea-gitea.' + domain;
+      if (ld) ld.href = 'https://devspaces.' + domain;
+      if (lc) lc.href = 'https://console-openshift-console.' + domain;
+    }
 
   }
 
