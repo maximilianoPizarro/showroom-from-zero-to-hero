@@ -9,5 +9,7 @@ view_switcher:
   default_mode: split
 
 tabs:
+  - name: Terminal
+    url: '/terminal/'
   - name: OCP Console
     url: 'https://console-openshift-console.${DOMAIN}'
