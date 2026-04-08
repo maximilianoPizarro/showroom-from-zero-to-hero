@@ -2,38 +2,19 @@
 
 Esta página describe la arquitectura lógica del escenario Neuralbank: cómo encajan Red Hat Developer Hub, GitOps, CI/CD, identidad y exposición segura de APIs frente a un clúster OpenShift.
 
-== Vista de componentes (descripción textual)
+== Vista de componentes
 
-Imagina el siguiente flujo de capas:
+El siguiente diagrama muestra los componentes principales del workshop y cómo interactúan entre sí:
 
-[subs=+quotes]
-----
-[Desarrollador]
-      |
-      v
-+Red Hat Developer Hub+ (Backstage) -- Software Catalog, Templates, plugins
-      |
-      +--> +Gitea+ (Git: código, manifiestos, definiciones de pipeline)
-      |
-      +--> +Keycloak+ (identidad / SSO para Hub y servicios)
-      |
-      v
-+Argo CD+ (OpenShift GitOps) -- sincroniza el estado deseado desde Git al clúster
-      |
-      v
-+OpenShift+ (Kubernetes)
-      |
-      +--> +Tekton+ (Pipelines / PipelineRuns: build, imagen, despliegue)
-      +--> Cargas de trabajo (Deployments, Services, Routes)
-      +--> +Gateway API + Istio / Kuadrant+ (Gateway, HTTPRoute, políticas)
-      +--> +Red Hat OpenShift Dev Spaces+ (IDE en cluster, devfile)
-----
+image::02-component-view.svg[Diagrama de componentes del workshop, width=100%, link=_images/02-component-view.svg]
 
 Cada bloque tiene un rol claro: el Hub orquesta la experiencia; Git es la fuente de verdad; Argo CD aplica el modelo declarativo; Tekton automatiza la cadena de suministro de software; la capa de gateway y políticas expone y protege el tráfico; Dev Spaces acerca el desarrollo al entorno real del clúster.
 
 == Flujo principal: de la plantilla al despliegue
 
 El recorrido típico que seguirás en el workshop es:
+
+image::02-scaffolding-flow.svg[Flujo de scaffolding desde Developer Hub hasta el despliegue, width=100%, link=_images/02-scaffolding-flow.svg]
 
 . El desarrollador abre **Developer Hub** y lanza una **Software Template** (por ejemplo Neuralbank Backend).
 . La plantilla **genera o publica** un repositorio en **Gitea** con código, manifiestos, `devfile` y definición de pipeline.
@@ -48,12 +29,63 @@ Este patrón une **golden path** (plantilla) con **GitOps** (Argo CD) y **CI/CD*
 
 Para exponer servicios hacia el exterior o entre equipos con controles uniformes, el escenario utiliza un patrón alineado con **Gateway API** e integración con **Istio** y **Kuadrant** para políticas:
 
+image::02-connectivity-link.svg[Patrón Connectivity Link con Gateway API e Istio, width=100%, link=_images/02-connectivity-link.svg]
+
 * **Gateway**: define el punto de entrada del tráfico (host, listeners, TLS según configuración).
 * **HTTPRoute**: enlaza hostnames y reglas de enrutamiento con los Services backend.
 * **OIDCPolicy**: exige autenticación OIDC coherente con tu IdP (p. ej. Keycloak), protegiendo el tráfico de la API expuesta.
 * **RateLimitPolicy**: aplica límites de tasa para proteger backends y cumplir políticas de uso justo o defensa ante abuso.
 
 En conjunto, estas piezas forman un **connectivity link** declarativo: el mismo enfoque GitOps que el resto del sistema, revisable en Git y aplicado por operadores en el clúster.
+
+== Glosario de acrónimos
+
+[cols="1,3",options="header"]
+|===
+|Acrónimo |Significado
+
+|RHDH
+|Red Hat Developer Hub — portal del desarrollador basado en Backstage
+
+|IDP
+|Internal Developer Portal — portal interno de desarrollo
+
+|SSO
+|Single Sign-On — autenticación única (Keycloak)
+
+|OIDC
+|OpenID Connect — protocolo de autenticación sobre OAuth 2.0
+
+|RBAC
+|Role-Based Access Control — control de acceso basado en roles
+
+|MCP
+|Model Context Protocol — protocolo para servidores de herramientas de IA
+
+|OLS
+|OpenShift Lightspeed — asistente AI integrado en OpenShift
+
+|CI/CD
+|Continuous Integration / Continuous Delivery
+
+|GitOps
+|Gestión declarativa de infraestructura y aplicaciones desde Git
+
+|CRD
+|Custom Resource Definition — extensiones del API de Kubernetes
+
+|HPA
+|Horizontal Pod Autoscaler — escalado automático de pods
+
+|TLS
+|Transport Layer Security — cifrado de comunicaciones
+
+|SPA
+|Single Page Application — aplicación web de página única
+
+|LLM
+|Large Language Model — modelo de lenguaje grande
+|===
 
 == Rol de cada componente
 
@@ -81,6 +113,12 @@ En conjunto, estas piezas forman un **connectivity link** declarativo: el mismo 
 
 |Gateway API / Istio / Kuadrant
 |Entrada norte-sur del tráfico, enrutamiento y políticas (OIDC, rate limit) sobre las APIs expuestas.
+
+|OpenShift Lightspeed (OLS)
+|Asistente AI integrado con MCP Gateway para operaciones de clúster vía herramientas.
+
+|LiteLLM
+|Proxy de modelos LLM; gestiona Virtual Keys, rate limits y routing entre proveedores de AI.
 |===
 
 == Lectura para el workshop
