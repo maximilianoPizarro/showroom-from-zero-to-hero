@@ -23,7 +23,10 @@ Neuralbank es una entidad financiera que necesita modernizar su stack tecnológi
 
 === Acceso al entorno
 
-Al registrarte en el portal, se te asignó automáticamente un usuario (`%USER_NAME%`) y todas las credenciales están configuradas.
+Al registrarte en el portal, se te asignó automáticamente un usuario y contraseña:
+
+* **Usuario**: `%USER_NAME%`
+* **Contraseña**: `Welcome123!`
 
 Tu namespace de trabajo es **`%USER_NAME%-neuralbank`**. Todos los servicios que crees con las Software Templates se desplegarán ahí.
 
