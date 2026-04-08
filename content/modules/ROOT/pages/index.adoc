@@ -23,11 +23,11 @@ Neuralbank es una entidad financiera que necesita modernizar su stack tecnológi
 
 === Acceso al entorno
 
-Tu usuario es `{user_name}`. La contraseña es `Welcome123!`.
+Tu usuario asignado es `__USER_NAME__`.
 
-Tu namespace de trabajo es **`{user_name}-neuralbank`**. Todos los servicios que crees con las Software Templates se desplegarán ahí.
+Tu namespace de trabajo es **`__USER_NAME__-neuralbank`**. Todos los servicios que crees con las Software Templates se desplegarán ahí.
 
-NOTE: Ingresá tu username en el campo **Username** de la barra superior para que las URLs y comandos se autocompleten.
+TIP: Si accediste desde el portal de registro, tu usuario ya está configurado automáticamente. Si no, ingresá tu username en el campo **Username** de la barra superior.
 
 * **Developer Hub**: https://backstage-developer-hub-developer-hub.{cluster_domain}
 * **Gitea**: https://gitea-gitea.{cluster_domain}
