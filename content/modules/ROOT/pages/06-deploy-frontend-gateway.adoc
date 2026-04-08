@@ -45,7 +45,7 @@ Esta plantilla no solo genera código: materializa el patrón de **connectivity 
 
 == Paso 3: Verificar repositorios en Gitea
 
-En **Gitea** (`https://gitea.{cluster_domain}`), confirma que existen dos repositorios nuevos bajo tu usuario:
+En **Gitea** (`https://gitea-gitea.{cluster_domain}`), confirma que existen dos repositorios nuevos bajo tu usuario:
 
 * `{user_name}/neuralbank-frontend` — Dockerfile, assets estáticos, manifiestos, `devfile`.
 * `{user_name}/customer-service-mcp` — fuentes Java, manifiestos y recursos de gateway/políticas.

@@ -43,7 +43,7 @@ NOTE: Si un paso falla, revisa permisos en Gitea o cuotas del namespace `{user_n
 
 == Paso 4: Verificar el repositorio en Gitea
 
-. Abre la URL de **Gitea**: `https://gitea.{cluster_domain}`
+. Abre la URL de **Gitea**: `https://gitea-gitea.{cluster_domain}`
 . Localiza el repositorio `{user_name}/neuralbank-backend`.
 . Confirma que existen el código fuente (proyecto Java/Quarkus), carpeta de manifiestos, `tekton` y `catalog-info.yaml`.
 
