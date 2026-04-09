@@ -19,3 +19,6 @@
 .Connectivity Link
 * xref:09-explore-connectivity-link-oidc.adoc[Explore OIDC Policy (Neuralbank)]
 * xref:10-explore-connectivity-link-apikey.adoc[Explore API Key Auth (NFL Wallet)]
+
+.Hands-On Activity
+* xref:11-hands-on-deploy-and-test.adoc[Deploy and Test the Full Stack]
