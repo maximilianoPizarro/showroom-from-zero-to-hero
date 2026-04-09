@@ -1,15 +1,15 @@
 = Explore Connectivity Link: API Key Auth (NFL Wallet)
 
-In this module you will explore how **Red Hat Connectivity Link** protects the pre-deployed **NFL Wallet** application using **AuthPolicy with API Key** authentication and **RateLimitPolicy**.
+In this module you will explore how **Red Hat Connectivity Link** protects the pre-deployed **NFL Wallet** application using **AuthPolicy with API Key** authentication and **RateLimitPolicy**. You will test the API from the terminal with valid and invalid keys.
 
 == Architecture Overview
 
-NFL Wallet is deployed in the `nfl-wallet-prod` namespace. It uses the same Quarkus backend image but is protected by **API Key** instead of OIDC, making it ideal for **machine-to-machine (M2M)** access.
+NFL Wallet is deployed in the `nfl-wallet-prod` namespace. It uses the same Quarkus backend but is protected by **API Key** instead of OIDC, making it ideal for **machine-to-machine (M2M)** access.
 
 The request flow is:
 
 ----
-Client -> Istio Gateway -> AuthPolicy (API Key validation via X-API-Key header) -> RateLimitPolicy (120 req/min) -> HTTPRoute -> Backend Service
+Client → Istio Gateway → AuthPolicy (API Key validation via X-API-Key header) → RateLimitPolicy (120 req/min) → HTTPRoute → Backend Service
 ----
 
 == OIDC vs API Key: When to Use Each
@@ -79,13 +79,13 @@ Output: `nfl-wallet-demo-key-2024`
 [.console-input]
 [source,bash]
 ----
-curl -s -w "\nHTTP %{http_code}\n" \
+curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
   https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
 ----
 
 [.console-output]
 ----
-HTTP 401
+HTTP Status: 401
 ----
 
 == Test: Request With an Invalid API Key (expect 401)
@@ -93,27 +93,67 @@ HTTP 401
 [.console-input]
 [source,bash]
 ----
-curl -s -w "\nHTTP %{http_code}\n" \
+curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
   -H "X-API-Key: this-is-not-a-valid-key" \
   https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
 ----
 
 [.console-output]
 ----
-HTTP 401
+HTTP Status: 401
 ----
 
-== Test: Request With a Valid API Key (expect 200)
+== Test: List All Customers With Valid API Key (expect 200)
 
 [.console-input]
 [source,bash]
 ----
-curl -s -w "\nHTTP %{http_code}\n" \
-  -H "X-API-Key: nfl-wallet-demo-key-2024" \
-  https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
+curl -s -H "X-API-Key: nfl-wallet-demo-key-2024" \
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
 ----
 
 You should receive a JSON response with paginated customer records and `HTTP 200`.
+
+== Test: Get a Customer by ID
+
+[.console-input]
+[source,bash]
+----
+curl -s -H "X-API-Key: nfl-wallet-demo-key-2024" \
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1" \
+  | python3 -m json.tool
+----
+
+== Test: Get Credit Score
+
+[.console-input]
+[source,bash]
+----
+curl -s -H "X-API-Key: nfl-wallet-demo-key-2024" \
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1/credit-score" \
+  | python3 -m json.tool
+----
+
+== Test: Create a New Customer (POST)
+
+[.console-input]
+[source,bash]
+----
+curl -s -X POST \
+  -H "X-API-Key: nfl-wallet-demo-key-2024" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "API Key",
+    "apellido": "Test",
+    "email": "apikey.test@wallet.io",
+    "tipoCliente": "EMPRESA",
+    "ciudad": "Miami",
+    "pais": "USA"
+  }' \
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
+----
 
 == Quick Rate-Limit Test
 
@@ -125,15 +165,16 @@ The RateLimitPolicy allows **120 requests per minute**. Run a burst to observe:
 for i in $(seq 1 10); do
   code=$(curl -s -o /dev/null -w '%{http_code}' \
     -H "X-API-Key: nfl-wallet-demo-key-2024" \
-    https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers)
+    "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers")
   echo "Request $i: HTTP $code"
 done
 ----
 
-All 10 should return `200`. If you extend the loop beyond 120 requests within one minute, you will see `429 Too Many Requests`.
+All 10 should return `200`. If you extend the loop beyond 120 requests within one minute, the last ones will return `429 Too Many Requests`.
 
 == How API Key Auth Works
 
+[arabic]
 . API Keys are created as Kubernetes `Secrets` with the label `kuadrant.io/apikey=true`
 . The `AuthPolicy` references a selector that matches these labeled Secrets
 . Kuadrant's Authorino watches for Secrets matching the selector
@@ -143,18 +184,18 @@ All 10 should return `200`. If you extend the loop beyond 120 requests within on
 
 == Swagger UI
 
-The NFL Wallet API includes an interactive Swagger UI:
+The NFL Wallet API includes an interactive Swagger UI. Open in your browser:
 
 ----
 https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/q/swagger-ui
 ----
 
-NOTE: Swagger UI requests also pass through the AuthPolicy. The API Key header must be included.
+NOTE: Swagger UI requests also pass through the AuthPolicy. Click **Authorize**, enter the API Key `nfl-wallet-demo-key-2024`, and then test the endpoints.
 
 == Browse in Developer Hub
 
 . Open **Developer Hub** and search for **nfl-wallet** in the Catalog
-. Explore the **API** tab -- the OpenAPI spec shows all `/api/v1/customers` endpoints with the `X-API-Key` security scheme
+. Explore the **API** tab — the OpenAPI spec shows all `/api/v1/customers` endpoints with the `X-API-Key` security scheme
 . Check the **APIProduct** linked to the API entity
 . Open the **TechDocs** for usage instructions and API Key authentication details
 

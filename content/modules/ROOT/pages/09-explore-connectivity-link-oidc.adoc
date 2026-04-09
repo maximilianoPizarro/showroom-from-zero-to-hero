@@ -1,6 +1,6 @@
 = Explore Connectivity Link: OIDC Policy (Neuralbank)
 
-In this module you will explore how **Red Hat Connectivity Link** protects the pre-deployed **Neuralbank** stack using **OIDCPolicy** (OpenID Connect via Keycloak) and **RateLimitPolicy**.
+In this module you will explore how **Red Hat Connectivity Link** protects the pre-deployed **Neuralbank** stack using **OIDCPolicy** (OpenID Connect via Keycloak) and **RateLimitPolicy**. You will obtain a Bearer token from Keycloak and consume the API from the terminal.
 
 == Architecture Overview
 
@@ -26,7 +26,7 @@ The Neuralbank stack in the `neuralbank-stack` namespace consists of:
 The request flow is:
 
 ----
-Client -> Istio Gateway -> OIDCPolicy (Keycloak JWT validation) -> RateLimitPolicy (60 req/min) -> HTTPRoute -> Backend Service
+Client → Istio Gateway → OIDCPolicy (Keycloak JWT validation) → RateLimitPolicy (60 req/min) → HTTPRoute → Backend Service
 ----
 
 == Inspect the Gateway and HTTPRoute
@@ -52,7 +52,7 @@ The OIDCPolicy links to the Keycloak realm `neuralbank` and protects the HTTPRou
 
 Key configuration:
 
-* **Issuer**: Keycloak realm `neuralbank`
+* **Issuer**: `+https://rhbk.apps.cluster-l9nhj.dynamic.redhatworkshops.io/realms/neuralbank+`
 * **Protected paths**: `/api/*`
 * **Unauthorized behavior**: HTTP 302 redirect to Keycloak login
 
@@ -66,28 +66,130 @@ oc get ratelimitpolicy -n neuralbank-stack -o wide
 
 The RateLimitPolicy caps traffic at **60 requests per minute** per authenticated user.
 
-== Test the API
+== Test: Request Without Token (expect 302)
 
-Without a token, the gateway redirects to Keycloak login (HTTP 302):
+Without a token, the gateway redirects to Keycloak login:
 
 [.console-input]
 [source,bash]
 ----
-curl -s -o /dev/null -w "HTTP %{http_code}\n" \
+curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
   https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
 ----
 
-Expected output:
-
 [.console-output]
 ----
-HTTP 302
+HTTP Status: 302
 ----
 
 This confirms the OIDCPolicy is enforcing authentication.
 
+== Obtain a Bearer Token from Keycloak
+
+Use the **Resource Owner Password Credentials** grant to obtain a JWT token from Keycloak:
+
+[.console-input]
+[source,bash]
+----
+TOKEN=$(curl -s -X POST \
+  "https://rhbk.apps.cluster-l9nhj.dynamic.redhatworkshops.io/realms/neuralbank/protocol/openid-connect/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=password" \
+  -d "client_id=neuralbank-frontend" \
+  -d "username=user1" \
+  -d "password=Welcome123!" \
+  | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
+
+echo "Token obtained (first 50 chars): ${TOKEN:0:50}..."
+----
+
+[.console-output]
+----
+Token obtained (first 50 chars): eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIi...
+----
+
+== Test: List All Customers (GET)
+
+[.console-input]
+[source,bash]
+----
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
+----
+
+You should receive a JSON array with customer records and `HTTP 200`.
+
+== Test: Get a Customer by ID
+
+[.console-input]
+[source,bash]
+----
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1" \
+  | python3 -m json.tool
+----
+
+== Test: Get Customer Summary
+
+[.console-input]
+[source,bash]
+----
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1/summary" \
+  | python3 -m json.tool
+----
+
+== Test: Get Credit Score
+
+[.console-input]
+[source,bash]
+----
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1/credit-score" \
+  | python3 -m json.tool
+----
+
+== Test: Create a New Customer (POST)
+
+[.console-input]
+[source,bash]
+----
+curl -s -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Workshop",
+    "apellido": "Demo",
+    "email": "workshop.demo@neuralbank.io",
+    "tipoCliente": "PERSONAL",
+    "ciudad": "Buenos Aires",
+    "pais": "Argentina"
+  }' \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
+----
+
+== Test: Invalid Token (expect 302 or 401)
+
+[.console-input]
+[source,bash]
+----
+curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
+  -H "Authorization: Bearer invalid-token-12345" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers"
+----
+
+[.console-output]
+----
+HTTP Status: 302
+----
+
+The OIDCPolicy rejects the invalid token and redirects to Keycloak login.
+
 == How OIDC Authentication Works
 
+[arabic]
 . The client sends a request without a token
 . The OIDCPolicy intercepts and returns HTTP 302 to Keycloak's authorization endpoint
 . The user authenticates in Keycloak (username/password)
@@ -99,12 +201,12 @@ This confirms the OIDCPolicy is enforcing authentication.
 == Browse in Developer Hub
 
 . Open **Developer Hub** and navigate to the **Catalog**
-. Search for **neuralbank-stack** -- you will find a System with components
+. Search for **neuralbank-stack** — you will find a System with components
 . Click the **backend** component and explore:
-** **Overview** -- ownership, lifecycle, links
-** **Topology** -- Kubernetes resources rendered by the plugin
-** **API** -- the OpenAPI spec for `/api/v1/customers` endpoints
-** **TechDocs** -- architecture, REST API reference, and OIDC authentication docs
+** **Overview** — ownership, lifecycle, links
+** **Topology** — Kubernetes resources rendered by the plugin
+** **API** — the OpenAPI spec for `/api/v1/customers` endpoints
+** **TechDocs** — architecture, REST API reference, and OIDC authentication docs
 
 == Summary
 
