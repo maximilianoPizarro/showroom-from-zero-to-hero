@@ -15,3 +15,7 @@
 
 .DevSpaces and CI/CD
 * xref:08-devspaces-update.adoc[Update Code with DevSpaces]
+
+.Connectivity Link
+* xref:09-explore-connectivity-link-oidc.adoc[Explore OIDC Policy (Neuralbank)]
+* xref:10-explore-connectivity-link-apikey.adoc[Explore API Key Auth (NFL Wallet)]

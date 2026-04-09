@@ -1,0 +1,170 @@
+= Explore Connectivity Link: API Key Auth (NFL Wallet)
+
+In this module you will explore how **Red Hat Connectivity Link** protects the pre-deployed **NFL Wallet** application using **AuthPolicy with API Key** authentication and **RateLimitPolicy**.
+
+== Architecture Overview
+
+NFL Wallet is deployed in the `nfl-wallet-prod` namespace. It uses the same Quarkus backend image but is protected by **API Key** instead of OIDC, making it ideal for **machine-to-machine (M2M)** access.
+
+The request flow is:
+
+----
+Client -> Istio Gateway -> AuthPolicy (API Key validation via X-API-Key header) -> RateLimitPolicy (120 req/min) -> HTTPRoute -> Backend Service
+----
+
+== OIDC vs API Key: When to Use Each
+
+[cols="1,1,1"]
+|===
+| | OIDC (Neuralbank) | API Key (NFL Wallet)
+
+| **Auth mechanism**
+| Keycloak JWT tokens
+| API Key in HTTP header
+
+| **Header**
+| `Authorization: Bearer <token>`
+| `X-API-Key: <key>`
+
+| **Unauthorized response**
+| 302 redirect to login
+| 401 JSON error
+
+| **Best for**
+| Interactive users (web apps)
+| M2M integrations, scripts, CI/CD
+
+| **Key management**
+| Keycloak issues tokens
+| Kubernetes Secrets with labels
+|===
+
+== Inspect the Resources
+
+[.console-input]
+[source,bash]
+----
+oc get pods -n nfl-wallet-prod
+oc get gateway -n nfl-wallet-prod
+oc get httproute -n nfl-wallet-prod
+oc get authpolicy -n nfl-wallet-prod -o wide
+oc get ratelimitpolicy -n nfl-wallet-prod -o wide
+----
+
+Verify the AuthPolicy shows `ACCEPTED: True` and `ENFORCED: True`.
+
+== List Available API Keys
+
+API Keys are stored as Kubernetes Secrets with special labels that Kuadrant/Authorino detects automatically:
+
+[.console-input]
+[source,bash]
+----
+oc get secrets -n nfl-wallet-prod -l kuadrant.io/apikey=true
+----
+
+Decode the admin key:
+
+[.console-input]
+[source,bash]
+----
+oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
+  -o jsonpath='{.data.api_key}' | base64 -d ; echo
+----
+
+Output: `nfl-wallet-demo-key-2024`
+
+== Test: Request Without API Key (expect 401)
+
+[.console-input]
+[source,bash]
+----
+curl -s -w "\nHTTP %{http_code}\n" \
+  https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
+----
+
+[.console-output]
+----
+HTTP 401
+----
+
+== Test: Request With an Invalid API Key (expect 401)
+
+[.console-input]
+[source,bash]
+----
+curl -s -w "\nHTTP %{http_code}\n" \
+  -H "X-API-Key: this-is-not-a-valid-key" \
+  https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
+----
+
+[.console-output]
+----
+HTTP 401
+----
+
+== Test: Request With a Valid API Key (expect 200)
+
+[.console-input]
+[source,bash]
+----
+curl -s -w "\nHTTP %{http_code}\n" \
+  -H "X-API-Key: nfl-wallet-demo-key-2024" \
+  https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
+----
+
+You should receive a JSON response with paginated customer records and `HTTP 200`.
+
+== Quick Rate-Limit Test
+
+The RateLimitPolicy allows **120 requests per minute**. Run a burst to observe:
+
+[.console-input]
+[source,bash]
+----
+for i in $(seq 1 10); do
+  code=$(curl -s -o /dev/null -w '%{http_code}' \
+    -H "X-API-Key: nfl-wallet-demo-key-2024" \
+    https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers)
+  echo "Request $i: HTTP $code"
+done
+----
+
+All 10 should return `200`. If you extend the loop beyond 120 requests within one minute, you will see `429 Too Many Requests`.
+
+== How API Key Auth Works
+
+. API Keys are created as Kubernetes `Secrets` with the label `kuadrant.io/apikey=true`
+. The `AuthPolicy` references a selector that matches these labeled Secrets
+. Kuadrant's Authorino watches for Secrets matching the selector
+. When a request arrives, Authorino extracts the `X-API-Key` header
+. It compares the value against all known API Key Secrets
+. If a match is found, the request is authorized; otherwise HTTP 401 is returned
+
+== Swagger UI
+
+The NFL Wallet API includes an interactive Swagger UI:
+
+----
+https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/q/swagger-ui
+----
+
+NOTE: Swagger UI requests also pass through the AuthPolicy. The API Key header must be included.
+
+== Browse in Developer Hub
+
+. Open **Developer Hub** and search for **nfl-wallet** in the Catalog
+. Explore the **API** tab -- the OpenAPI spec shows all `/api/v1/customers` endpoints with the `X-API-Key` security scheme
+. Check the **APIProduct** linked to the API entity
+. Open the **TechDocs** for usage instructions and API Key authentication details
+
+== Summary
+
+The API Key pattern is ideal for:
+
+* Machine-to-machine (M2M) integrations
+* CI/CD pipelines consuming APIs
+* External partners with long-lived credentials
+* Simple authentication without an identity provider
+
+Both patterns (OIDC and API Key) are powered by the same stack: **Istio Gateway + HTTPRoute + Kuadrant policies**, demonstrating the flexibility of Red Hat Connectivity Link.
