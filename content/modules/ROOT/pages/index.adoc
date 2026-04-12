@@ -35,10 +35,10 @@ Neuralbank is a financial institution modernizing its technology stack. As a dev
 
 When you registered on the portal, credentials were assigned automatically:
 
-* **Username**: `%USER_NAME%`
+* **Username**: `{user_name}`
 * **Password**: `Welcome123!`
 
-Your workspace namespace is **`%USER_NAME%-neuralbank`**. All services deploy there.
+Your workspace namespace is **`{user_name}-neuralbank`**. All services deploy there.
 
 NOTE: Your assigned username appears in the badge in the top bar. Click the edit (pencil) icon to change it.
 
@@ -49,28 +49,28 @@ NOTE: Your assigned username appears in the badge in the top bar. Click the edit
 | Tool | URL
 
 | **Developer Hub**
-| https://backstage-developer-hub-developer-hub.__CLUSTER_DOMAIN__
+| https://backstage-developer-hub-developer-hub.{cluster_domain}
 
 | **Gitea**
-| https://gitea-gitea.__CLUSTER_DOMAIN__
+| https://gitea-gitea.{cluster_domain}
 
 | **ArgoCD**
-| https://openshift-gitops-server-openshift-gitops.__CLUSTER_DOMAIN__
+| https://openshift-gitops-server-openshift-gitops.{cluster_domain}
 
 | **Keycloak**
-| https://rhbk.__CLUSTER_DOMAIN__/admin/master/console
+| https://rhbk.{cluster_domain}/admin/master/console
 
 | **Grafana**
-| https://grafana-observability.__CLUSTER_DOMAIN__
+| https://grafana-observability.{cluster_domain}
 
 | **Mailpit**
-| https://n8n-mailpit-openshift-lightspeed.__CLUSTER_DOMAIN__
+| https://n8n-mailpit-openshift-lightspeed.{cluster_domain}
 
 | **Showroom**
-| https://showroom-from-zero-to-hero.__CLUSTER_DOMAIN__
+| https://showroom-from-zero-to-hero.{cluster_domain}
 
 | **OpenShift Console**
-| https://console-openshift-console.__CLUSTER_DOMAIN__
+| https://console-openshift-console.{cluster_domain}
 |===
 
 TIP: These links are also available as quick access shortcuts on the **Developer Hub home page** and as **Console Links** in the OpenShift web console application menu.

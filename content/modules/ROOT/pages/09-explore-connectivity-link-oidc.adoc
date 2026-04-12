@@ -22,7 +22,7 @@ The Neuralbank stack in the `neuralbank-stack` namespace:
 
 The pre-deployed frontend has a **full interactive OIDC login**:
 
-. Open the frontend: `https://neuralbank.__CLUSTER_DOMAIN__`
+. Open the frontend: `https://neuralbank.{cluster_domain}`
 . You will be **redirected to Keycloak** login page.
 . Enter your credentials:
 
@@ -30,7 +30,7 @@ The pre-deployed frontend has a **full interactive OIDC login**:
 |===
 | Field | Value
 
-| **Username** | `%USER_NAME%`
+| **Username** | `{user_name}`
 | **Password** | `Welcome123!`
 |===
 
@@ -56,11 +56,11 @@ spec:
       cookie:
         name: jwt
   provider:
-    authorizationEndpoint: https://rhbk.__CLUSTER_DOMAIN__/realms/neuralbank/protocol/openid-connect/auth
+    authorizationEndpoint: https://rhbk.{cluster_domain}/realms/neuralbank/protocol/openid-connect/auth
     clientID: neuralbank-frontend
-    issuerURL: https://rhbk.__CLUSTER_DOMAIN__/realms/neuralbank
-    redirectURI: https://neuralbank.__CLUSTER_DOMAIN__/auth/callback
-    tokenEndpoint: https://rhbk.__CLUSTER_DOMAIN__/realms/neuralbank/protocol/openid-connect/token
+    issuerURL: https://rhbk.{cluster_domain}/realms/neuralbank
+    redirectURI: https://neuralbank.{cluster_domain}/auth/callback
+    tokenEndpoint: https://rhbk.{cluster_domain}/realms/neuralbank/protocol/openid-connect/token
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
@@ -100,13 +100,13 @@ This is a **full OIDC integration**: authorization endpoint, token endpoint, cal
 ....
 sequenceDiagram
     participant User
-    participant Frontend as neuralbank.__CLUSTER_DOMAIN__
+    participant Frontend as neuralbank.{cluster_domain}
     participant Gateway as Istio Gateway
     participant OIDC as OIDCPolicy
     participant Keycloak
     participant Backend
 
-    User->>Frontend: Open https://neuralbank.__CLUSTER_DOMAIN__
+    User->>Frontend: Open https://neuralbank.{cluster_domain}
     Frontend->>Gateway: Request /api/v1/customers
     Gateway->>OIDC: Check authentication
     OIDC-->>User: 302 Redirect to Keycloak
@@ -136,7 +136,7 @@ oc get ratelimitpolicy -n neuralbank-stack -o wide
 [source,bash]
 ----
 curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
-  https://neuralbank.__CLUSTER_DOMAIN__/api/v1/customers
+  https://neuralbank.{cluster_domain}/api/v1/customers
 ----
 
 [.console-output]
@@ -154,11 +154,11 @@ For terminal testing, use the Resource Owner Password Credentials grant:
 [source,bash]
 ----
 TOKEN=$(curl -s -X POST \
-  "https://rhbk.__CLUSTER_DOMAIN__/realms/neuralbank/protocol/openid-connect/token" \
+  "https://rhbk.{cluster_domain}/realms/neuralbank/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=password" \
   -d "client_id=neuralbank-frontend" \
-  -d "username=%USER_NAME%" \
+  -d "username={user_name}" \
   -d "password=Welcome123!" \
   | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
 
@@ -171,7 +171,7 @@ echo "Token obtained (first 50 chars): ${TOKEN:0:50}..."
 [source,bash]
 ----
 curl -s -H "Authorization: Bearer $TOKEN" \
-  "https://neuralbank.__CLUSTER_DOMAIN__/api/v1/customers" \
+  "https://neuralbank.{cluster_domain}/api/v1/customers" \
   | python3 -m json.tool | head -30
 ----
 
@@ -191,7 +191,7 @@ curl -s -X POST \
     "ciudad": "Buenos Aires",
     "pais": "Argentina"
   }' \
-  "https://neuralbank.__CLUSTER_DOMAIN__/api/v1/customers" \
+  "https://neuralbank.{cluster_domain}/api/v1/customers" \
   | python3 -m json.tool
 ----
 
@@ -199,9 +199,9 @@ curl -s -X POST \
 
 The pre-deployed `neuralbank-stack` demonstrates a **real interactive OIDC flow**:
 
-* Users access the frontend at `https://neuralbank.__CLUSTER_DOMAIN__`
+* Users access the frontend at `https://neuralbank.{cluster_domain}`
 * The `OIDCPolicy` CR redirects to Keycloak for authentication
-* Credentials: `%USER_NAME%` / `Welcome123!` (same as Developer Hub)
+* Credentials: `{user_name}` / `Welcome123!` (same as Developer Hub)
 * After login, the JWT is stored in a cookie for subsequent requests
 
 This differs from the scaffolded apps (which use API Key authentication) because the pre-deployed stack includes a fully configured Keycloak OIDC client (`neuralbank-frontend`) in the `neuralbank` realm.

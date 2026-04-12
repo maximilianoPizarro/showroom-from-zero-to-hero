@@ -59,7 +59,7 @@ spec:
           priority: 0
         oidc:
           jwt:
-            issuerUrl: https://rhbk.__CLUSTER_DOMAIN__/realms/neuralbank
+            issuerUrl: https://rhbk.{cluster_domain}/realms/neuralbank
           credentials:
             authorizationHeader:
               prefix: Bearer

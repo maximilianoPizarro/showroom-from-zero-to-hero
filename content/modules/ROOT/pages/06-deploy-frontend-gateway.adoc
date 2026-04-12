@@ -4,7 +4,7 @@ In this module you will deploy the Neuralbank **frontend** and the **Customer Se
 
 == Context
 
-You should already have **neuralbank-backend** running in namespace `%USER_NAME%-neuralbank`. You will now add:
+You should already have **neuralbank-backend** running in namespace `{user_name}-neuralbank`. You will now add:
 
 * **neuralbank-frontend** — Web SPA that consumes backend and MCP APIs through a reverse proxy
 * **customer-service-mcp** — MCP server with Gateway API, HTTPRoute, and Kuadrant policies
@@ -19,7 +19,7 @@ You should already have **neuralbank-backend** running in namespace `%USER_NAME%
 | Field | Value
 
 | **Name** | `neuralbank-frontend`
-| **Owner** | `%USER_NAME%`
+| **Owner** | `{user_name}`
 |===
 
 . Click **Create** and wait for scaffolder steps to finish.
@@ -33,22 +33,22 @@ You should already have **neuralbank-backend** running in namespace `%USER_NAME%
 | Field | Value
 
 | **Name** | `customer-service-mcp`
-| **Owner** | `%USER_NAME%`
+| **Owner** | `{user_name}`
 |===
 
 This template generates the connectivity link pattern with Gateway, HTTPRoute, AuthPolicy, and RateLimitPolicy — all using the same dual-auth model (API Key primary + OIDC JWT fallback).
 
 == Step 3: Verify Repositories in Gitea
 
-In Gitea (`https://gitea-gitea.__CLUSTER_DOMAIN__`), confirm two new repositories under your user:
+In Gitea (`https://gitea-gitea.{cluster_domain}`), confirm two new repositories under your user:
 
-* `%USER_NAME%/neuralbank-frontend` — Dockerfile, `index.html`, `proxy.conf`, manifests
-* `%USER_NAME%/customer-service-mcp` — Java sources, manifests, and gateway/policy resources
+* `{user_name}/neuralbank-frontend` — Dockerfile, `index.html`, `proxy.conf`, manifests
+* `{user_name}/customer-service-mcp` — Java sources, manifests, and gateway/policy resources
 
 == Step 4: Check Applications in ArgoCD
 
-. Open ArgoCD: `https://openshift-gitops-server-openshift-gitops.__CLUSTER_DOMAIN__`
-. Locate Applications for frontend and MCP in namespace `%USER_NAME%-neuralbank`.
+. Open ArgoCD: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
+. Locate Applications for frontend and MCP in namespace `{user_name}-neuralbank`.
 . Verify **sync** and **health**.
 
 == Step 5: How the Frontend Connects
@@ -97,16 +97,16 @@ IMPORTANT: The scaffolded frontend does **not** implement OIDC login (no redirec
 [source,bash]
 ----
 # Check Gateway resources
-oc get gateway -n %USER_NAME%-neuralbank
+oc get gateway -n {user_name}-neuralbank
 
 # Check HTTPRoutes
-oc get httproute -n %USER_NAME%-neuralbank
+oc get httproute -n {user_name}-neuralbank
 
 # Check AuthPolicies (API Key + OIDC JWT)
-oc get authpolicy -n %USER_NAME%-neuralbank -o wide
+oc get authpolicy -n {user_name}-neuralbank -o wide
 
 # Check RateLimitPolicies
-oc get ratelimitpolicy -n %USER_NAME%-neuralbank -o wide
+oc get ratelimitpolicy -n {user_name}-neuralbank -o wide
 ----
 
 == Step 7: Try the Frontend
@@ -114,7 +114,7 @@ oc get ratelimitpolicy -n %USER_NAME%-neuralbank -o wide
 Open the frontend Route in the browser:
 
 ----
-https://neuralbank-frontend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__
+https://neuralbank-frontend-{user_name}-neuralbank.{cluster_domain}
 ----
 
 . Enter an **API Key** in the input field (retrieve it from the backend's API Key Secret).
@@ -125,7 +125,7 @@ https://neuralbank-frontend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__
 [source,bash]
 ----
 # Retrieve the API Key for the frontend
-oc get secret -n %USER_NAME%-neuralbank \
+oc get secret -n {user_name}-neuralbank \
   -l "app=neuralbank-backend,kuadrant.io/apikey=true" \
   -o jsonpath='{.items[0].data.api_key}' | base64 -d ; echo
 ----
@@ -134,7 +134,7 @@ oc get secret -n %USER_NAME%-neuralbank \
 
 [cols="1,1,1",options="header"]
 |===
-| | Scaffolded Apps (your `%USER_NAME%-neuralbank`) | Pre-deployed `neuralbank-stack`
+| | Scaffolded Apps (your `{user_name}-neuralbank`) | Pre-deployed `neuralbank-stack`
 
 | **Frontend auth**
 | API Key input field in SPA
@@ -149,12 +149,12 @@ oc get secret -n %USER_NAME%-neuralbank \
 | Full OIDC flow (auth endpoint, callback, cookie)
 
 | **Frontend URL**
-| `https://neuralbank-frontend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__`
-| `https://neuralbank.__CLUSTER_DOMAIN__`
+| `https://neuralbank-frontend-{user_name}-neuralbank.{cluster_domain}`
+| `https://neuralbank.{cluster_domain}`
 
 | **Credentials**
 | API Key from Kubernetes Secret
-| `%USER_NAME%` / `Welcome123!` via Keycloak
+| `{user_name}` / `Welcome123!` via Keycloak
 |===
 
 NOTE: To add a full interactive OIDC flow to scaffolded apps, you would need to create an OIDC client in Keycloak's `neuralbank` realm, configure the redirect URI, and implement PKCE/Authorization Code flow in the frontend. The pre-deployed `neuralbank-stack` demonstrates this pattern.

@@ -4,7 +4,7 @@
 
 == Accessing Lightspeed
 
-. Log in to **Developer Hub** at `https://backstage-developer-hub-developer-hub.__CLUSTER_DOMAIN__`
+. Log in to **Developer Hub** at `https://backstage-developer-hub-developer-hub.{cluster_domain}`
 . In the left sidebar, click the **Lightspeed** icon.
 
 The chat interface opens, ready to answer questions about Developer Hub, Backstage, Kubernetes, OpenShift, CI/CD, and GitOps.

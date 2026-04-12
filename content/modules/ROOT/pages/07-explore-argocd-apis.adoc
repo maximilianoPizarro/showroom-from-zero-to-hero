@@ -6,8 +6,8 @@ This module connects the **GitOps** view in ArgoCD with the **Software Catalog**
 
 The recommended way to monitor your ArgoCD applications is through the **CD tab** in Developer Hub:
 
-. Open **Developer Hub**: `https://backstage-developer-hub-developer-hub.__CLUSTER_DOMAIN__`
-. Go to **Catalog** and find your component (e.g., `%USER_NAME%-neuralbank-backend`).
+. Open **Developer Hub**: `https://backstage-developer-hub-developer-hub.{cluster_domain}`
+. Go to **Catalog** and find your component (e.g., `{user_name}-neuralbank-backend`).
 . Click on the component, then select the **CD** tab.
 . You will see the ArgoCD sync status, health, and resource tree directly inside Developer Hub.
 
@@ -17,11 +17,11 @@ TIP: The **CD tab** provides the same information as the ArgoCD console but with
 
 If you prefer to access ArgoCD directly:
 
-. Go to ArgoCD: `https://openshift-gitops-server-openshift-gitops.__CLUSTER_DOMAIN__`
+. Go to ArgoCD: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
 . Log in with **Log in via OpenShift**.
-. In **Applications**, filter by your namespace `%USER_NAME%-neuralbank`.
+. In **Applications**, filter by your namespace `{user_name}-neuralbank`.
 
-NOTE: Workshop users have read-only access to their own applications (`%USER_NAME%-*`). If you don't see applications after login, use the **CD tab** in Developer Hub instead — it provides the same visibility with integrated authentication.
+NOTE: Workshop users have read-only access to their own applications (`{user_name}-*`). If you don't see applications after login, use the **CD tab** in Developer Hub instead — it provides the same visibility with integrated authentication.
 
 == ArgoCD ApplicationSet
 
@@ -37,7 +37,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://gitea-gitea.__CLUSTER_DOMAIN__
+        repoURL: https://gitea-gitea.{cluster_domain}
         revision: HEAD
         directories:
           - path: "*/neuralbank-backend"
@@ -47,7 +47,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: "https://gitea-gitea.__CLUSTER_DOMAIN__/{{path[0]}}/neuralbank-backend.git"
+        repoURL: "https://gitea-gitea.{cluster_domain}/{{path[0]}}/neuralbank-backend.git"
         targetRevision: HEAD
         path: manifests
       destination:
@@ -88,8 +88,8 @@ For services exposed with the connectivity link pattern, inspect:
 [.console-input]
 [source,bash]
 ----
-oc get authpolicy -n %USER_NAME%-neuralbank -o yaml
-oc get ratelimitpolicy -n %USER_NAME%-neuralbank -o yaml
+oc get authpolicy -n {user_name}-neuralbank -o yaml
+oc get ratelimitpolicy -n {user_name}-neuralbank -o yaml
 ----
 
 == Summary

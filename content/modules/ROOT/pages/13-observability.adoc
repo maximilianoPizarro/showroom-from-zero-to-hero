@@ -10,25 +10,25 @@ The workshop platform includes a comprehensive observability stack for monitorin
 
 | **Grafana**
 | Monitoring dashboards and alerting
-| https://grafana-observability.__CLUSTER_DOMAIN__
+| https://grafana-observability.{cluster_domain}
 
 | **Kiali**
 | Service mesh observability and traffic visualization
-| https://kiali-openshift-cluster-observability-operator.__CLUSTER_DOMAIN__
+| https://kiali-openshift-cluster-observability-operator.{cluster_domain}
 
 | **Jaeger**
 | Distributed tracing across microservices
-| https://jaeger.__CLUSTER_DOMAIN__
+| https://jaeger.{cluster_domain}
 |===
 
 TIP: These tools are also accessible from the **Console Links** in the OpenShift application menu and the **Observability** card on the Developer Hub home page.
 
 == Grafana Dashboards
 
-. Open Grafana at `https://grafana-observability.__CLUSTER_DOMAIN__`
+. Open Grafana at `https://grafana-observability.{cluster_domain}`
 . Explore pre-configured dashboards for:
 ** Cluster health and resource usage
-** Namespace-level metrics for `%USER_NAME%-neuralbank`
+** Namespace-level metrics for `{user_name}-neuralbank`
 ** Istio mesh traffic and latency
 
 === Key Metrics to Watch
@@ -40,9 +40,9 @@ TIP: These tools are also accessible from the **Console Links** in the OpenShift
 
 == Kiali: Service Mesh Visualization
 
-. Open Kiali at `https://kiali-openshift-cluster-observability-operator.__CLUSTER_DOMAIN__`
+. Open Kiali at `https://kiali-openshift-cluster-observability-operator.{cluster_domain}`
 . Navigate to the **Graph** view.
-. Select namespace `%USER_NAME%-neuralbank` or `neuralbank-stack`.
+. Select namespace `{user_name}-neuralbank` or `neuralbank-stack`.
 . Observe the traffic flow between services.
 
 Kiali shows:
@@ -68,7 +68,7 @@ graph LR
 
 == Jaeger: Distributed Tracing
 
-. Open Jaeger at `https://jaeger.__CLUSTER_DOMAIN__`
+. Open Jaeger at `https://jaeger.{cluster_domain}`
 . Select a service (e.g., `neuralbank-backend`).
 . Search for recent traces.
 

@@ -4,7 +4,7 @@
 
 == Accessing OpenShift Lightspeed
 
-. Log in to the **OpenShift Console** at `https://console-openshift-console.__CLUSTER_DOMAIN__`
+. Log in to the **OpenShift Console** at `https://console-openshift-console.{cluster_domain}`
 . Click the **Lightspeed** icon in the console header (chat bubble icon).
 . Ask questions about your cluster, workloads, or Kubernetes concepts.
 
@@ -23,7 +23,7 @@
 | "Explain the AuthPolicy in nfl-wallet-prod"
 | OLS retrieves and explains the policy configuration
 
-| "What events are in the %USER_NAME%-neuralbank namespace?"
+| "What events are in the {user_name}-neuralbank namespace?"
 | MCP queries cluster events for your namespace
 |===
 
@@ -61,7 +61,7 @@ spec:
   llm:
     providers:
       - name: vllm
-        url: "https://vllm-endpoint.__CLUSTER_DOMAIN__/v1"
+        url: "https://vllm-endpoint.{cluster_domain}/v1"
         type: openai
         credentialsSecretRef:
           name: vllm-credentials
@@ -142,7 +142,7 @@ The workshop also deploys a **Customer Service MCP** as part of the Neuralbank s
 ----
 # Check MCP server tools endpoint
 curl -s -H "X-API-Key: $API_KEY" \
-  "https://%USER_NAME%-customer-service-mcp.__CLUSTER_DOMAIN__/tools" \
+  "https://{user_name}-customer-service-mcp.{cluster_domain}/tools" \
   | python3 -m json.tool
 ----
 

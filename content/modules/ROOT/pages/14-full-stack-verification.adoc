@@ -9,23 +9,23 @@ This final module is a concise checklist to verify that all workshop components 
 | Check | Command / Action | Expected Result
 
 | **Backend pods**
-| `oc get pods -n %USER_NAME%-neuralbank -l app=neuralbank-backend`
+| `oc get pods -n {user_name}-neuralbank -l app=neuralbank-backend`
 | Running, no restarts
 
 | **Frontend pods**
-| `oc get pods -n %USER_NAME%-neuralbank -l app=neuralbank-frontend`
+| `oc get pods -n {user_name}-neuralbank -l app=neuralbank-frontend`
 | Running
 
 | **MCP pods**
-| `oc get pods -n %USER_NAME%-neuralbank -l app=customer-service-mcp`
+| `oc get pods -n {user_name}-neuralbank -l app=customer-service-mcp`
 | Running
 
 | **ArgoCD apps**
-| ArgoCD UI -> filter by `%USER_NAME%`
+| ArgoCD UI -> filter by `{user_name}`
 | 3 apps Synced & Healthy
 
 | **Pipelines**
-| `oc get pipelinerun -n %USER_NAME%-neuralbank`
+| `oc get pipelinerun -n {user_name}-neuralbank`
 | All Succeeded
 |===
 
@@ -35,16 +35,16 @@ This final module is a concise checklist to verify that all workshop components 
 [source,bash]
 ----
 # Gateways are programmed
-oc get gateway -n %USER_NAME%-neuralbank -o wide
+oc get gateway -n {user_name}-neuralbank -o wide
 
 # HTTPRoutes are accepted
-oc get httproute -n %USER_NAME%-neuralbank -o wide
+oc get httproute -n {user_name}-neuralbank -o wide
 
 # AuthPolicies are enforced
-oc get authpolicy -n %USER_NAME%-neuralbank -o wide
+oc get authpolicy -n {user_name}-neuralbank -o wide
 
 # RateLimitPolicies are enforced
-oc get ratelimitpolicy -n %USER_NAME%-neuralbank -o wide
+oc get ratelimitpolicy -n {user_name}-neuralbank -o wide
 ----
 
 All should show `ACCEPTED: True` and `ENFORCED: True`.
@@ -56,19 +56,19 @@ All should show `ACCEPTED: True` and `ENFORCED: True`.
 [.console-input]
 [source,bash]
 ----
-API_KEY=$(oc get secret %USER_NAME%-neuralbank-backend-apikey \
-  -n %USER_NAME%-neuralbank \
+API_KEY=$(oc get secret {user_name}-neuralbank-backend-apikey \
+  -n {user_name}-neuralbank \
   -o jsonpath='{.data.api_key}' | base64 -d)
 
 # Should return 200 with customer data
 curl -s -w "\nHTTP: %{http_code}\n" \
   -H "X-API-Key: $API_KEY" \
-  "https://neuralbank-backend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__/api/customers" \
+  "https://neuralbank-backend-{user_name}-neuralbank.{cluster_domain}/api/customers" \
   | tail -1
 
 # Should return 401 without key
 curl -s -o /dev/null -w "HTTP: %{http_code}\n" \
-  "https://neuralbank-backend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__/api/customers"
+  "https://neuralbank-backend-{user_name}-neuralbank.{cluster_domain}/api/customers"
 ----
 
 === Pre-deployed Stack (OIDC)
@@ -77,18 +77,18 @@ curl -s -o /dev/null -w "HTTP: %{http_code}\n" \
 [source,bash]
 ----
 TOKEN=$(curl -s -X POST \
-  "https://rhbk.__CLUSTER_DOMAIN__/realms/neuralbank/protocol/openid-connect/token" \
+  "https://rhbk.{cluster_domain}/realms/neuralbank/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=password" \
   -d "client_id=neuralbank-frontend" \
-  -d "username=%USER_NAME%" \
+  -d "username={user_name}" \
   -d "password=Welcome123!" \
   | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
 
 # Should return 200
 curl -s -w "\nHTTP: %{http_code}\n" \
   -H "Authorization: Bearer $TOKEN" \
-  "https://neuralbank.__CLUSTER_DOMAIN__/api/v1/customers" \
+  "https://neuralbank.{cluster_domain}/api/v1/customers" \
   | tail -1
 ----
 
@@ -103,7 +103,7 @@ NFL_KEY=$(oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
 # Should return 200
 curl -s -w "\nHTTP: %{http_code}\n" \
   -H "X-API-Key: $NFL_KEY" \
-  "https://nfl-wallet.__CLUSTER_DOMAIN__/api/v1/customers" \
+  "https://nfl-wallet.{cluster_domain}/api/v1/customers" \
   | tail -1
 ----
 
@@ -146,12 +146,12 @@ curl -s -w "\nHTTP: %{http_code}\n" \
 | No — manual API Key
 
 | **Frontend URL**
-| `neuralbank.__CLUSTER_DOMAIN__`
-| `neuralbank-frontend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__`
+| `neuralbank.{cluster_domain}`
+| `neuralbank-frontend-{user_name}-neuralbank.{cluster_domain}`
 | N/A (API only)
 
 | **Credentials**
-| `%USER_NAME%` / `Welcome123!`
+| `{user_name}` / `Welcome123!`
 | API Key from Secret
 | API Key from Secret
 

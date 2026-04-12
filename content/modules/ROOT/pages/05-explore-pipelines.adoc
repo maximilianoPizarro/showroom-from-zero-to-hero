@@ -5,7 +5,7 @@ After deploying **neuralbank-backend**, inspect how **Tekton** materializes CI/C
 == Open the Pipelines Console
 
 . Log in to the **OpenShift Console**.
-. Select project **`%USER_NAME%-neuralbank`**.
+. Select project **`{user_name}-neuralbank`**.
 . In the sidebar, go to **Pipelines** (or **CI/CD -> Pipelines**).
 
 == Locate the PipelineRun
@@ -94,7 +94,7 @@ This ensures webhook-triggered builds work reliably without TLS certificate issu
 
 == Use the Topology View
 
-. In the console, open the **Topology** view for project `%USER_NAME%-neuralbank`.
+. In the console, open the **Topology** view for project `{user_name}-neuralbank`.
 . Locate the backend **Deployment** (circular icon with status ring).
 . Click the node to open the side panel: **Pods**, **Services**, **Routes**, and events.
 

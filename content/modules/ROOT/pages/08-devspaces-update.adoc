@@ -76,13 +76,13 @@ git push origin main
 
 == Watch the Tekton Pipeline
 
-. Go to **OpenShift Console -> Pipelines -> PipelineRuns** in project `%USER_NAME%-neuralbank`.
+. Go to **OpenShift Console -> Pipelines -> PipelineRuns** in project `{user_name}-neuralbank`.
 . Identify a new run triggered by the recent push.
 
 The Gitea webhook uses an internal service URL to trigger the EventListener:
 
 ----
-http://el-neuralbank-backend-listener.%USER_NAME%-neuralbank.svc.cluster.local:8080
+http://el-neuralbank-backend-listener.{user_name}-neuralbank.svc.cluster.local:8080
 ----
 
 This avoids TLS certificate issues with self-signed cluster certificates.
@@ -95,12 +95,12 @@ This avoids TLS certificate issues with self-signed cluster certificates.
 [.console-input]
 [source,bash]
 ----
-API_KEY=$(oc get secret %USER_NAME%-neuralbank-backend-apikey \
-  -n %USER_NAME%-neuralbank \
+API_KEY=$(oc get secret {user_name}-neuralbank-backend-apikey \
+  -n {user_name}-neuralbank \
   -o jsonpath='{.data.api_key}' | base64 -d)
 
 curl -s -H "X-API-Key: $API_KEY" \
-  "https://neuralbank-backend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__/api/hello-workshop"
+  "https://neuralbank-backend-{user_name}-neuralbank.{cluster_domain}/api/hello-workshop"
 ----
 
 You should see the change reflected in the response.
