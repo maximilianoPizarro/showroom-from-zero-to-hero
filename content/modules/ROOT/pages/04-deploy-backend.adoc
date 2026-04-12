@@ -83,7 +83,7 @@ Dockerfile
 
 The scaffolded backend uses an **AuthPolicy** that supports **two authentication methods**:
 
-[source,yaml]
+[source,yaml,subs="attributes+"]
 ----
 apiVersion: kuadrant.io/v1
 kind: AuthPolicy
@@ -133,12 +133,12 @@ IMPORTANT: The scaffolded applications use **API Key as the primary authenticati
 The backend exposes REST endpoints through the Kuadrant gateway. Use an API Key to authenticate:
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 # Get the API key from the generated Secret
 API_KEY=$(oc get secret -n {user_name}-neuralbank \
   -l "app=neuralbank-backend,kuadrant.io/apikey=true" \
-  -o jsonpath='{.items[0].data.api_key}' | base64 -d)
+  -o jsonpath='\{.items[0].data.api_key}' | base64 -d)
 
 echo "API Key: $API_KEY"
 

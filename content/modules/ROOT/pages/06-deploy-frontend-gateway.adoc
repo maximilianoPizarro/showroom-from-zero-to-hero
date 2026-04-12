@@ -94,7 +94,7 @@ IMPORTANT: The scaffolded frontend does **not** implement OIDC login (no redirec
 == Step 6: Inspect Gateway and AuthPolicy
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 # Check Gateway resources
 oc get gateway -n {user_name}-neuralbank
@@ -122,12 +122,12 @@ https://neuralbank-frontend-{user_name}-neuralbank.{cluster_domain}
 . You can view customers, update credits, and check MCP tools — all routed through the Kuadrant gateways.
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 # Retrieve the API Key for the frontend
 oc get secret -n {user_name}-neuralbank \
   -l "app=neuralbank-backend,kuadrant.io/apikey=true" \
-  -o jsonpath='{.items[0].data.api_key}' | base64 -d ; echo
+  -o jsonpath='\{.items[0].data.api_key}' | base64 -d ; echo
 ----
 
 == Scaffolded vs Pre-deployed: Authentication Comparison

@@ -104,9 +104,9 @@ oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
 == Test: Request Without API Key (expect 401)
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
-curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
+curl -s -o /dev/null -w "HTTP Status: %\{http_code}\n" \
   https://nfl-wallet.{cluster_domain}/api/v1/customers
 ----
 
@@ -118,10 +118,10 @@ HTTP Status: 401
 == Test: With Valid API Key (expect 200)
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 API_KEY=$(oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
-  -o jsonpath='{.data.api_key}' | base64 -d)
+  -o jsonpath='\{.data.api_key}' | base64 -d)
 
 curl -s -H "X-API-Key: $API_KEY" \
   "https://nfl-wallet.{cluster_domain}/api/v1/customers" \
@@ -131,7 +131,7 @@ curl -s -H "X-API-Key: $API_KEY" \
 == Test: Create a Customer (POST)
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 curl -s -X POST \
   -H "X-API-Key: $API_KEY" \
@@ -153,10 +153,10 @@ curl -s -X POST \
 The RateLimitPolicy allows **120 requests per minute**:
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 for i in $(seq 1 10); do
-  code=$(curl -s -o /dev/null -w '%{http_code}' \
+  code=$(curl -s -o /dev/null -w '%\{http_code}' \
     -H "X-API-Key: $API_KEY" \
     "https://nfl-wallet.{cluster_domain}/api/v1/customers")
   echo "Request $i: HTTP $code"

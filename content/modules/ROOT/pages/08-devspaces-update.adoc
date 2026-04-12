@@ -93,11 +93,11 @@ This avoids TLS certificate issues with self-signed cluster certificates.
 . Try the endpoints again:
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 API_KEY=$(oc get secret {user_name}-neuralbank-backend-apikey \
   -n {user_name}-neuralbank \
-  -o jsonpath='{.data.api_key}' | base64 -d)
+  -o jsonpath='\{.data.api_key}' | base64 -d)
 
 curl -s -H "X-API-Key: $API_KEY" \
   "https://neuralbank-backend-{user_name}-neuralbank.{cluster_domain}/api/hello-workshop"

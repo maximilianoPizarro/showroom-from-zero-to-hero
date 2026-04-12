@@ -51,7 +51,7 @@ graph TB
 
 OpenShift Lightspeed is configured through the `OLSConfig` custom resource:
 
-[source,yaml]
+[source,yaml,subs="attributes+"]
 ----
 apiVersion: ols.openshift.io/v1alpha1
 kind: OLSConfig
@@ -138,7 +138,7 @@ The MCP Gateway acts as a proxy between OLS and individual MCP servers, providin
 The workshop also deploys a **Customer Service MCP** as part of the Neuralbank stack. This MCP server exposes backend operations (customer CRUD, credit scoring) as AI-callable tools:
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 # Check MCP server tools endpoint
 curl -s -H "X-API-Key: $API_KEY" \

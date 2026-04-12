@@ -32,7 +32,7 @@ This final module is a concise checklist to verify that all workshop components 
 == Gateway & Security Checklist
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 # Gateways are programmed
 oc get gateway -n {user_name}-neuralbank -o wide
@@ -54,27 +54,27 @@ All should show `ACCEPTED: True` and `ENFORCED: True`.
 === Backend API (API Key)
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 API_KEY=$(oc get secret {user_name}-neuralbank-backend-apikey \
   -n {user_name}-neuralbank \
-  -o jsonpath='{.data.api_key}' | base64 -d)
+  -o jsonpath='\{.data.api_key}' | base64 -d)
 
 # Should return 200 with customer data
-curl -s -w "\nHTTP: %{http_code}\n" \
+curl -s -w "\nHTTP: %\{http_code}\n" \
   -H "X-API-Key: $API_KEY" \
   "https://neuralbank-backend-{user_name}-neuralbank.{cluster_domain}/api/customers" \
   | tail -1
 
 # Should return 401 without key
-curl -s -o /dev/null -w "HTTP: %{http_code}\n" \
+curl -s -o /dev/null -w "HTTP: %\{http_code}\n" \
   "https://neuralbank-backend-{user_name}-neuralbank.{cluster_domain}/api/customers"
 ----
 
 === Pre-deployed Stack (OIDC)
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 TOKEN=$(curl -s -X POST \
   "https://rhbk.{cluster_domain}/realms/neuralbank/protocol/openid-connect/token" \
@@ -86,7 +86,7 @@ TOKEN=$(curl -s -X POST \
   | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
 
 # Should return 200
-curl -s -w "\nHTTP: %{http_code}\n" \
+curl -s -w "\nHTTP: %\{http_code}\n" \
   -H "Authorization: Bearer $TOKEN" \
   "https://neuralbank.{cluster_domain}/api/v1/customers" \
   | tail -1
@@ -95,13 +95,13 @@ curl -s -w "\nHTTP: %{http_code}\n" \
 === NFL Wallet (API Key)
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 NFL_KEY=$(oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
-  -o jsonpath='{.data.api_key}' | base64 -d)
+  -o jsonpath='\{.data.api_key}' | base64 -d)
 
 # Should return 200
-curl -s -w "\nHTTP: %{http_code}\n" \
+curl -s -w "\nHTTP: %\{http_code}\n" \
   -H "X-API-Key: $NFL_KEY" \
   "https://nfl-wallet.{cluster_domain}/api/v1/customers" \
   | tail -1

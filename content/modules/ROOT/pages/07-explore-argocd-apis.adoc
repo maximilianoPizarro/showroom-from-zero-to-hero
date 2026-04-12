@@ -27,7 +27,7 @@ NOTE: Workshop users have read-only access to their own applications (`{user_nam
 
 Applications are generated automatically by an **ApplicationSet** that watches Gitea for new repositories:
 
-[source,yaml]
+[source,yaml,subs="attributes+"]
 ----
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
@@ -43,16 +43,16 @@ spec:
           - path: "*/neuralbank-backend"
   template:
     metadata:
-      name: "{{path[0]}}-neuralbank-backend"
+      name: "\{\{path[0]}}-neuralbank-backend"
     spec:
       project: default
       source:
-        repoURL: "https://gitea-gitea.{cluster_domain}/{{path[0]}}/neuralbank-backend.git"
+        repoURL: "https://gitea-gitea.{cluster_domain}/\{\{path[0]}}/neuralbank-backend.git"
         targetRevision: HEAD
         path: manifests
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{path[0]}}-neuralbank"
+        namespace: "\{\{path[0]}}-neuralbank"
 ----
 
 == Explore the Resource Tree
@@ -86,7 +86,7 @@ For services exposed with the connectivity link pattern, inspect:
 * **RateLimitPolicy** — rate limits applied to traffic matching the HTTPRoute
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 oc get authpolicy -n {user_name}-neuralbank -o yaml
 oc get ratelimitpolicy -n {user_name}-neuralbank -o yaml

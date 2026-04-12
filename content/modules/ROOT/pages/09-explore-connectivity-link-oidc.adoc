@@ -41,7 +41,7 @@ The pre-deployed frontend has a **full interactive OIDC login**:
 
 The pre-deployed stack uses a **real `OIDCPolicy` CR** (Kuadrant extension) — different from the `AuthPolicy` with JWT validation used in scaffolded apps:
 
-[source,yaml]
+[source,yaml,subs="attributes+"]
 ----
 apiVersion: extensions.kuadrant.io/v1alpha1
 kind: OIDCPolicy
@@ -133,9 +133,9 @@ oc get ratelimitpolicy -n neuralbank-stack -o wide
 == Test: Request Without Token (expect 302)
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
-curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
+curl -s -o /dev/null -w "HTTP Status: %\{http_code}\n" \
   https://neuralbank.{cluster_domain}/api/v1/customers
 ----
 
@@ -151,7 +151,7 @@ The OIDCPolicy redirects unauthenticated requests to Keycloak login.
 For terminal testing, use the Resource Owner Password Credentials grant:
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 TOKEN=$(curl -s -X POST \
   "https://rhbk.{cluster_domain}/realms/neuralbank/protocol/openid-connect/token" \
@@ -168,7 +168,7 @@ echo "Token obtained (first 50 chars): ${TOKEN:0:50}..."
 == Test: List All Customers (GET)
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 curl -s -H "Authorization: Bearer $TOKEN" \
   "https://neuralbank.{cluster_domain}/api/v1/customers" \
@@ -178,7 +178,7 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 == Test: Create a New Customer (POST)
 
 [.console-input]
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 curl -s -X POST \
   -H "Authorization: Bearer $TOKEN" \
