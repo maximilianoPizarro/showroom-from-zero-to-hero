@@ -61,3 +61,19 @@
   else init();
 })();
 </script>
+<style>
+.author-footer{text-align:center;padding:12px 0 4px;margin-top:32px;border-top:1px solid #e0e0e0;font-size:0.75rem;color:#999;opacity:0.7;}
+.author-footer a{color:#999;text-decoration:none;}
+.author-footer a:hover{color:#0066cc;text-decoration:underline;}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var doc=document.querySelector('.doc');
+  if(doc){
+    var f=document.createElement('div');
+    f.className='author-footer';
+    f.innerHTML='<a href="https://maximilianopizarro.github.io/" target="_blank" rel="noopener">maximilianoPizarro</a>';
+    doc.appendChild(f);
+  }
+});
+</script>
