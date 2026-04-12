@@ -1,4 +1,21 @@
 <link rel="stylesheet" href="{{uiRootPath}}/css/site-extra.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
+  document.querySelectorAll('.literalblock.mermaid pre, .listingblock.mermaid pre').forEach(function(pre, i) {
+    var code = pre.textContent.trim();
+    if (!code) return;
+    var div = document.createElement('div');
+    div.className = 'mermaid-rendered';
+    var id = 'mermaid-' + i;
+    mermaid.render(id, code).then(function(result) {
+      div.innerHTML = result.svg;
+      pre.parentElement.parentElement.replaceWith(div);
+    }).catch(function(err) { console.warn('Mermaid render error:', err); });
+  });
+});
+</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <link rel="icon" href="{{uiRootPath}}/img/favicon.ico" type="image/x-icon">
