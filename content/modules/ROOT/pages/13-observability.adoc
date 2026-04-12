@@ -1,0 +1,120 @@
+= Observability Stack
+
+The workshop platform includes a comprehensive observability stack for monitoring, tracing, and visualizing the health of your applications and the service mesh.
+
+== Observability Tools
+
+[cols="1,2,1"]
+|===
+| Tool | Purpose | URL
+
+| **Grafana**
+| Monitoring dashboards and alerting
+| https://grafana-observability.{cluster_domain}
+
+| **Kiali**
+| Service mesh observability and traffic visualization
+| https://kiali-openshift-cluster-observability-operator.{cluster_domain}
+
+| **Jaeger**
+| Distributed tracing across microservices
+| https://jaeger.{cluster_domain}
+|===
+
+TIP: These tools are also accessible from the **Console Links** in the OpenShift application menu and the **Observability** card on the Developer Hub home page.
+
+== Grafana Dashboards
+
+. Open Grafana at `https://grafana-observability.{cluster_domain}`
+. Explore pre-configured dashboards for:
+** Cluster health and resource usage
+** Namespace-level metrics for `%USER_NAME%-neuralbank`
+** Istio mesh traffic and latency
+
+=== Key Metrics to Watch
+
+* **Request rate** — requests per second to the Gateway
+* **Error rate** — percentage of 4xx/5xx responses
+* **Latency** — p50/p95/p99 response times
+* **Rate limit rejections** — 429 responses from Kuadrant
+
+== Kiali: Service Mesh Visualization
+
+. Open Kiali at `https://kiali-openshift-cluster-observability-operator.{cluster_domain}`
+. Navigate to the **Graph** view.
+. Select namespace `%USER_NAME%-neuralbank` or `neuralbank-stack`.
+. Observe the traffic flow between services.
+
+Kiali shows:
+
+* **Traffic routing** through the Istio Gateway
+* **Health indicators** for each service
+* **Request/response metrics** between components
+* **Kuadrant policy enforcement** at the gateway level
+
+[mermaid]
+....
+graph LR
+    EXT[External Traffic] -->|HTTPS| GW[Istio Gateway]
+    GW -->|AuthPolicy| BE[neuralbank-backend]
+    GW -->|AuthPolicy| MCP[customer-service-mcp]
+    FE[neuralbank-frontend] -->|proxy| GW
+    BE --> DB[PostgreSQL]
+
+    style GW fill:#f9f,stroke:#333
+    style BE fill:#9cf,stroke:#333
+    style MCP fill:#9cf,stroke:#333
+----
+
+== Jaeger: Distributed Tracing
+
+. Open Jaeger at `https://jaeger.{cluster_domain}`
+. Select a service (e.g., `neuralbank-backend`).
+. Search for recent traces.
+
+Each trace shows the full request path:
+
+. Client -> Istio Gateway (TLS termination)
+. Gateway -> Kuadrant AuthPolicy (authentication check)
+. AuthPolicy -> RateLimitPolicy (rate limit check)
+. Limitador -> Backend Service (business logic)
+. Backend -> PostgreSQL (data access)
+
+== Monitoring the Kuadrant Stack
+
+[.console-input]
+[source,bash]
+----
+# Check Kuadrant operator status
+oc get pods -n kuadrant-system
+
+# Check Authorino (authentication engine)
+oc get pods -n kuadrant-system -l app=authorino
+
+# Check Limitador (rate limiting engine)
+oc get pods -n kuadrant-system -l app=limitador
+
+# View rate limit counters
+oc logs -n kuadrant-system -l app=limitador --tail=20
+----
+
+== Health Checks from the Frontend
+
+The Neuralbank frontend SPA includes built-in health indicators:
+
+* **Backend Gateway** — green/red status for `http://neuralbank-backend-gateway-istio:8080`
+* **MCP Gateway** — green/red status for `http://customer-service-mcp-gateway-istio:8080`
+* **MCP Tools** — lists available AI-callable tools from the MCP server
+
+These give developers immediate visibility into gateway connectivity without leaving the application.
+
+== Summary
+
+The observability stack provides end-to-end visibility across the platform:
+
+* **Grafana** for metrics and dashboards
+* **Kiali** for service mesh traffic visualization
+* **Jaeger** for distributed tracing across microservices
+* **Frontend health indicators** for real-time gateway status
+
+Combined with Kuadrant policies and ArgoCD GitOps, this creates a fully observable platform.

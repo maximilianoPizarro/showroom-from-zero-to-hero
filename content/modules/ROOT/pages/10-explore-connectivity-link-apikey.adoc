@@ -1,42 +1,42 @@
-= Explore Connectivity Link: API Key Auth (NFL Wallet)
+= API Key Authentication (NFL Wallet)
 
-In this module you will explore how **Red Hat Connectivity Link** protects the pre-deployed **NFL Wallet** application using **AuthPolicy with API Key** authentication and **RateLimitPolicy**. You will test the API from the terminal with valid and invalid keys.
+In this module you will explore how **Red Hat Connectivity Link** protects the pre-deployed **NFL Wallet** application using **AuthPolicy with API Key** authentication and **RateLimitPolicy**.
 
-== Architecture Overview
+== Architecture
 
 NFL Wallet is deployed in the `nfl-wallet-prod` namespace. It uses the same Quarkus backend but is protected by **API Key** instead of OIDC, making it ideal for **machine-to-machine (M2M)** access.
 
-The request flow is:
+[mermaid]
+....
+sequenceDiagram
+    participant Client
+    participant Gateway as Istio Gateway
+    participant Auth as Kuadrant AuthPolicy
+    participant RL as RateLimitPolicy
+    participant Backend as NFL Wallet Backend
 
-----
-Client → Istio Gateway → AuthPolicy (API Key validation via X-API-Key header) → RateLimitPolicy (120 req/min) → HTTPRoute → Backend Service
-----
+    Client->>Gateway: GET /api/v1/customers
+    Gateway->>Auth: Check X-API-Key header
+    alt No Key or Invalid Key
+        Auth-->>Client: 401 Unauthorized
+    else Valid Key
+        Auth->>RL: Check rate limit (120 req/min)
+        RL->>Backend: Forward request
+        Backend-->>Client: 200 JSON response
+    end
+....
 
 == OIDC vs API Key: When to Use Each
 
-[cols="1,1,1"]
+[cols="1,1,1",options="header"]
 |===
 | | OIDC (Neuralbank) | API Key (NFL Wallet)
 
-| **Auth mechanism**
-| Keycloak JWT tokens
-| API Key in HTTP header
-
-| **Header**
-| `Authorization: Bearer <token>`
-| `X-API-Key: <key>`
-
-| **Unauthorized response**
-| 302 redirect to login
-| 401 JSON error
-
-| **Best for**
-| Interactive users (web apps)
-| M2M integrations, scripts, CI/CD
-
-| **Key management**
-| Keycloak issues tokens
-| Kubernetes Secrets with labels
+| **Auth mechanism** | Keycloak JWT tokens | API Key in HTTP header
+| **Header** | `Authorization: Bearer <token>` | `X-API-Key: <key>`
+| **Unauthorized response** | 302 redirect to login | 401 JSON error
+| **Best for** | Interactive users (web apps) | M2M integrations, scripts, CI/CD
+| **Key management** | Keycloak issues tokens | Kubernetes Secrets with labels
 |===
 
 == Inspect the Resources
@@ -53,26 +53,53 @@ oc get ratelimitpolicy -n nfl-wallet-prod -o wide
 
 Verify the AuthPolicy shows `ACCEPTED: True` and `ENFORCED: True`.
 
+== AuthPolicy with API Key
+
+[source,yaml]
+----
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  name: nfl-wallet-auth
+  namespace: nfl-wallet-prod
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: nfl-wallet-route
+  defaults:
+    rules:
+      authentication:
+        api-key-auth:
+          apiKey:
+            allNamespaces: true
+            selector:
+              matchLabels:
+                app: nfl-wallet
+                kuadrant.io/apikey: "true"
+          credentials:
+            customHeader:
+              name: X-API-Key
+      response:
+        unauthenticated:
+          code: 401
+          body:
+            value: '{"error":"API Key required. Include X-API-Key header."}'
+----
+
 == List Available API Keys
 
-API Keys are stored as Kubernetes Secrets with special labels that Kuadrant/Authorino detects automatically:
+API Keys are stored as Kubernetes Secrets with labels that Kuadrant/Authorino detects:
 
 [.console-input]
 [source,bash]
 ----
 oc get secrets -n nfl-wallet-prod -l kuadrant.io/apikey=true
-----
 
-Decode the admin key:
-
-[.console-input]
-[source,bash]
-----
+# Decode the admin key
 oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
   -o jsonpath='{.data.api_key}' | base64 -d ; echo
 ----
-
-Output: `nfl-wallet-demo-key-2024`
 
 == Test: Request Without API Key (expect 401)
 
@@ -80,7 +107,7 @@ Output: `nfl-wallet-demo-key-2024`
 [source,bash]
 ----
 curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
-  https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
+  https://nfl-wallet.{cluster_domain}/api/v1/customers
 ----
 
 [.console-output]
@@ -88,60 +115,26 @@ curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
 HTTP Status: 401
 ----
 
-== Test: Request With an Invalid API Key (expect 401)
+== Test: With Valid API Key (expect 200)
 
 [.console-input]
 [source,bash]
 ----
-curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
-  -H "X-API-Key: this-is-not-a-valid-key" \
-  https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
+API_KEY=$(oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
+  -o jsonpath='{.data.api_key}' | base64 -d)
+
+curl -s -H "X-API-Key: $API_KEY" \
+  "https://nfl-wallet.{cluster_domain}/api/v1/customers" \
+  | python3 -m json.tool | head -20
 ----
 
-[.console-output]
-----
-HTTP Status: 401
-----
-
-== Test: List All Customers With Valid API Key (expect 200)
-
-[.console-input]
-[source,bash]
-----
-curl -s -H "X-API-Key: nfl-wallet-demo-key-2024" \
-  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
-  | python3 -m json.tool
-----
-
-You should receive a JSON response with paginated customer records and `HTTP 200`.
-
-== Test: Get a Customer by ID
-
-[.console-input]
-[source,bash]
-----
-curl -s -H "X-API-Key: nfl-wallet-demo-key-2024" \
-  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1" \
-  | python3 -m json.tool
-----
-
-== Test: Get Credit Score
-
-[.console-input]
-[source,bash]
-----
-curl -s -H "X-API-Key: nfl-wallet-demo-key-2024" \
-  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1/credit-score" \
-  | python3 -m json.tool
-----
-
-== Test: Create a New Customer (POST)
+== Test: Create a Customer (POST)
 
 [.console-input]
 [source,bash]
 ----
 curl -s -X POST \
-  -H "X-API-Key: nfl-wallet-demo-key-2024" \
+  -H "X-API-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "nombre": "API Key",
@@ -151,53 +144,47 @@ curl -s -X POST \
     "ciudad": "Miami",
     "pais": "USA"
   }' \
-  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  "https://nfl-wallet.{cluster_domain}/api/v1/customers" \
   | python3 -m json.tool
 ----
 
 == Quick Rate-Limit Test
 
-The RateLimitPolicy allows **120 requests per minute**. Run a burst to observe:
+The RateLimitPolicy allows **120 requests per minute**:
 
 [.console-input]
 [source,bash]
 ----
 for i in $(seq 1 10); do
   code=$(curl -s -o /dev/null -w '%{http_code}' \
-    -H "X-API-Key: nfl-wallet-demo-key-2024" \
-    "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers")
+    -H "X-API-Key: $API_KEY" \
+    "https://nfl-wallet.{cluster_domain}/api/v1/customers")
   echo "Request $i: HTTP $code"
 done
 ----
 
-All 10 should return `200`. If you extend the loop beyond 120 requests within one minute, the last ones will return `429 Too Many Requests`.
+All 10 should return `200`. Beyond 120 requests per minute, you will see `429 Too Many Requests`.
 
 == How API Key Auth Works
 
-[arabic]
-. API Keys are created as Kubernetes `Secrets` with the label `kuadrant.io/apikey=true`
-. The `AuthPolicy` references a selector that matches these labeled Secrets
-. Kuadrant's Authorino watches for Secrets matching the selector
-. When a request arrives, Authorino extracts the `X-API-Key` header
-. It compares the value against all known API Key Secrets
-. If a match is found, the request is authorized; otherwise HTTP 401 is returned
+[mermaid]
+....
+sequenceDiagram
+    participant Client
+    participant Authorino as Kuadrant Authorino
+    participant K8s as Kubernetes API
+    participant Backend
 
-== Swagger UI
-
-The NFL Wallet API includes an interactive Swagger UI. Open in your browser:
-
-----
-https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/q/swagger-ui
-----
-
-NOTE: Swagger UI requests also pass through the AuthPolicy. Click **Authorize**, enter the API Key `nfl-wallet-demo-key-2024`, and then test the endpoints.
-
-== Browse in Developer Hub
-
-. Open **Developer Hub** and search for **nfl-wallet** in the Catalog
-. Explore the **API** tab — the OpenAPI spec shows all `/api/v1/customers` endpoints with the `X-API-Key` security scheme
-. Check the **APIProduct** linked to the API entity
-. Open the **TechDocs** for usage instructions and API Key authentication details
+    Note over Authorino,K8s: Authorino watches Secrets with label kuadrant.io/apikey=true
+    Client->>Authorino: Request with X-API-Key header
+    Authorino->>K8s: Lookup matching Secret
+    alt Key Found
+        Authorino->>Backend: Forward request
+        Backend-->>Client: 200 JSON
+    else Key Not Found
+        Authorino-->>Client: 401 Unauthorized
+    end
+....
 
 == Summary
 
@@ -206,6 +193,5 @@ The API Key pattern is ideal for:
 * Machine-to-machine (M2M) integrations
 * CI/CD pipelines consuming APIs
 * External partners with long-lived credentials
-* Simple authentication without an identity provider
 
 Both patterns (OIDC and API Key) are powered by the same stack: **Istio Gateway + HTTPRoute + Kuadrant policies**, demonstrating the flexibility of Red Hat Connectivity Link.

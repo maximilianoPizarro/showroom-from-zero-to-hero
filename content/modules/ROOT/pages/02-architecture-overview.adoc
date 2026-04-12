@@ -1,42 +1,101 @@
 = Workshop Architecture Overview
 
-This page describes the logical architecture of the Neuralbank scenario: how Red Hat Developer Hub, GitOps, CI/CD, identity, and secure API exposure fit together in front of an OpenShift cluster.
+This page describes the logical architecture of the Neuralbank scenario: how Developer Hub, GitOps, CI/CD, identity, API security, AI, and observability fit together on OpenShift.
 
 == Component View
 
-The following diagram shows the main workshop components and how they interact:
-
 image::02-component-view.svg[Workshop component diagram, width=100%, link=_images/02-component-view.svg]
 
-Each block has a clear role: the Hub orchestrates the experience; Git is the source of truth; Argo CD applies the declarative model; Tekton automates the software supply chain; the gateway and policy layer exposes and protects traffic; Dev Spaces brings development close to the cluster’s real environment.
+Each block has a clear role: the Hub orchestrates the experience; Git is the source of truth; ArgoCD applies the declarative model; Tekton automates the software supply chain; the gateway and policy layer exposes and protects traffic; Lightspeed adds AI assistance; and the observability stack monitors everything.
 
 == Main Flow: From Template to Deployment
 
-The typical path you will follow in the workshop is:
-
 image::02-scaffolding-flow.svg[Scaffolding flow from Developer Hub to deployment, width=100%, link=_images/02-scaffolding-flow.svg]
 
-. The developer opens **Developer Hub** and runs a **Software Template** (for example Neuralbank Backend).
-. The template **generates or publishes** a repository in **Gitea** with code, manifests, `devfile`, and pipeline definition.
-. **Argo CD** detects the associated Application and **synchronizes** manifests to the `{user_name}-neuralbank` namespace on OpenShift.
-. **Tekton** runs a **PipelineRun** (clone, Maven build, image build, deployment) according to the resources created in the repo.
-. OpenShift **schedules pods**, exposes **Services**, and, depending on the case, **Gateway API** resources and HTTP routes.
-. The component is **registered in the Developer Hub catalog** for discovery, documentation, and relationships (for example APIs).
+. The developer opens **Developer Hub** and runs a **Software Template**.
+. The template **publishes** a repository in **Gitea** with code, manifests, `devfile`, and pipeline definition.
+. **ArgoCD** detects the Application and **synchronizes** manifests to the `{user_name}-neuralbank` namespace.
+. **Tekton** runs a **PipelineRun** (clone, build, image, deploy) triggered by a **Gitea webhook**.
+. OpenShift **schedules pods**, exposes **Services**, and creates **Gateway API** resources.
+. The component is **registered** in the Developer Hub catalog.
 
-This pattern joins **golden path** (template) with **GitOps** (Argo CD) and **CI/CD** (Tekton), keeping traceability from the first click in the Hub to the running pod.
+== Connectivity Link Pattern
 
-== Connectivity Link Pattern (Gateway + routes + policies)
+image::02-connectivity-link.svg[Connectivity Link pattern with Gateway API and Kuadrant, width=100%, link=_images/02-connectivity-link.svg]
 
-To expose services externally or between teams with uniform controls, the scenario uses a pattern aligned with **Gateway API** and integration with **Istio** and **Kuadrant** for policies:
+The **Connectivity Link** pattern uses **Gateway API** with **Kuadrant** policies to secure exposed services:
 
-image::02-connectivity-link.svg[Connectivity Link pattern with Gateway API and Istio, width=100%, link=_images/02-connectivity-link.svg]
+* **Gateway** — traffic entry point (host, listeners, TLS)
+* **HTTPRoute** — hostnames and routing rules to backend Services
+* **AuthPolicy** — authentication via OIDC (Keycloak JWT) or API Key (X-API-Key header)
+* **RateLimitPolicy** — rate limits to protect backends
 
-* **Gateway**: defines the traffic entry point (host, listeners, TLS per configuration).
-* **HTTPRoute**: binds hostnames and routing rules to backend Services.
-* **OIDCPolicy**: requires OIDC authentication consistent with your IdP (e.g. Keycloak), protecting exposed API traffic.
-* **RateLimitPolicy**: applies rate limits to protect backends and meet fair-use or abuse-defense policies.
+=== AuthPolicy YAML Structure
 
-Together, these pieces form a declarative **connectivity link**: the same GitOps approach as the rest of the system, reviewable in Git and applied by operators on the cluster.
+[source,yaml]
+----
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  name: neuralbank-backend-auth
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: neuralbank-backend-route
+  defaults:
+    rules:
+      authentication:
+        api-key-auth:
+          apiKey:
+            allNamespaces: true
+            selector:
+              matchLabels:
+                app: neuralbank-backend
+                kuadrant.io/apikey: "true"
+          credentials:
+            customHeader:
+              name: X-API-Key
+          priority: 0
+        oidc:
+          jwt:
+            issuerUrl: https://rhbk.{cluster_domain}/realms/neuralbank
+          credentials:
+            authorizationHeader:
+              prefix: Bearer
+          priority: 1
+----
+
+== MCP Gateway (Kuadrant Community Extension)
+
+The **MCP Gateway** extends Kuadrant with support for the **Model Context Protocol**, allowing AI assistants (OpenShift Lightspeed) to call cluster tools securely:
+
+[mermaid]
+....
+graph LR
+    OLS[OpenShift Lightspeed] -->|MCP Protocol| GW[MCP Gateway]
+    GW --> K8S[k8s-mcp-server]
+    GW --> OCP[ocp-mcp-server]
+    K8S -->|kubectl| CLUSTER[OpenShift Cluster]
+    OCP -->|oc| CLUSTER
+....
+
+== Console Links Integration
+
+All workshop tools are accessible from the **OpenShift Console application menu** via Console Links:
+
+[cols="1,1"]
+|===
+| Section | Tools
+
+| **Workshop Tools**
+| Developer Hub, Gitea, ArgoCD, Keycloak, Workshop Registration, Mailpit
+
+| **Observability**
+| Grafana, Kiali, Jaeger
+|===
+
+These same links appear as quick access cards on the Developer Hub home page.
 
 == Acronym Glossary
 
@@ -44,47 +103,15 @@ Together, these pieces form a declarative **connectivity link**: the same GitOps
 |===
 |Acronym |Meaning
 
-|RHDH
-|Red Hat Developer Hub — developer portal based on Backstage
-
-|IDP
-|Internal Developer Portal — internal development portal
-
-|SSO
-|Single Sign-On — unified authentication (Keycloak)
-
-|OIDC
-|OpenID Connect — authentication protocol on OAuth 2.0
-
-|RBAC
-|Role-Based Access Control — role-based access control
-
-|MCP
-|Model Context Protocol — protocol for AI tool servers
-
-|OLS
-|OpenShift Lightspeed — AI assistant integrated in OpenShift
-
-|CI/CD
-|Continuous Integration / Continuous Delivery
-
-|GitOps
-|Declarative management of infrastructure and applications from Git
-
-|CRD
-|Custom Resource Definition — Kubernetes API extensions
-
-|HPA
-|Horizontal Pod Autoscaler — automatic pod scaling
-
-|TLS
-|Transport Layer Security — encryption of communications
-
-|SPA
-|Single Page Application — single-page web application
-
-|LLM
-|Large Language Model — large language model
+|RHDH |Red Hat Developer Hub — developer portal based on Backstage
+|MCP |Model Context Protocol — protocol for AI tool servers
+|OLS |OpenShift Lightspeed — AI assistant integrated in OpenShift
+|OIDC |OpenID Connect — authentication protocol on OAuth 2.0
+|RBAC |Role-Based Access Control
+|CI/CD |Continuous Integration / Continuous Delivery
+|GitOps |Declarative management of infrastructure and applications from Git
+|LLM |Large Language Model
+|SPA |Single Page Application
 |===
 
 == Role of Each Component
@@ -93,36 +120,16 @@ Together, these pieces form a declarative **connectivity link**: the same GitOps
 |===
 |Component |Role
 
-|Developer Hub
-|Developer portal: catalog, templates, documentation, and plugins toward GitOps, pipelines, and environments.
-
-|Gitea
-|Internal Git repository: source code, manifests, and pipeline triggers.
-
-|Argo CD
-|Continuous synchronization from Git to cluster state; health and drift visible in the Argo CD dashboard.
-
-|Tekton
-|Pipeline execution as Kubernetes resources; chains CI/CD tasks.
-
-|Keycloak
-|Identity and SSO; feeds OIDC policies and Hub access.
-
-|Dev Spaces
-|Development environments based on `devfile`, connected to the same repo as GitOps and Tekton.
-
-|Gateway API / Istio / Kuadrant
-|North-south traffic ingress, routing, and policies (OIDC, rate limit) on exposed APIs.
-
-|OpenShift Lightspeed (OLS)
-|AI assistant integrated with MCP Gateway for cluster operations via tools.
-
-|LiteLLM
-|LLM model proxy; manages Virtual Keys, rate limits, and routing between AI providers.
+|Developer Hub |Developer portal: catalog, templates, plugins, AI chat
+|Gitea |Internal Git: source code, manifests, pipeline triggers
+|ArgoCD |GitOps sync from Git to cluster state
+|Tekton |Pipeline execution: clone, build, image, deploy
+|Keycloak |Identity and SSO; feeds OIDC policies and Hub access
+|Dev Spaces |Cloud IDE based on `devfile`, connected to the same repo
+|Gateway API / Kuadrant |Traffic ingress, routing, and auth/rate-limit policies
+|OpenShift Lightspeed |AI assistant with MCP Gateway for cluster operations
+|LiteLLM |LLM proxy for Developer Lightspeed
+|Grafana |Monitoring dashboards and alerting
+|Kiali |Service mesh observability
+|Mailpit |Email testing for notifications
 |===
-
-== Reading for the Workshop
-
-In later modules you will return to this mental map: each time you create a template, look at the repo in Gitea; each time Argo CD syncs, check the namespace in OpenShift; when the pipeline finishes, validate image and deployment; when you expose the MCP or APIs, relate Gateway, HTTPRoute, and policies to what you see in the console and in the catalog.
-
-With this architecture, **Developer Hub** acts as the human-facing layer over a declarative, automated system that takes software from repository to production in a repeatable way.

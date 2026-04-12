@@ -1,6 +1,6 @@
-= Red Hat Developer Hub Value Proposition
+= Developer Hub Value Proposition
 
-Red Hat Developer Hub is the enterprise offering based on **Backstage**, the CNCF open source developer portal. Its goal is to provide a single entry point where teams discover services, create new components following proven paths, and collaborate seamlessly with the underlying platform.
+Red Hat Developer Hub is the enterprise offering based on **Backstage**, the CNCF open source developer portal. It provides a single entry point where teams discover services, create new components following proven paths, and collaborate seamlessly with the underlying platform.
 
 == What is Developer Hub?
 
@@ -12,8 +12,9 @@ The *self-service* approach means a developer can:
 
 * **Register or discover** existing components in the catalog without opening manual tickets.
 * **Create new projects** from platform-approved templates (golden paths).
-* **Open integrated development environments** (for example Dev Spaces) from the component page.
+* **Open integrated development environments** (Dev Spaces) from the component page.
 * **Consult APIs, dependencies, and ownership** in one place.
+* **Ask questions** to the AI assistant via **Developer Lightspeed**.
 
 This reduces dependence on platform teams for repetitive tasks and speeds up onboarding for new members.
 
@@ -21,61 +22,56 @@ This reduces dependence on platform teams for repetitive tasks and speeds up onb
 
 The **Software Catalog** models entities such as *Component*, *API*, *System*, *Domain*, and *Resource*. Each page links code, documentation, pipelines, and deployments, so the catalog is not merely a listing but an **operational map** of the application landscape.
 
-Typical benefits:
-
-* Visibility into which services exist, who is responsible, and how they relate.
-* Standards compliance by requiring registration of components created from templates.
-* A foundation for plugins that enrich the view (for example GitOps, metrics, or policies).
-
 == Software Templates: Reproducible Golden Paths
 
 **Software Templates** encode the recommended path: repository structure, Kubernetes/OpenShift manifests, Tekton pipelines, `devfile` for Dev Spaces, and catalog registration. The developer fills in a form with safe parameters (name, owner, environment) and the system runs the steps defined in the template.
 
-This avoids “copy and paste” from zombie repositories and ensures that everything generated complies with security, naming, and deployment policies.
-
 == Plugins and Extensibility
 
-Backstage is built on a **plugin** model that adds cards, pages, and actions to the catalog: Git integration (Gitea, GitHub, GitLab), pipeline visualization, cluster links, API scanning, and so on. Red Hat Developer Hub selects and supports a set of plugins aligned with Red Hat products and GitOps patterns, so organizations can **extend** the portal without fully forking upstream.
+Backstage is built on a **plugin** model that adds cards, pages, and actions to the catalog. Red Hat Developer Hub includes supported plugins for:
 
-For platform teams, this means policies and automation can be exposed uniformly: a single **Kubernetes** or **Tekton** plugin shows consistent information for all developers, instead of relying on static wikis.
-
-== Internal Developer Portal (IDP)
-
-In many companies, Developer Hub is the core of the **Internal Developer Portal**: a site where architectural standards, approved templates, maturity metrics, and links to internal tools live together. The IDP reduces the question “how do I do X here?” to “which template or catalog component do I use?”
-
-The value is not only documentation: it is **operational**. Catalog pages can link to the real repository, the active pipeline, and deployment status, so information stays as current as the cluster itself.
+* **GitOps** — ArgoCD integration for deployment visualization
+* **CI/CD** — Tekton pipeline monitoring
+* **Kubernetes** — Topology and resource views
+* **Lightspeed** — AI chat assistant powered by LLMs
+* **Kuadrant** — API product management and key administration
 
 == Integration with the Platform Stack
 
-Developer Hub does not replace Argo CD, Tekton, Kubernetes, or Dev Spaces: it **orchestrates them from the developer experience**.
+Developer Hub **orchestrates** the platform stack from the developer experience:
 
-* **Argo CD**: synchronizes the desired state from the Git repository with the cluster; the developer sees the outcome in the catalog and in GitOps.
-* **Tekton**: runs build, image, and deployment pipelines triggered by repository changes.
-* **Kubernetes / OpenShift**: the runtime where workloads, routes, gateways, and policies live.
-* **Dev Spaces**: provides browser IDEs aligned with the component’s `devfile`.
+[mermaid]
+....
+graph TB
+    DH[Developer Hub] --> GIT[Gitea - Source of Truth]
+    DH --> ARGO[ArgoCD - GitOps Sync]
+    DH --> TEK[Tekton - CI/CD Pipelines]
+    DH --> DS[Dev Spaces - Cloud IDE]
+    DH --> LS[Lightspeed - AI Assistant]
+    ARGO --> OCP[OpenShift Cluster]
+    TEK --> OCP
+    OCP --> GW[Gateway API + Kuadrant]
+    GW --> OIDC[OIDC Policy]
+    GW --> RLP[Rate Limit Policy]
+    GW --> APIKEY[API Key Policy]
+....
 
-This integration makes the portal the layer of **abstraction with context**: fewer tool hops, more traceability.
+== Console Links and Quick Access
+
+The workshop platform integrates **Console Links** in the OpenShift application menu and **quick access cards** on the Developer Hub home page, so all tools are one click away — no need to bookmark individual URLs.
 
 == RBAC and Keycloak Integration
 
-In enterprise environments, access to the portal and sensitive actions (creating templates, viewing secrets, approving deployments) is governed with **RBAC** and identity providers such as **Keycloak**. IdP groups and roles map to permissions in Backstage/Developer Hub so golden paths are available only to the right people and sensitive information stays scoped.
+Access to the portal and sensitive actions is governed with **RBAC** and identity providers such as **Keycloak**. IdP groups and roles map to permissions in Developer Hub so golden paths are available only to the right people and sensitive information stays scoped.
 
 == Reducing Cognitive Load and Time to Production
 
 By combining catalog, templates, and integrations:
 
-* **Fewer ad hoc decisions**: the developer chooses an already validated path.
-* **Fewer configuration errors**: manifests and pipelines come from the template, not scattered manual edits.
-* **Shorter cycles**: from idea to repository, pipeline, and deployment on OpenShift with guided, visible steps in the Hub.
-
-In the Neuralbank workshop you will apply these concepts by creating backend, frontend, and an MCP service via templates, and observing how the portal connects each piece with GitOps and CI/CD.
-
-== Adoption Metrics (Practical View)
-
-Organizations often measure portal success with indicators such as: mean time from request to first commit in a golden-path repo, number of registered components versus uninventoried silos, or reduction of repetitive platform tickets. Although this workshop does not implement business dashboards, keep in mind that Developer Hub is also a lever for **soft governance**: by channeling software creation through templates, it is easier to audit what is deployed and how.
+* **Fewer ad hoc decisions** — the developer chooses an already validated path.
+* **Fewer configuration errors** — manifests and pipelines come from the template.
+* **Shorter cycles** — from idea to running pod with guided, visible steps in the Hub.
 
 == Summary
 
-Red Hat Developer Hub turns OpenShift and the GitOps ecosystem into a **product experience** for developers: discovery in the catalog, disciplined creation with templates, and integration with Argo CD, Tekton, Dev Spaces, and Keycloak to ship software with less friction and more consistency.
-
-With this conceptual foundation, the next module describes the concrete architecture of the workshop and the data path from template to cluster.
+Red Hat Developer Hub turns OpenShift and the GitOps ecosystem into a **product experience** for developers: discovery in the catalog, disciplined creation with templates, AI assistance with Lightspeed, and integration with ArgoCD, Tekton, Dev Spaces, Kuadrant, and Keycloak to ship software with less friction and more consistency.

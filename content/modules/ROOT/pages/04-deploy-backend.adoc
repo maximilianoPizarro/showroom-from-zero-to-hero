@@ -1,96 +1,110 @@
 = Deploy the Backend with Software Templates
 
-In this module you will deploy **Neuralbank Backend** using a Software Template on Red Hat Developer Hub. When you finish you will have a repository in Gitea, an application in Argo CD, a Tekton pipeline run, and the API reachable on OpenShift.
+In this module you will deploy **Neuralbank Backend** using a Software Template. When you finish you will have a repository in Gitea, an application in ArgoCD, a Tekton pipeline run, and the API reachable on OpenShift.
 
 == Prerequisites
 
-* Access to Developer Hub with your user (`{user_name}`) and password `Welcome123!`.
+* Access to Developer Hub with your user (`%USER_NAME%`) and password `Welcome123!`.
 * Permission to create components from templates in the workshop catalog.
 
-== Step 1: Open create from template
+== Step 1: Open Create from Template
 
-. Log in to Developer Hub.
+. Log in to Developer Hub at `https://backstage-developer-hub-developer-hub.{cluster_domain}`.
 . In the main menu, select **Create**.
-. Find the template **Neuralbank: Backend API** (the exact name may include the `Neuralbank` prefix).
+. Find the template **Neuralbank: Backend API**.
+
+== Step 2: Complete the Form
+
+Fill in the fields:
+
+[cols="1,2"]
+|===
+| Field | Value
+
+| **Name**
+| `neuralbank-backend`
+
+| **Owner (OpenShift username)**
+| `%USER_NAME%`
+|===
+
+This creates namespace `%USER_NAME%-neuralbank` where all services deploy.
+
+WARNING: Do not use spaces in the repository name. The owner must match your OpenShift user for correct namespace permissions.
+
+== Step 3: Create and Wait for Scaffolding
+
+. Click **Create** (or **Review** then **Create** if there is a review step).
+. Stay on the progress screen until all scaffolder steps finish.
+
+NOTE: If a step fails, check permissions in Gitea or quota on namespace `%USER_NAME%-neuralbank`.
+
+== Step 4: Verify the Repository in Gitea
+
+. Open Gitea: `https://gitea-gitea.{cluster_domain}`
+. Locate the repository `%USER_NAME%/neuralbank-backend`.
+. Confirm that source code, manifests, tekton, and `catalog-info.yaml` exist.
 
 [.console-input]
+[source,bash]
 ----
-Navigation: Developer Hub -> Create -> Software Template -> "Neuralbank: Backend API"
-----
-
-== Step 2: Complete the form
-
-Fill in the fields requested by the template. The **User** field will autocomplete with your OpenShift username. This value defines the namespace where your services deploy: `{user_name}-neuralbank`.
-
-* **Component / repository name**: `neuralbank-backend`
-* **User (OpenShift username)**: `{user_name}` — defines the `{user_name}-neuralbank` namespace
-
-[.console-input]
-----
-name  = neuralbank-backend
-owner = {user_name}
-→ resulting namespace: {user_name}-neuralbank
-----
-
-WARNING: Do not use spaces in the repository name. The owner must match your OpenShift user so namespace permissions are correct.
-
-== Step 3: Create and wait for scaffolding
-
-. Click **Create** (or **Review** and then **Create** if there is a review step).
-. Stay on the progress screen until all *scaffolder* steps finish (publish to Git, catalog registration, etc.).
-
-NOTE: If a step fails, check permissions in Gitea or quota on namespace `{user_name}-neuralbank`. In shared environments each user has their own namespace and there are no conflicts.
-
-== Step 4: Verify the repository in Gitea
-
-. Open the **Gitea** URL: `https://gitea-gitea.{cluster_domain}`
-. Locate the repository `{user_name}/neuralbank-backend`.
-. Confirm that source code (Java/Quarkus project), manifests folder, `tekton`, and `catalog-info.yaml` exist.
-
-[.console-input]
-----
-Gitea -> {user_name}/neuralbank-backend -> check structure (src/, manifests/, tekton/, devfile.yaml)
+# Expected repository structure
+src/                     # Java/Quarkus source code
+manifests/
+  deployment.yaml
+  service.yaml
+  gateway.yaml           # Gateway API resource
+  httproute.yaml         # HTTPRoute for the API
+  authpolicy.yaml        # Kuadrant AuthPolicy (OIDC + API Key)
+  ratelimitpolicy.yaml   # Kuadrant RateLimitPolicy
+  trigger-binding.yaml   # Tekton TriggerBinding
+  trigger-template.yaml  # Tekton TriggerTemplate
+  event-listener.yaml    # Tekton EventListener
+tekton/
+  pipeline.yaml          # CI/CD pipeline definition
+devfile.yaml             # Dev Spaces configuration
+catalog-info.yaml        # Backstage catalog registration
+Dockerfile
 ----
 
-== Step 5: Verify the application in Argo CD
+== Step 5: Verify the Application in ArgoCD
 
-. Open the **Argo CD** dashboard: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
-. Find an **Application** associated with the backend in namespace `{user_name}-neuralbank`.
-. Check **Sync Status** and **Health**; if *OutOfSync*, run **Sync** if your role allows it.
+. Open ArgoCD: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
+. Find an **Application** named `%USER_NAME%-neuralbank-backend`.
+. Check **Sync Status** and **Health**; if *OutOfSync*, run **Sync**.
 
-NOTE: The first sync may take a while while namespaces, secrets, or images are created; refresh the resource tree until you see Deployments and Services green.
-
-== Step 6: Validate the deployment on OpenShift
+== Step 6: Validate the Deployment on OpenShift
 
 . Open the **OpenShift Console**.
-. Switch to project **`{user_name}-neuralbank`**.
-. Under **Workloads -> Pods**, verify backend pods are **Running** without continuous restarts.
-. Under **Networking -> Routes**, locate the HTTP(S) route for the service.
+. Switch to project **`%USER_NAME%-neuralbank`**.
+. Under **Workloads -> Pods**, verify backend pods are **Running**.
+
+== Step 7: Try the API Endpoints
+
+The backend exposes REST endpoints through the Kuadrant gateway. Use an API Key to authenticate:
 
 [.console-input]
+[source,bash]
 ----
-OpenShift Console -> Project: {user_name}-neuralbank -> Pods -> Running
-OpenShift Console -> Networking -> Route -> Backend public URL
+# First, get the API key from the generated Secret
+API_KEY=$(oc get secret %USER_NAME%-neuralbank-backend-apikey \
+  -n %USER_NAME%-neuralbank \
+  -o jsonpath='{.data.api_key}' | base64 -d)
+
+echo "API Key: $API_KEY"
+
+# List customers
+curl -s -H "X-API-Key: $API_KEY" \
+  "https://%USER_NAME%-neuralbank-backend.{cluster_domain}/api/customers" \
+  | python3 -m json.tool
+
+# List credits
+curl -s -H "X-API-Key: $API_KEY" \
+  "https://%USER_NAME%-neuralbank-backend.{cluster_domain}/api/credits" \
+  | python3 -m json.tool
 ----
 
-== Step 7: Try the API endpoints
-
-From your browser or with `curl`, try the resources exposed by the API:
-
-* `/api/customers`
-* `/api/credits`
-
-[.console-input]
-----
-curl -sk "https://<route-host>/api/customers"
-curl -sk "https://<route-host>/api/credits"
-----
-
-Replace `<route-host>` with the hostname shown on the Route in OpenShift.
-
-NOTE: If you receive `401/403`, there may be an OIDC policy in front; check with the instructor.
-
-== Step 8: Confirm catalog registration
+== Step 8: Confirm Catalog Registration
 
 . Return to **Developer Hub**.
 . Find component **neuralbank-backend** in the **Catalog**.
@@ -98,4 +112,4 @@ NOTE: If you receive `401/403`, there may be an OIDC policy in front; check with
 
 == Summary
 
-You have walked through the full path **Hub → template → Gitea → Argo CD → Tekton → OpenShift**, also validating the API at `/api/customers` and `/api/credits`. All your services are in namespace `{user_name}-neuralbank`. This flow is the foundation for the pipelines, frontend, and Dev Spaces modules.
+You have walked through the full path **Hub -> Template -> Gitea -> ArgoCD -> Tekton -> OpenShift**, also validating the API with an API Key. All services are in namespace `%USER_NAME%-neuralbank`.

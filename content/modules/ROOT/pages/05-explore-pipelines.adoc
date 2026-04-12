@@ -1,71 +1,109 @@
 = Explore Pipelines and Topology
 
-After deploying **neuralbank-backend**, it is useful to inspect how **Tekton** materialized CI/CD and how **OpenShift** represents the application in the topology view. This module guides that exploration and links to the **Software Catalog** in Developer Hub.
+After deploying **neuralbank-backend**, inspect how **Tekton** materializes CI/CD and how **OpenShift** represents the application in the topology view.
 
-== Open the Pipelines console
+== Open the Pipelines Console
 
 . Log in to the **OpenShift Console**.
-. Select project **`{user_name}-neuralbank`**.
-. In the sidebar, go to **Pipelines** (or **CI/CD -> Pipelines** depending on console version).
+. Select project **`%USER_NAME%-neuralbank`**.
+. In the sidebar, go to **Pipelines** (or **CI/CD -> Pipelines**).
 
-Here you will see the **Pipeline** definition and recent **PipelineRuns** generated when creating or updating the repository.
-
-== Locate the neuralbank-backend PipelineRun
+== Locate the PipelineRun
 
 . On the **PipelineRuns** tab, sort by **Started** (most recent first).
-. Identify a run whose name or labels reference `neuralbank-backend` or the Gitea repository.
+. Identify a run referencing `neuralbank-backend`.
 
-NOTE: If you see no runs, confirm that the trigger or initial PipelineRun was created from the template; a push to the repo may be required to fire the pipeline depending on the workshop configuration.
+NOTE: If you see no runs, confirm that the webhook trigger was created. The CronJob automatically sets up Gitea webhooks for each user's repositories.
 
-== Review pipeline tasks
+== Pipeline Definition
 
-Open the **PipelineRun** and examine the list of **Tasks** in order. A typical workshop flow includes:
+The pipeline is defined in the template's `tekton/pipeline.yaml`:
+
+[source,yaml]
+----
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: neuralbank-backend-pipeline
+spec:
+  params:
+    - name: git-url
+    - name: git-revision
+      default: main
+    - name: image-name
+  tasks:
+    - name: git-clone
+      taskRef:
+        name: git-clone
+    - name: maven-build
+      taskRef:
+        name: maven
+      runAfter: [git-clone]
+    - name: build-image
+      taskRef:
+        name: buildah
+      runAfter: [maven-build]
+    - name: deploy
+      taskRef:
+        name: openshift-client
+      runAfter: [build-image]
+----
+
+== Review Pipeline Tasks
+
+Open the **PipelineRun** and examine each task:
 
 [cols="1,2",options="header"]
 |===
 |Task |What to look for
 
 |`git-clone`
-|Repository and revision cloned; check parameters (Gitea URL, branch).
+|Repository and revision cloned; check the Gitea URL (uses internal service URL)
 
 |`maven-build`
-|Java build; `mvn` logs and generated artifact.
+|Java build; `mvn` logs and generated artifact
 
 |`build-image`
-|Container image build (Buildah/Kaniko or another tool per template).
+|Container image build with Buildah; image pushed to internal registry
 
 |`deploy`
-|Deployment update on OpenShift; verify the new image is referenced on the resource.
+|Deployment update on OpenShift; verify the new image reference
 |===
 
-For each task, open the **logs** and confirm it ended in **Succeeded**. If any fail, the message usually points to credentials, resource limits, or build errors.
+For each task, open the **logs** and confirm it ended in **Succeeded**.
 
-== Use the Topology view
+== Webhook Configuration
 
-. In the console, open the **Topology** view for project `{user_name}-neuralbank`.
+Pipelines are triggered by Gitea webhooks. The TriggerBinding uses internal service URLs for reliability:
+
+[source,yaml]
+----
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: neuralbank-backend-binding
+spec:
+  params:
+    - name: git-url
+      value: http://gitea-http.gitea.svc.cluster.local:3000/$(body.repository.full_name).git
+    - name: git-revision
+      value: $(body.after)
+----
+
+This ensures webhook-triggered builds work reliably without TLS certificate issues.
+
+== Use the Topology View
+
+. In the console, open the **Topology** view for project `%USER_NAME%-neuralbank`.
 . Locate the backend **Deployment** (circular icon with status ring).
-. Click the node to open the side panel: **Pods**, **Services**, **Routes**, and recent events.
-
-Topology shows visual relationships between components—for example, how the **Service** routes traffic to the Deployment **Pods**.
-
-== Explore application details
-
-From the component panel in Topology or dedicated menus:
-
-* **Pods**: replica count, `Running` state, restarts, and quick metrics.
-* **Services**: internal ports and selectors pointing to the Deployment.
-* **Routes**: public or cluster URL to try the API (consistent with the deployment module).
-
-NOTE: If the workshop adds **HorizontalPodAutoscaler** or other operators, additional resources may appear linked to the same Deployment.
+. Click the node to open the side panel: **Pods**, **Services**, **Routes**, and events.
 
 == Return to Developer Hub
 
 . Open **Developer Hub**.
 . Locate component **neuralbank-backend** in the catalog.
-. From the entity card, check links to **source** (Gitea), documentation, and any **CI/CD** annotation exposed by the pipelines or Git plugin.
-
-This connects the “infrastructure” view (OpenShift/Tekton) with the “product” view (catalog and ownership in the Hub).
+. From the entity card, check the **CI/CD** tab showing Tekton pipeline status.
 
 == Summary
 
-You followed a **PipelineRun** task by task, validated deployment state in **Topology** for namespace `{user_name}-neuralbank`, and related the component to its entry in **Developer Hub**. This completes the operational picture of the Neuralbank backend before adding frontend and MCP.
+You followed a PipelineRun task by task, understood the webhook configuration, validated deployment state in Topology, and related the component to its entry in Developer Hub.

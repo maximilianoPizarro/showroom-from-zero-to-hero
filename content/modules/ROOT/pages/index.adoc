@@ -2,62 +2,91 @@
 
 == Welcome to the Workshop
 
-In this workshop you will learn to use **Red Hat Developer Hub** as a self-service development portal to build, deploy, and manage applications on OpenShift.
+In this workshop you will use **Red Hat Developer Hub** as a self-service development portal to build, deploy, secure, and observe applications on OpenShift — enhanced by AI assistance through **Lightspeed** and the **MCP Gateway**.
 
 === What You Will Learn
 
-* Understand the value proposition of Red Hat Developer Hub
-* Explore the architecture: Developer Hub, ArgoCD, Tekton, DevSpaces, Gitea, Keycloak
-* Create backend and frontend services using **Software Templates**
-* Explore automated pipelines, topology view, and application details
-* Deploy and configure API Gateways with security (OIDCPolicy, RateLimitPolicy)
-* Update source code using **Red Hat OpenShift Dev Spaces** with automated CI/CD
+* Use **Software Templates** to scaffold backend, frontend, and MCP services
+* Observe automated **Tekton pipelines**, **ArgoCD GitOps**, and **Topology** views
+* Secure APIs with **Connectivity Link** policies (OIDC and API Key via Kuadrant)
+* Interact with **Developer Lightspeed** for AI-assisted development
+* Use **OpenShift Lightspeed** with **MCP Gateway** for cluster operations
+* Monitor the platform with **Grafana**, **Kiali**, and distributed tracing
 
 === The Business Case: Neuralbank
 
-Neuralbank is a financial institution that needs to modernize its technology stack. As a developer, you will build three components:
+Neuralbank is a financial institution modernizing its technology stack. As a developer, you will build three components through Developer Hub:
 
-1. **Customer Service MCP** - An MCP (Model Context Protocol) server for customer support
-2. **Neuralbank Backend** - REST API for credit management
-3. **Neuralbank Frontend** - Web interface for credit visualization
+[cols="1,3"]
+|===
+| Component | Description
+
+| **Customer Service MCP**
+| MCP (Model Context Protocol) server — exposes backend operations as AI-callable tools
+
+| **Neuralbank Backend**
+| Quarkus REST API for customer management and credit scoring
+
+| **Neuralbank Frontend**
+| Web SPA connected to backend and MCP through the Kuadrant gateway
+|===
 
 === Environment Access
 
-When you registered on the portal, a username and password were assigned to you automatically:
+When you registered on the portal, credentials were assigned automatically:
 
 * **Username**: `%USER_NAME%`
 * **Password**: `Welcome123!`
 
-Your workspace namespace is **`%USER_NAME%-neuralbank`**. All services you create with the Software Templates will be deployed there.
+Your workspace namespace is **`%USER_NAME%-neuralbank`**. All services deploy there.
 
-NOTE: You can see your assigned username in the badge in the top bar. If you need to change it, click the edit (pencil) icon.
+NOTE: Your assigned username appears in the badge in the top bar. Click the edit (pencil) icon to change it.
 
-* **Developer Hub**: https://backstage-developer-hub-developer-hub.{cluster_domain}
-* **Gitea**: https://gitea-gitea.{cluster_domain}
-* **ArgoCD**: https://openshift-gitops-server-openshift-gitops.{cluster_domain}
-* **DevSpaces**: https://devspaces.{cluster_domain}
-* **Web Terminal**: available in the right panel of this showroom (**Terminal** tab) to run `oc`, `curl`, `git`, and more
-* **Lightspeed (AI Assistant)**: available from the OpenShift console
+=== Workshop Platform Links
 
-=== Environment Interfaces
-
-[cols="1,1", frame=none, grid=none]
+[cols="1,2"]
 |===
-a|image::05-hub-login.png[Developer Hub Login, 400, link=_images/05-hub-login.png]
+| Tool | URL
 
-_Developer Hub — OIDC Login_
+| **Developer Hub**
+| https://backstage-developer-hub-developer-hub.{cluster_domain}
 
-a|image::02-gitea-dashboard.png[Gitea Dashboard, 400, link=_images/02-gitea-dashboard.png]
+| **Gitea**
+| https://gitea-gitea.{cluster_domain}
 
-_Gitea — Dashboard_
+| **ArgoCD**
+| https://openshift-gitops-server-openshift-gitops.{cluster_domain}
 
-a|image::03-argocd-apps.png[ArgoCD Login, 400, link=_images/03-argocd-apps.png]
+| **Keycloak**
+| https://rhbk.{cluster_domain}/admin/master/console
 
-_Argo CD — Login_
+| **Grafana**
+| https://grafana-observability.{cluster_domain}
 
-a|image::04-devspaces-login.png[DevSpaces Login, 400, link=_images/04-devspaces-login.png]
+| **Mailpit**
+| https://n8n-mailpit-openshift-lightspeed.{cluster_domain}
 
-_Dev Spaces — OpenShift Login_
+| **Showroom**
+| https://showroom-from-zero-to-hero.{cluster_domain}
+
+| **OpenShift Console**
+| https://console-openshift-console.{cluster_domain}
 |===
 
-TIP: Click any image to enlarge it.
+TIP: These links are also available as quick access shortcuts on the **Developer Hub home page** and as **Console Links** in the OpenShift web console application menu.
+
+=== Workshop Flow
+
+[mermaid]
+....
+graph LR
+    A[Developer Hub] -->|Templates| B[Gitea]
+    B -->|Webhook| C[Tekton Pipeline]
+    C -->|Image Build| D[OpenShift]
+    B -->|GitOps| E[ArgoCD]
+    E -->|Sync| D
+    D -->|Gateway API| F[Kuadrant Policies]
+    F -->|OIDC / API Key| G[Secured APIs]
+    A -->|Lightspeed| H[AI Assistant]
+    H -->|MCP Gateway| I[Cluster Tools]
+....

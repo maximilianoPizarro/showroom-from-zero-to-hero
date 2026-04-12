@@ -1,24 +1,27 @@
-* xref:index.adoc[Red Hat Developer Hub: From Zero To Hero]
+* xref:index.adoc[From Zero To Hero]
 
-.Introduction
-* xref:01-developer-hub-value.adoc[Developer Hub Value Proposition]
-* xref:02-architecture-overview.adoc[Architecture Overview]
+.Platform Foundations
+* xref:01-developer-hub-value.adoc[1. Developer Hub Value Proposition]
+* xref:02-architecture-overview.adoc[2. Architecture Overview]
 
-.Software Templates
-* xref:03-software-templates.adoc[Understanding Software Templates]
-* xref:04-deploy-backend.adoc[Deploy Backend with Templates]
-* xref:05-explore-pipelines.adoc[Explore Pipelines and Topology]
+.Building with Software Templates
+* xref:03-software-templates.adoc[3. Understanding Software Templates]
+* xref:04-deploy-backend.adoc[4. Deploy Backend with Templates]
+* xref:05-explore-pipelines.adoc[5. Explore Pipelines and Topology]
+* xref:06-deploy-frontend-gateway.adoc[6. Deploy Frontend and Gateway]
 
-.Frontend and Gateway
-* xref:06-deploy-frontend-gateway.adoc[Deploy Frontend and Gateway]
-* xref:07-explore-argocd-apis.adoc[Explore ArgoCD and APIs]
+.GitOps and Development
+* xref:07-explore-argocd-apis.adoc[7. Explore ArgoCD and APIs]
+* xref:08-devspaces-update.adoc[8. Update Code with DevSpaces]
 
-.DevSpaces and CI/CD
-* xref:08-devspaces-update.adoc[Update Code with DevSpaces]
+.Connectivity Link & API Security
+* xref:09-explore-connectivity-link-oidc.adoc[9. OIDC Authentication (Neuralbank)]
+* xref:10-explore-connectivity-link-apikey.adoc[10. API Key Authentication (NFL Wallet)]
 
-.Connectivity Link
-* xref:09-explore-connectivity-link-oidc.adoc[Explore OIDC Policy (Neuralbank)]
-* xref:10-explore-connectivity-link-apikey.adoc[Explore API Key Auth (NFL Wallet)]
+.AI-Assisted Development
+* xref:11-developer-lightspeed.adoc[11. Developer Lightspeed]
+* xref:12-openshift-lightspeed-mcp.adoc[12. OpenShift Lightspeed & MCP Gateway]
 
-.Hands-On Activity
-* xref:11-hands-on-deploy-and-test.adoc[Deploy and Test the Full Stack]
+.Operations & Verification
+* xref:13-observability.adoc[13. Observability Stack]
+* xref:14-full-stack-verification.adoc[14. Full Stack Verification]

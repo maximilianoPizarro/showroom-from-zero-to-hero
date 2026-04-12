@@ -1,92 +1,143 @@
 = Deploy Frontend and Gateway
 
-In this module you will deploy the Neuralbank **frontend** and the **Customer Service MCP** service using Software Templates, and you will see how the MCP scenario includes **Gateway API** objects and connectivity policies. All services deploy in your `{user_name}-neuralbank` namespace.
+In this module you will deploy the Neuralbank **frontend** and the **Customer Service MCP** using Software Templates, and see how the frontend connects to the backend and MCP through Kuadrant gateways.
 
 == Context
 
-You should already have **neuralbank-backend** running in namespace `{user_name}-neuralbank`. You will now add:
+You should already have **neuralbank-backend** running in namespace `%USER_NAME%-neuralbank`. You will now add:
 
-* **neuralbank-frontend**: web UI to view credit data exposed by the backend.
-* **customer-service-mcp**: MCP server with extra resources for the **connectivity link** pattern (Gateway, HTTPRoute, OIDCPolicy, RateLimitPolicy).
+* **neuralbank-frontend** — Web SPA that consumes backend and MCP APIs through a reverse proxy
+* **customer-service-mcp** — MCP server with Gateway API, HTTPRoute, and Kuadrant policies
 
 == Step 1: Deploy Neuralbank Frontend
 
-. In **Developer Hub**, go to **Create** and choose template **Neuralbank: Frontend**.
+. In **Developer Hub**, go to **Create** and choose **Neuralbank: Frontend**.
 . Complete the form:
-  * **Name**: `neuralbank-frontend`
-  * **User**: `{user_name}` (autocompletes when logged in; deploys to `{user_name}-neuralbank`)
-. Run **Create** and wait until scaffolder steps finish.
 
-[.console-input]
-----
-Developer Hub -> Create -> "Neuralbank: Frontend"
-name:  neuralbank-frontend
-owner: {user_name}
-→ namespace: {user_name}-neuralbank
-----
+[cols="1,2"]
+|===
+| Field | Value
 
-NOTE: If the frontend expects a configurable API URL, check environment variables or `ConfigMap` in the generated repo (Gitea) that point to the backend; adjust only if the workshop says so.
+| **Name** | `neuralbank-frontend`
+| **Owner** | `%USER_NAME%`
+|===
+
+. Click **Create** and wait for scaffolder steps to finish.
 
 == Step 2: Deploy Customer Service MCP
 
 . Repeat **Create** with template **Neuralbank: Customer Service MCP**.
-. Use a clear name: `customer-service-mcp`.
-. Keep **owner** as `{user_name}` so it deploys in the same namespace.
+
+[cols="1,2"]
+|===
+| Field | Value
+
+| **Name** | `customer-service-mcp`
+| **Owner** | `%USER_NAME%`
+|===
+
+This template generates the **connectivity link** pattern with Gateway, HTTPRoute, AuthPolicy, and RateLimitPolicy.
+
+== Step 3: Verify Repositories in Gitea
+
+In Gitea (`https://gitea-gitea.{cluster_domain}`), confirm two new repositories under your user:
+
+* `%USER_NAME%/neuralbank-frontend` — Dockerfile, `index.html`, `proxy.conf`, manifests
+* `%USER_NAME%/customer-service-mcp` — Java sources, manifests, and gateway/policy resources
+
+== Step 4: Check Applications in ArgoCD
+
+. Open ArgoCD: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
+. Locate Applications for frontend and MCP in namespace `%USER_NAME%-neuralbank`.
+. Verify **sync** and **health**.
+
+== Step 5: How the Frontend Connects
+
+The frontend uses an Apache HTTPD reverse proxy to route API calls through the Kuadrant gateways:
+
+[source,apacheconf]
+----
+ProxyPreserveHost Off
+
+# Route /api/backend/* to the backend's Kuadrant Gateway
+ProxyPass "/api/backend/" "http://neuralbank-backend-gateway-istio:8080/api/"
+ProxyPassReverse "/api/backend/" "http://neuralbank-backend-gateway-istio:8080/api/"
+
+# Route /api/mcp/* to the MCP's Kuadrant Gateway
+ProxyPass "/api/mcp/" "http://customer-service-mcp-gateway-istio:8080/"
+ProxyPassReverse "/api/mcp/" "http://customer-service-mcp-gateway-istio:8080/"
+----
+
+[mermaid]
+....
+graph LR
+    Browser -->|/api/backend/*| FE[Frontend HTTPD]
+    Browser -->|/api/mcp/*| FE
+    FE -->|proxy| BGW[Backend Gateway]
+    FE -->|proxy| MGW[MCP Gateway]
+    BGW -->|AuthPolicy| BE[Backend Service]
+    MGW -->|AuthPolicy| MCP[MCP Service]
+....
+
+This ensures all API traffic flows through Kuadrant with authentication and rate limiting applied.
+
+== Step 6: Inspect Gateway and AuthPolicy
 
 [.console-input]
+[source,bash]
 ----
-Developer Hub -> Create -> "Neuralbank: Customer Service MCP"
-name:  customer-service-mcp
-owner: {user_name}
-→ namespace: {user_name}-neuralbank
-----
+# Check Gateway resources
+oc get gateway -n %USER_NAME%-neuralbank
 
-This template does not only generate code: it materializes the **connectivity link** pattern with objects such as **Gateway**, **HTTPRoute**, **OIDCPolicy**, and **RateLimitPolicy**.
+# Check HTTPRoutes
+oc get httproute -n %USER_NAME%-neuralbank
 
-== Step 3: Verify repositories in Gitea
+# Check AuthPolicies (combined OIDC + API Key)
+oc get authpolicy -n %USER_NAME%-neuralbank -o wide
 
-In **Gitea** (`https://gitea-gitea.{cluster_domain}`), confirm two new repositories exist under your user:
-
-* `{user_name}/neuralbank-frontend` — Dockerfile, static assets, manifests, `devfile`.
-* `{user_name}/customer-service-mcp` — Java sources, manifests, and gateway/policy resources.
-
-Check that **PipelineRuns** have been triggered.
-
-== Step 4: Check applications in Argo CD
-
-. Open **Argo CD**: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
-. Locate **Applications** for frontend and MCP in namespace `{user_name}-neuralbank`.
-. Verify **sync** and **health**; sync manually if your role allows.
-
-NOTE: Gateway API resources and policies may show as extra objects on the MCP application graph; if any are degraded, review events in OpenShift and operator configuration (Kuadrant / Istio).
-
-== Step 5: Validate the three components in the catalog
-
-. Open **Developer Hub -> Catalog**.
-. Filter by owner `{user_name}` or search by name.
-. You should see **three** components: `neuralbank-backend`, `neuralbank-frontend`, and `customer-service-mcp`.
-
-Open each card and check links to code, documentation, and relationships (dependencies on APIs).
-
-== Step 6: Inspect Gateway and HTTPRoute in OpenShift
-
-. In **OpenShift Console**, select project `{user_name}-neuralbank`.
-. Go to **Networking** and find **Gateway** and **HTTPRoute** resources.
-. Note the **hostname** or listener state and rules that route to the MCP Service.
-
-[.console-input]
-----
-OpenShift Console -> Project: {user_name}-neuralbank -> Gateway / HTTPRoute -> host and backends
+# Check RateLimitPolicies
+oc get ratelimitpolicy -n %USER_NAME%-neuralbank -o wide
 ----
 
-Optionally review associated **OIDCPolicy** and **RateLimitPolicy** to see how the exposed endpoint is protected.
+The AuthPolicy combines both authentication methods in a single resource:
 
-== Step 7: Try the frontend
+[source,yaml]
+----
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+spec:
+  targetRef:
+    kind: HTTPRoute
+    name: neuralbank-backend-route
+  defaults:
+    rules:
+      authentication:
+        api-key-auth:          # Priority 0 (checked first)
+          apiKey:
+            selector:
+              matchLabels:
+                app: neuralbank-backend
+                kuadrant.io/apikey: "true"
+          credentials:
+            customHeader:
+              name: X-API-Key
+          priority: 0
+        oidc:                  # Priority 1 (fallback)
+          jwt:
+            issuerUrl: https://rhbk.{cluster_domain}/realms/neuralbank
+          priority: 1
+----
 
-Open the frontend **Route** in the browser. Confirm the UI loads and consumes data from the backend.
+== Step 7: Try the Frontend
 
-WARNING: CORS or API URL errors usually come from frontend configuration or internal routes; check variables on the Deployment before changing network policies.
+Open the frontend Route in the browser:
+
+----
+https://%USER_NAME%-neuralbank-frontend.{cluster_domain}
+----
+
+The SPA shows gateway connectivity status, customer data from the backend, and MCP server health — all routed through the Kuadrant gateways.
 
 == Summary
 
-You added **frontend** and **MCP** with templates in namespace `{user_name}-neuralbank`, verified **GitOps** and the **catalog**, and located **Gateway** and **HTTPRoute** that define secure MCP connectivity. The next module goes deeper into **Argo CD**, **API** entities, and **Kuadrant** policies.
+You added **frontend** and **MCP** with templates, verified GitOps and the catalog, and understood how the reverse proxy routes all traffic through Kuadrant gateways with unified authentication.
