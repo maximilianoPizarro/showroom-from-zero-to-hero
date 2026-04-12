@@ -77,13 +77,9 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-.author-footer{text-align:center;padding:16px 0 8px;margin-top:32px;border-top:1px solid #e0e0e0;font-size:0.75rem;color:#999;}
-.author-footer a{color:#999;text-decoration:none;}
-.author-footer a:hover{color:#0066cc;text-decoration:underline;}
-.author-footer img{height:28px;vertical-align:middle;margin-right:6px;}
-.viz3d-btn{position:fixed;bottom:16px;right:16px;z-index:9999;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #0066cc;border-radius:12px;padding:10px 16px;box-shadow:0 2px 12px rgba(0,102,204,0.3);cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;color:#4fc3f7;text-decoration:none;transition:all 0.3s;}
-.viz3d-btn:hover{box-shadow:0 4px 20px rgba(0,102,204,0.5);transform:translateY(-2px);color:#fff;border-color:#4fc3f7;}
-.viz3d-btn svg{width:22px;height:22px;}
+.viz3d-btn{position:fixed;bottom:16px;right:16px;z-index:9999;background:rgba(255,255,255,0.95);border:1px solid #ddd;border-radius:12px;padding:6px 10px;box-shadow:0 2px 10px rgba(0,0,0,0.12);cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.75rem;color:#333;text-decoration:none;transition:all 0.3s;}
+.viz3d-btn:hover{box-shadow:0 4px 16px rgba(0,0,0,0.2);transform:translateY(-2px);}
+.viz3d-btn img{height:32px;}
 .viz3d-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#0d0d0d;}
 .viz3d-overlay.active{display:block;}
 .viz3d-overlay canvas{display:block;width:100%!important;height:100%!important;cursor:grab;}
@@ -292,27 +288,18 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   document.addEventListener('DOMContentLoaded', function() {
-    var doc = document.querySelector('.doc');
-    if (doc) {
-      var f = document.createElement('div');
-      f.className = 'author-footer';
-      var logoSrc = document.querySelector('link[rel=icon]')?.href?.replace('/img/favicon.ico','/img/Logo-OSC_with_padding.png') || '';
-      f.innerHTML = '<a href="https://commons.openshift.org/" target="_blank" rel="noopener"><img src="'+logoSrc+'" alt="OpenShift Commons"></a> '+
-        '<a href="https://commons.openshift.org/" target="_blank" rel="noopener">OpenShift Commons Gathering — Buenos Aires 2026</a>';
-      doc.appendChild(f);
-    }
-
     var overlay = document.createElement('div');
     overlay.id = 'viz3d-overlay';
     overlay.className = 'viz3d-overlay';
     overlay.innerHTML = '<button class="viz3d-close" onclick="closeViz3D()">✕ Cerrar</button><div id="viz3d-canvas" style="width:100%;height:100%"></div><div id="viz3d-title" class="viz3d-title"></div>';
     document.body.appendChild(overlay);
 
-    var btn = document.createElement('button');
+    var logoSrc = document.querySelector('link[rel=icon]')?.href?.replace('/img/favicon.ico','/img/Logo-OSC_with_padding.png') || '';
+    var btn = document.createElement('div');
     btn.className = 'viz3d-btn';
-    btn.onclick = window.openViz3D;
-    btn.title = 'Ver arquitectura 3D interactiva';
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>3D';
+    btn.title = 'OpenShift Commons Gathering — Buenos Aires 2026\nClick en el logo para ver la arquitectura 3D\nClick en el texto para ir a commons.openshift.org';
+    btn.innerHTML = '<img src="'+logoSrc+'" alt="OpenShift Commons" style="cursor:pointer" onclick="openViz3D()">'+
+      '<a href="https://commons.openshift.org/" target="_blank" rel="noopener" style="color:#333;text-decoration:none;font-weight:500;line-height:1.2;">OpenShift Commons<br>Buenos Aires 2026</a>';
     document.body.appendChild(btn);
   });
 })();
