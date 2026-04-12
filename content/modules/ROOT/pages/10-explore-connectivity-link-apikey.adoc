@@ -107,7 +107,7 @@ oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
 [source,bash]
 ----
 curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
-  https://nfl-wallet.{cluster_domain}/api/v1/customers
+  https://nfl-wallet.__CLUSTER_DOMAIN__/api/v1/customers
 ----
 
 [.console-output]
@@ -124,7 +124,7 @@ API_KEY=$(oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
   -o jsonpath='{.data.api_key}' | base64 -d)
 
 curl -s -H "X-API-Key: $API_KEY" \
-  "https://nfl-wallet.{cluster_domain}/api/v1/customers" \
+  "https://nfl-wallet.__CLUSTER_DOMAIN__/api/v1/customers" \
   | python3 -m json.tool | head -20
 ----
 
@@ -144,7 +144,7 @@ curl -s -X POST \
     "ciudad": "Miami",
     "pais": "USA"
   }' \
-  "https://nfl-wallet.{cluster_domain}/api/v1/customers" \
+  "https://nfl-wallet.__CLUSTER_DOMAIN__/api/v1/customers" \
   | python3 -m json.tool
 ----
 
@@ -158,7 +158,7 @@ The RateLimitPolicy allows **120 requests per minute**:
 for i in $(seq 1 10); do
   code=$(curl -s -o /dev/null -w '%{http_code}' \
     -H "X-API-Key: $API_KEY" \
-    "https://nfl-wallet.{cluster_domain}/api/v1/customers")
+    "https://nfl-wallet.__CLUSTER_DOMAIN__/api/v1/customers")
   echo "Request $i: HTTP $code"
 done
 ----

@@ -49,28 +49,28 @@ NOTE: Your assigned username appears in the badge in the top bar. Click the edit
 | Tool | URL
 
 | **Developer Hub**
-| https://backstage-developer-hub-developer-hub.{cluster_domain}
+| https://backstage-developer-hub-developer-hub.__CLUSTER_DOMAIN__
 
 | **Gitea**
-| https://gitea-gitea.{cluster_domain}
+| https://gitea-gitea.__CLUSTER_DOMAIN__
 
 | **ArgoCD**
-| https://openshift-gitops-server-openshift-gitops.{cluster_domain}
+| https://openshift-gitops-server-openshift-gitops.__CLUSTER_DOMAIN__
 
 | **Keycloak**
-| https://rhbk.{cluster_domain}/admin/master/console
+| https://rhbk.__CLUSTER_DOMAIN__/admin/master/console
 
 | **Grafana**
-| https://grafana-observability.{cluster_domain}
+| https://grafana-observability.__CLUSTER_DOMAIN__
 
 | **Mailpit**
-| https://n8n-mailpit-openshift-lightspeed.{cluster_domain}
+| https://n8n-mailpit-openshift-lightspeed.__CLUSTER_DOMAIN__
 
 | **Showroom**
-| https://showroom-from-zero-to-hero.{cluster_domain}
+| https://showroom-from-zero-to-hero.__CLUSTER_DOMAIN__
 
 | **OpenShift Console**
-| https://console-openshift-console.{cluster_domain}
+| https://console-openshift-console.__CLUSTER_DOMAIN__
 |===
 
 TIP: These links are also available as quick access shortcuts on the **Developer Hub home page** and as **Console Links** in the OpenShift web console application menu.

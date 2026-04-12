@@ -100,7 +100,7 @@ API_KEY=$(oc get secret %USER_NAME%-neuralbank-backend-apikey \
   -o jsonpath='{.data.api_key}' | base64 -d)
 
 curl -s -H "X-API-Key: $API_KEY" \
-  "https://%USER_NAME%-neuralbank-backend.{cluster_domain}/api/hello-workshop"
+  "https://neuralbank-backend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__/api/hello-workshop"
 ----
 
 You should see the change reflected in the response.

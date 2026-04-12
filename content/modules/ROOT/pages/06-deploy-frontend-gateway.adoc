@@ -40,14 +40,14 @@ This template generates the connectivity link pattern with Gateway, HTTPRoute, A
 
 == Step 3: Verify Repositories in Gitea
 
-In Gitea (`https://gitea-gitea.{cluster_domain}`), confirm two new repositories under your user:
+In Gitea (`https://gitea-gitea.__CLUSTER_DOMAIN__`), confirm two new repositories under your user:
 
 * `%USER_NAME%/neuralbank-frontend` — Dockerfile, `index.html`, `proxy.conf`, manifests
 * `%USER_NAME%/customer-service-mcp` — Java sources, manifests, and gateway/policy resources
 
 == Step 4: Check Applications in ArgoCD
 
-. Open ArgoCD: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
+. Open ArgoCD: `https://openshift-gitops-server-openshift-gitops.__CLUSTER_DOMAIN__`
 . Locate Applications for frontend and MCP in namespace `%USER_NAME%-neuralbank`.
 . Verify **sync** and **health**.
 
@@ -114,7 +114,7 @@ oc get ratelimitpolicy -n %USER_NAME%-neuralbank -o wide
 Open the frontend Route in the browser:
 
 ----
-https://%USER_NAME%-neuralbank-frontend.{cluster_domain}
+https://neuralbank-frontend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__
 ----
 
 . Enter an **API Key** in the input field (retrieve it from the backend's API Key Secret).
@@ -149,8 +149,8 @@ oc get secret -n %USER_NAME%-neuralbank \
 | Full OIDC flow (auth endpoint, callback, cookie)
 
 | **Frontend URL**
-| `https://%USER_NAME%-neuralbank-frontend.{cluster_domain}`
-| `https://neuralbank.{cluster_domain}`
+| `https://neuralbank-frontend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__`
+| `https://neuralbank.__CLUSTER_DOMAIN__`
 
 | **Credentials**
 | API Key from Kubernetes Secret

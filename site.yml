@@ -17,6 +17,12 @@ ui:
 
 asciidoc:
   attributes: {}
+  extensions:
+    - '@sntke/antora-mermaid-extension'
+
+antora:
+  extensions:
+    - '@sntke/antora-mermaid-extension'
 
 output:
   dir: ./www

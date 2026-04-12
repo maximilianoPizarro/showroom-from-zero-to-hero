@@ -9,7 +9,7 @@ In this module you will deploy **Neuralbank Backend** using a Software Template.
 
 == Step 1: Open Create from Template
 
-. Log in to Developer Hub at `https://backstage-developer-hub-developer-hub.{cluster_domain}`
+. Log in to Developer Hub at `https://backstage-developer-hub-developer-hub.__CLUSTER_DOMAIN__`
 . In the main menu, select **Create**.
 . Find the template **Neuralbank: Backend API**.
 
@@ -41,7 +41,7 @@ NOTE: If a step fails, check permissions in Gitea or quota on namespace `%USER_N
 
 == Step 4: Verify the Repository in Gitea
 
-. Open Gitea: `https://gitea-gitea.{cluster_domain}`
+. Open Gitea: `https://gitea-gitea.__CLUSTER_DOMAIN__`
 . Locate the repository `%USER_NAME%/neuralbank-backend`.
 . Confirm that source code, manifests, tekton, and `catalog-info.yaml` exist.
 
@@ -69,7 +69,7 @@ Dockerfile
 
 == Step 5: Verify the Application in ArgoCD
 
-. Open ArgoCD: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
+. Open ArgoCD: `https://openshift-gitops-server-openshift-gitops.__CLUSTER_DOMAIN__`
 . Find an **Application** named `%USER_NAME%-neuralbank-backend`.
 . Check **Sync Status** and **Health**; if *OutOfSync*, run **Sync**.
 
@@ -103,7 +103,7 @@ spec:
           priority: 0
         oidc:                  # Priority 1 — fallback
           jwt:
-            issuerUrl: https://rhbk.{cluster_domain}/realms/neuralbank
+            issuerUrl: https://rhbk.__CLUSTER_DOMAIN__/realms/neuralbank
           credentials:
             authorizationHeader:
               prefix: Bearer
@@ -144,12 +144,12 @@ echo "API Key: $API_KEY"
 
 # List customers
 curl -s -H "X-API-Key: $API_KEY" \
-  "https://%USER_NAME%-neuralbank-backend.{cluster_domain}/api/customers" \
+  "https://neuralbank-backend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__/api/customers" \
   | python3 -m json.tool
 
 # List credits
 curl -s -H "X-API-Key: $API_KEY" \
-  "https://%USER_NAME%-neuralbank-backend.{cluster_domain}/api/credits" \
+  "https://neuralbank-backend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__/api/credits" \
   | python3 -m json.tool
 ----
 

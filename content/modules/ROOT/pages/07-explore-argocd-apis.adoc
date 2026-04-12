@@ -2,12 +2,26 @@
 
 This module connects the **GitOps** view in ArgoCD with the **Software Catalog** in Developer Hub and **policies** applied in the cluster.
 
-== Open the ArgoCD UI
+== View GitOps from Developer Hub (CD Tab)
 
-. Go to ArgoCD: `https://openshift-gitops-server-openshift-gitops.{cluster_domain}`
+The recommended way to monitor your ArgoCD applications is through the **CD tab** in Developer Hub:
+
+. Open **Developer Hub**: `https://backstage-developer-hub-developer-hub.__CLUSTER_DOMAIN__`
+. Go to **Catalog** and find your component (e.g., `%USER_NAME%-neuralbank-backend`).
+. Click on the component, then select the **CD** tab.
+. You will see the ArgoCD sync status, health, and resource tree directly inside Developer Hub.
+
+TIP: The **CD tab** provides the same information as the ArgoCD console but without requiring separate login. This is the easiest way for workshop participants to verify their deployments.
+
+== Alternative: Open the ArgoCD UI Directly
+
+If you prefer to access ArgoCD directly:
+
+. Go to ArgoCD: `https://openshift-gitops-server-openshift-gitops.__CLUSTER_DOMAIN__`
+. Log in with **Log in via OpenShift**.
 . In **Applications**, filter by your namespace `%USER_NAME%-neuralbank`.
 
-You should see applications for **neuralbank-backend**, **neuralbank-frontend**, and **customer-service-mcp**.
+NOTE: Workshop users have read-only access to their own applications (`%USER_NAME%-*`). If you don't see applications after login, use the **CD tab** in Developer Hub instead — it provides the same visibility with integrated authentication.
 
 == ArgoCD ApplicationSet
 
@@ -23,7 +37,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://gitea-gitea.{cluster_domain}
+        repoURL: https://gitea-gitea.__CLUSTER_DOMAIN__
         revision: HEAD
         directories:
           - path: "*/neuralbank-backend"
@@ -33,7 +47,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: "https://gitea-gitea.{cluster_domain}/{{path[0]}}/neuralbank-backend.git"
+        repoURL: "https://gitea-gitea.__CLUSTER_DOMAIN__/{{path[0]}}/neuralbank-backend.git"
         targetRevision: HEAD
         path: manifests
       destination:
@@ -43,10 +57,10 @@ spec:
 
 == Explore the Resource Tree
 
-For each application:
+From the **CD tab** in Developer Hub (or ArgoCD directly):
 
-. Click the name to open **Tree** or **Network** view.
-. Observe Deployments, Services, Routes, ConfigMaps, and for MCP the Gateway API resources and policies.
+. Observe Deployments, Services, Routes, ConfigMaps.
+. For backend and MCP services, also see Gateway API resources (Gateway, HTTPRoute) and Kuadrant policies (AuthPolicy, RateLimitPolicy).
 
 Check **Sync Status**:
 * *Synced* — cluster matches the manifest in Git
@@ -54,27 +68,6 @@ Check **Sync Status**:
 
 Check **Health**:
 * *Healthy*, *Progressing*, *Degraded*
-
-== ArgoCD RBAC for Workshop Users
-
-Workshop users can view their own applications in ArgoCD. The RBAC is configured via a ConfigMap:
-
-[source,yaml]
-----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: argocd-rbac-cm
-  namespace: openshift-gitops
-data:
-  scopes: "[groups, preferred_username]"
-  policy.csv: |-
-    g, system:cluster-admins, role:admin
-    # Each user sees their own applications
-    p, user1, applications, get, default/user1-*, allow
-    p, user1, applications, sync, default/user1-*, allow
-    p, user1, logs, get, default/user1-*, allow
-----
 
 == API Entity and OpenAPI
 
@@ -89,7 +82,7 @@ The OpenAPI definition documents paths, schemas, and examples — the reference 
 
 For services exposed with the connectivity link pattern, inspect:
 
-* **AuthPolicy** — combined OIDC and API Key authentication
+* **AuthPolicy** — API Key authentication (primary), with optional OIDC JWT validation
 * **RateLimitPolicy** — rate limits applied to traffic matching the HTTPRoute
 
 [.console-input]
@@ -101,4 +94,4 @@ oc get ratelimitpolicy -n %USER_NAME%-neuralbank -o yaml
 
 == Summary
 
-You correlated GitOps state in ArgoCD with catalog cards in Developer Hub, located the API and its OpenAPI, and placed authentication and rate limit policies in the Kuadrant context.
+You explored GitOps state through the **CD tab** in Developer Hub (and optionally ArgoCD directly), located the API and its OpenAPI definition, and reviewed authentication and rate limit policies in the Kuadrant context.

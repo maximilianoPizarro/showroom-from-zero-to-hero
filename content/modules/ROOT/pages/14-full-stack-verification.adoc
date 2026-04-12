@@ -63,12 +63,12 @@ API_KEY=$(oc get secret %USER_NAME%-neuralbank-backend-apikey \
 # Should return 200 with customer data
 curl -s -w "\nHTTP: %{http_code}\n" \
   -H "X-API-Key: $API_KEY" \
-  "https://%USER_NAME%-neuralbank-backend.{cluster_domain}/api/customers" \
+  "https://neuralbank-backend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__/api/customers" \
   | tail -1
 
 # Should return 401 without key
 curl -s -o /dev/null -w "HTTP: %{http_code}\n" \
-  "https://%USER_NAME%-neuralbank-backend.{cluster_domain}/api/customers"
+  "https://neuralbank-backend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__/api/customers"
 ----
 
 === Pre-deployed Stack (OIDC)
@@ -77,7 +77,7 @@ curl -s -o /dev/null -w "HTTP: %{http_code}\n" \
 [source,bash]
 ----
 TOKEN=$(curl -s -X POST \
-  "https://rhbk.{cluster_domain}/realms/neuralbank/protocol/openid-connect/token" \
+  "https://rhbk.__CLUSTER_DOMAIN__/realms/neuralbank/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=password" \
   -d "client_id=neuralbank-frontend" \
@@ -88,7 +88,7 @@ TOKEN=$(curl -s -X POST \
 # Should return 200
 curl -s -w "\nHTTP: %{http_code}\n" \
   -H "Authorization: Bearer $TOKEN" \
-  "https://neuralbank.{cluster_domain}/api/v1/customers" \
+  "https://neuralbank.__CLUSTER_DOMAIN__/api/v1/customers" \
   | tail -1
 ----
 
@@ -103,7 +103,7 @@ NFL_KEY=$(oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod \
 # Should return 200
 curl -s -w "\nHTTP: %{http_code}\n" \
   -H "X-API-Key: $NFL_KEY" \
-  "https://nfl-wallet.{cluster_domain}/api/v1/customers" \
+  "https://nfl-wallet.__CLUSTER_DOMAIN__/api/v1/customers" \
   | tail -1
 ----
 
@@ -146,8 +146,8 @@ curl -s -w "\nHTTP: %{http_code}\n" \
 | No — manual API Key
 
 | **Frontend URL**
-| `neuralbank.{cluster_domain}`
-| `%USER_NAME%-neuralbank-frontend.{cluster_domain}`
+| `neuralbank.__CLUSTER_DOMAIN__`
+| `neuralbank-frontend-%USER_NAME%-neuralbank.__CLUSTER_DOMAIN__`
 | N/A (API only)
 
 | **Credentials**
