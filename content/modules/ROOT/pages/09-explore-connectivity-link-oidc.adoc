@@ -1,6 +1,8 @@
-= OIDC Authentication (Neuralbank)
+= OIDC Authentication (Neuralbank Stack)
 
-In this module you will explore how **Red Hat Connectivity Link** protects the pre-deployed **Neuralbank** stack using **OIDC** (OpenID Connect via Keycloak) and **RateLimitPolicy**.
+In this module you will explore how the **pre-deployed Neuralbank stack** implements a **full interactive OIDC flow** with Keycloak using the `OIDCPolicy` CR from Red Hat Connectivity Link.
+
+IMPORTANT: This module covers the **pre-deployed `neuralbank-stack`** namespace — not the apps you scaffolded. The pre-deployed stack uses a real Keycloak OIDC client (`neuralbank-frontend`) with interactive browser login. Your scaffolded apps use API Key authentication instead (see xref:04-deploy-backend.adoc[Module 4]).
 
 == Architecture
 
@@ -12,97 +14,120 @@ The Neuralbank stack in the `neuralbank-stack` namespace:
 
 | `neuralbank-backend` | Quarkus REST API exposing `/api/v1/customers`
 | `neuralbank-db` | PostgreSQL database with seed data
-| `neuralbank-frontend` | Web interface for credit visualization
+| `neuralbank-frontend` | Web interface with OIDC login via Keycloak
 | `neuralbank-gateway-istio` | Istio ingress gateway (auto-managed by Gateway API)
+|===
+
+== Access the Frontend (OIDC Flow)
+
+The pre-deployed frontend has a **full interactive OIDC login**:
+
+. Open the frontend: `https://neuralbank.{cluster_domain}`
+. You will be **redirected to Keycloak** login page.
+. Enter your credentials:
+
+[cols="1,2"]
+|===
+| Field | Value
+
+| **Username** | `%USER_NAME%`
+| **Password** | `Welcome123!`
+|===
+
+. After login, Keycloak redirects back to the frontend with a JWT token stored in a cookie.
+. The frontend displays the credit visualization dashboard with data from the backend.
+
+== OIDCPolicy Configuration
+
+The pre-deployed stack uses a **real `OIDCPolicy` CR** (Kuadrant extension) — different from the `AuthPolicy` with JWT validation used in scaffolded apps:
+
+[source,yaml]
+----
+apiVersion: extensions.kuadrant.io/v1alpha1
+kind: OIDCPolicy
+metadata:
+  name: neuralbank-oidc
+  namespace: neuralbank-stack
+spec:
+  auth:
+    tokenSource:
+      authorizationHeader:
+        prefix: Bearer
+      cookie:
+        name: jwt
+  provider:
+    authorizationEndpoint: https://rhbk.{cluster_domain}/realms/neuralbank/protocol/openid-connect/auth
+    clientID: neuralbank-frontend
+    issuerURL: https://rhbk.{cluster_domain}/realms/neuralbank
+    redirectURI: https://neuralbank.{cluster_domain}/auth/callback
+    tokenEndpoint: https://rhbk.{cluster_domain}/realms/neuralbank/protocol/openid-connect/token
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: neuralbank-api-route
+----
+
+This is a **full OIDC integration**: authorization endpoint, token endpoint, callback URI, and cookie-based token storage.
+
+== Key Difference: OIDCPolicy vs AuthPolicy JWT
+
+[cols="1,1,1",options="header"]
+|===
+| | `OIDCPolicy` (pre-deployed stack) | `AuthPolicy` with `oidc.jwt` (scaffolded apps)
+
+| **Type**
+| Kuadrant Extension CR
+| Standard Kuadrant AuthPolicy
+
+| **Flow**
+| Interactive: browser redirect to Keycloak -> login -> callback
+| Passive: validates pre-existing Bearer tokens only
+
+| **Token acquisition**
+| Keycloak handles login + token issuance
+| External tool must obtain token first
+
+| **Cookie support**
+| Yes (`cookie.name: jwt`)
+| No
+
+| **Frontend integration**
+| Transparent: user sees login page
+| Manual: developer must pass API Key or obtain JWT programmatically
 |===
 
 [mermaid]
 ....
 sequenceDiagram
-    participant Client
+    participant User
+    participant Frontend as neuralbank.{cluster_domain}
     participant Gateway as Istio Gateway
-    participant Auth as Kuadrant AuthPolicy
-    participant RL as RateLimitPolicy
-    participant Backend as Neuralbank Backend
+    participant OIDC as OIDCPolicy
+    participant Keycloak
+    participant Backend
 
-    Client->>Gateway: GET /api/v1/customers
-    Gateway->>Auth: Validate JWT
-    alt No Token
-        Auth-->>Client: 302 Redirect to Keycloak
-    else Valid Token
-        Auth->>RL: Check rate limit (60 req/min)
-        RL->>Backend: Forward request
-        Backend-->>Client: 200 JSON response
-    end
+    User->>Frontend: Open https://neuralbank.{cluster_domain}
+    Frontend->>Gateway: Request /api/v1/customers
+    Gateway->>OIDC: Check authentication
+    OIDC-->>User: 302 Redirect to Keycloak
+    User->>Keycloak: Login (username/password)
+    Keycloak-->>User: 302 Redirect + JWT cookie
+    User->>Frontend: Request with JWT cookie
+    Frontend->>Gateway: Request with cookie
+    Gateway->>OIDC: Validate JWT
+    OIDC->>Backend: Forward authenticated request
+    Backend-->>User: 200 JSON response
 ....
 
-== Inspect the Gateway and HTTPRoute
+== Inspect the Resources
 
 [.console-input]
 [source,bash]
 ----
 oc get gateway -n neuralbank-stack
 oc get httproute -n neuralbank-stack
-----
-
-The Gateway should show `PROGRAMMED: True`. The HTTPRoute forwards `/api` and `/q` paths to the backend.
-
-== Verify the AuthPolicy
-
-[.console-input]
-[source,bash]
-----
-oc get authpolicy -n neuralbank-stack -o yaml
-----
-
-The AuthPolicy links to the Keycloak realm `neuralbank` and protects the HTTPRoute:
-
-[source,yaml]
-----
-apiVersion: kuadrant.io/v1
-kind: AuthPolicy
-metadata:
-  name: neuralbank-backend-auth
-  namespace: neuralbank-stack
-spec:
-  targetRef:
-    group: gateway.networking.k8s.io
-    kind: HTTPRoute
-    name: neuralbank-backend-route
-  defaults:
-    rules:
-      authentication:
-        oidc:
-          jwt:
-            issuerUrl: https://rhbk.{cluster_domain}/realms/neuralbank
-          credentials:
-            authorizationHeader:
-              prefix: Bearer
-----
-
-== Verify the RateLimitPolicy
-
-[.console-input]
-[source,bash]
-----
-oc get ratelimitpolicy -n neuralbank-stack -o yaml
-----
-
-[source,yaml]
-----
-apiVersion: kuadrant.io/v1
-kind: RateLimitPolicy
-metadata:
-  name: neuralbank-backend-rlp
-spec:
-  targetRef:
-    group: gateway.networking.k8s.io
-    kind: HTTPRoute
-    name: neuralbank-backend-route
-  defaults:
-    rates:
-      - limit: 60
-        window: 1m
+oc get oidcpolicy -n neuralbank-stack -o wide
+oc get ratelimitpolicy -n neuralbank-stack -o wide
 ----
 
 == Test: Request Without Token (expect 302)
@@ -119,9 +144,11 @@ curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
 HTTP Status: 302
 ----
 
-The AuthPolicy redirects unauthenticated requests to Keycloak login.
+The OIDCPolicy redirects unauthenticated requests to Keycloak login.
 
-== Obtain a Bearer Token from Keycloak
+== Test: Obtain a Bearer Token Programmatically
+
+For terminal testing, use the Resource Owner Password Credentials grant:
 
 [.console-input]
 [source,bash]
@@ -168,43 +195,13 @@ curl -s -X POST \
   | python3 -m json.tool
 ----
 
-== Test: Invalid Token (expect 302)
-
-[.console-input]
-[source,bash]
-----
-curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
-  -H "Authorization: Bearer invalid-token-12345" \
-  "https://neuralbank.{cluster_domain}/api/v1/customers"
-----
-
-[.console-output]
-----
-HTTP Status: 302
-----
-
-== How OIDC Authentication Works
-
-[mermaid]
-....
-sequenceDiagram
-    participant User
-    participant Gateway as Istio Gateway
-    participant Kuadrant as AuthPolicy
-    participant Keycloak
-    participant Backend
-
-    User->>Gateway: Request without token
-    Gateway->>Kuadrant: Check authentication
-    Kuadrant-->>User: 302 Redirect to Keycloak
-    User->>Keycloak: Login (username/password)
-    Keycloak-->>User: JWT Access Token
-    User->>Gateway: Request with Bearer token
-    Gateway->>Kuadrant: Validate JWT signature + claims
-    Kuadrant->>Backend: Forward authenticated request
-    Backend-->>User: 200 JSON response
-....
-
 == Summary
 
-The OIDC pattern is ideal for **interactive user-facing applications** where users authenticate through a web browser and tokens are issued by Keycloak. Rate limiting is applied per authenticated user.
+The pre-deployed `neuralbank-stack` demonstrates a **real interactive OIDC flow**:
+
+* Users access the frontend at `https://neuralbank.{cluster_domain}`
+* The `OIDCPolicy` CR redirects to Keycloak for authentication
+* Credentials: `%USER_NAME%` / `Welcome123!` (same as Developer Hub)
+* After login, the JWT is stored in a cookie for subsequent requests
+
+This differs from the scaffolded apps (which use API Key authentication) because the pre-deployed stack includes a fully configured Keycloak OIDC client (`neuralbank-frontend`) in the `neuralbank` realm.

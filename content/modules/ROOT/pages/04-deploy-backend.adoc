@@ -9,7 +9,7 @@ In this module you will deploy **Neuralbank Backend** using a Software Template.
 
 == Step 1: Open Create from Template
 
-. Log in to Developer Hub at `https://backstage-developer-hub-developer-hub.{cluster_domain}`.
+. Log in to Developer Hub at `https://backstage-developer-hub-developer-hub.{cluster_domain}`
 . In the main menu, select **Create**.
 . Find the template **Neuralbank: Backend API**.
 
@@ -55,7 +55,7 @@ manifests/
   service.yaml
   gateway.yaml           # Gateway API resource
   httproute.yaml         # HTTPRoute for the API
-  authpolicy.yaml        # Kuadrant AuthPolicy (OIDC + API Key)
+  authpolicy.yaml        # Kuadrant AuthPolicy (API Key + OIDC JWT)
   ratelimitpolicy.yaml   # Kuadrant RateLimitPolicy
   trigger-binding.yaml   # Tekton TriggerBinding
   trigger-template.yaml  # Tekton TriggerTemplate
@@ -79,6 +79,55 @@ Dockerfile
 . Switch to project **`%USER_NAME%-neuralbank`**.
 . Under **Workloads -> Pods**, verify backend pods are **Running**.
 
+== Understanding the Authentication Model
+
+The scaffolded backend uses an **AuthPolicy** that supports **two authentication methods**:
+
+[source,yaml]
+----
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+spec:
+  defaults:
+    rules:
+      authentication:
+        api-key-auth:          # Priority 0 — checked first
+          apiKey:
+            selector:
+              matchLabels:
+                app: neuralbank-backend
+                kuadrant.io/apikey: "true"
+          credentials:
+            customHeader:
+              name: X-API-Key
+          priority: 0
+        oidc:                  # Priority 1 — fallback
+          jwt:
+            issuerUrl: https://rhbk.{cluster_domain}/realms/neuralbank
+          credentials:
+            authorizationHeader:
+              prefix: Bearer
+          priority: 1
+      response:
+        unauthenticated:
+          code: 401
+          body:
+            value: '{"error":"Authentication required."}'
+----
+
+[cols="1,2"]
+|===
+| Method | How It Works
+
+| **API Key** (primary)
+| Send `X-API-Key` header with a key from a labeled Kubernetes Secret. This is the method used by the scaffolded frontend.
+
+| **OIDC JWT** (secondary)
+| Send `Authorization: Bearer <token>` with a valid JWT from Keycloak realm `neuralbank`. Useful for programmatic access if you already have a token.
+|===
+
+IMPORTANT: The scaffolded applications use **API Key as the primary authentication method**. The OIDC JWT option is available for Bearer token validation but does not include an interactive login flow. For a full interactive OIDC experience (browser redirect to Keycloak), see the pre-deployed `neuralbank-stack` in xref:09-explore-connectivity-link-oidc.adoc[Module 9].
+
 == Step 7: Try the API Endpoints
 
 The backend exposes REST endpoints through the Kuadrant gateway. Use an API Key to authenticate:
@@ -86,10 +135,10 @@ The backend exposes REST endpoints through the Kuadrant gateway. Use an API Key 
 [.console-input]
 [source,bash]
 ----
-# First, get the API key from the generated Secret
-API_KEY=$(oc get secret %USER_NAME%-neuralbank-backend-apikey \
-  -n %USER_NAME%-neuralbank \
-  -o jsonpath='{.data.api_key}' | base64 -d)
+# Get the API key from the generated Secret
+API_KEY=$(oc get secret -n %USER_NAME%-neuralbank \
+  -l "app=neuralbank-backend,kuadrant.io/apikey=true" \
+  -o jsonpath='{.items[0].data.api_key}' | base64 -d)
 
 echo "API Key: $API_KEY"
 
@@ -112,4 +161,4 @@ curl -s -H "X-API-Key: $API_KEY" \
 
 == Summary
 
-You have walked through the full path **Hub -> Template -> Gitea -> ArgoCD -> Tekton -> OpenShift**, also validating the API with an API Key. All services are in namespace `%USER_NAME%-neuralbank`.
+You deployed the backend through the full path **Hub -> Template -> Gitea -> ArgoCD -> Tekton -> OpenShift**. The API is protected by Kuadrant with **API Key authentication** (primary) and optional OIDC JWT validation. All services are in namespace `%USER_NAME%-neuralbank`.

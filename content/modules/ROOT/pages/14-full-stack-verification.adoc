@@ -131,25 +131,34 @@ curl -s -w "\nHTTP: %{http_code}\n" \
 
 == Authentication Models Comparison
 
-[cols="1,1,1",options="header"]
+[cols="1,1,1,1",options="header"]
 |===
-| | OIDC (Neuralbank Stack) | API Key (NFL Wallet / User Apps)
+| | OIDC (neuralbank-stack) | API Key (scaffolded apps) | API Key (NFL Wallet)
 
-| **How to authenticate**
-| Get a JWT token from Keycloak
-| Include a static key in `X-API-Key` header
+| **AuthPolicy type**
+| `OIDCPolicy` CR (Kuadrant extension)
+| `AuthPolicy` with API Key + OIDC JWT
+| `AuthPolicy` with API Key only
 
-| **Steps to test**
-| 2 steps: get token + call API
-| 1 step: call API with key in header
+| **Interactive login?**
+| Yes — redirect to Keycloak
+| No — manual API Key
+| No — manual API Key
+
+| **Frontend URL**
+| `neuralbank.{cluster_domain}`
+| `%USER_NAME%-neuralbank-frontend.{cluster_domain}`
+| N/A (API only)
+
+| **Credentials**
+| `%USER_NAME%` / `Welcome123!`
+| API Key from Secret
+| API Key from Secret
 
 | **Best for**
 | Web apps with user login
-| Scripts, CI/CD, M2M integrations
-
-| **Token expiry**
-| Short-lived (minutes)
-| No expiry (revoke by deleting Secret)
+| Development / testing
+| M2M integrations
 |===
 
 == Platform Architecture Summary
