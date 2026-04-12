@@ -85,7 +85,11 @@ document.addEventListener('DOMContentLoaded', function() {
 .author-footer{text-align:center;padding:16px 0 8px;margin-top:32px;border-top:1px solid #e0e0e0;font-size:0.75rem;color:#999;}
 .author-footer a{color:#999;text-decoration:none;}
 .author-footer a:hover{color:#0066cc;text-decoration:underline;}
+<<<<<<< HEAD
 .author-footer img{height:28px;vertical-align:middle;margin-right:6px;}
+=======
+.author-footer img{height:18px;vertical-align:middle;margin-right:4px;opacity:0.7;}
+>>>>>>> df69073 (feat: add OpenShift Commons Gathering branding — Edición Buenos Aires, Argentina 2026)
 </style>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
@@ -93,9 +97,13 @@ document.addEventListener('DOMContentLoaded',function(){
   if(doc){
     var f=document.createElement('div');
     f.className='author-footer';
+<<<<<<< HEAD
     f.innerHTML='<img src="' + (document.querySelector('link[rel=icon]')?.href?.replace('/img/favicon.ico','/img/Logo-OSC_with_padding.png') || '') + '" alt="OSCG">' +
       'OpenShift Commons Gathering — Buenos Aires 2026<br>' +
       '<a href="https://maximilianopizarro.github.io/" target="_blank" rel="noopener">maximilianoPizarro</a>';
+=======
+    f.innerHTML='<img src="{{uiRootPath}}/../_images/Logo-OSC_with_padding.png" alt="OSC">OpenShift Commons Gathering — Edición Buenos Aires, Argentina 2026 · <a href="https://maximilianopizarro.github.io/" target="_blank" rel="noopener">maximilianoPizarro</a>';
+>>>>>>> df69073 (feat: add OpenShift Commons Gathering branding — Edición Buenos Aires, Argentina 2026)
     doc.appendChild(f);
   }
 });

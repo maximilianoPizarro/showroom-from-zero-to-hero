@@ -1,5 +1,12 @@
 = From Zero To Hero with Red Hat Developer Hub
 
+++++
+<div style="text-align:center;margin:16px 0 8px;">
+  <img src="_images/Logo-OSC_with_padding.png" alt="OpenShift Commons Gathering" style="height:64px;">
+  <p style="margin:6px 0 0;color:#6a6e73;font-size:0.9rem;">OpenShift Commons Gathering — Edición Buenos Aires, Argentina 2026</p>
+</div>
+++++
+
 == Welcome to the Workshop
 
 In this workshop you will use **Red Hat Developer Hub** as a self-service development portal to build, deploy, secure, and observe applications on OpenShift — enhanced by AI assistance through **Lightspeed** and the **MCP Gateway**.
