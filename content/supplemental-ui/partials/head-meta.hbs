@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
 <link rel="icon" href="{{uiRootPath}}/img/favicon.ico" type="image/x-icon">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
 (function() {
@@ -29,11 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
     { key: 'CLUSTER_DOMAIN', placeholder: '__CLUSTER_DOMAIN__', label: 'Cluster domain', hint: 'apps.cluster-xxx.dynamic.redhatworkshops.io' },
     { key: 'USER_NAME',      placeholder: '%USER_NAME%',        label: 'Username',       hint: 'user1' }
   ];
-
   function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
   function get(k) { return localStorage.getItem(k) || ''; }
   function set(k,v) { localStorage.setItem(k, v); }
-
   function getSearchParams() {
     var params = new URLSearchParams(window.location.search);
     try {
@@ -44,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch(e) {}
     return params;
   }
-
   function replacePlaceholders() {
     VARS.forEach(function(v) {
       var val = get(v.key);
@@ -65,49 +62,258 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
-
   function init() {
     var params = getSearchParams();
-    var changed = false;
     VARS.forEach(function(v) {
       var qp = params.get(v.key);
-      if (qp) { set(v.key, qp); changed = true; }
+      if (qp) { set(v.key, qp); }
     });
     replacePlaceholders();
     [100, 500, 1000, 2000, 4000].forEach(function(ms) { setTimeout(replacePlaceholders, ms); });
   }
-
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
 </script>
+
 <style>
 .author-footer{text-align:center;padding:16px 0 8px;margin-top:32px;border-top:1px solid #e0e0e0;font-size:0.75rem;color:#999;}
 .author-footer a{color:#999;text-decoration:none;}
 .author-footer a:hover{color:#0066cc;text-decoration:underline;}
 .author-footer img{height:28px;vertical-align:middle;margin-right:6px;}
-.showcase-btn{position:fixed;bottom:16px;right:16px;z-index:9999;background:#fff;border:1px solid #ddd;border-radius:12px;padding:8px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.12);cursor:pointer;display:flex;align-items:center;gap:6px;font-size:0.8rem;color:#333;text-decoration:none;transition:box-shadow 0.2s,transform 0.2s;}
-.showcase-btn:hover{box-shadow:0 4px 16px rgba(0,0,0,0.2);transform:translateY(-2px);color:#0066cc;}
-.showcase-btn svg{width:20px;height:20px;}
+.viz3d-btn{position:fixed;bottom:16px;right:16px;z-index:9999;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #0066cc;border-radius:12px;padding:10px 16px;box-shadow:0 2px 12px rgba(0,102,204,0.3);cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;color:#4fc3f7;text-decoration:none;transition:all 0.3s;}
+.viz3d-btn:hover{box-shadow:0 4px 20px rgba(0,102,204,0.5);transform:translateY(-2px);color:#fff;border-color:#4fc3f7;}
+.viz3d-btn svg{width:22px;height:22px;}
+.viz3d-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#0d0d0d;}
+.viz3d-overlay.active{display:block;}
+.viz3d-overlay canvas{display:block;width:100%!important;height:100%!important;cursor:grab;}
+.viz3d-overlay canvas:active{cursor:grabbing;}
+.viz3d-close{position:fixed;top:16px;right:24px;z-index:100000;background:rgba(0,0,0,0.6);color:#fff;border:1px solid #555;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:1rem;transition:background 0.2s;}
+.viz3d-close:hover{background:rgba(255,0,0,0.4);}
+.viz3d-title{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:100000;color:rgba(255,255,255,0.6);font-size:0.85rem;pointer-events:none;text-align:center;}
 </style>
+
 <script>
-document.addEventListener('DOMContentLoaded',function(){
-  var doc=document.querySelector('.doc');
-  if(doc){
-    var f=document.createElement('div');
-    f.className='author-footer';
-    var logoSrc=document.querySelector('link[rel=icon]')?.href?.replace('/img/favicon.ico','/img/Logo-OSC_with_padding.png')||'';
-    f.innerHTML='<a href="https://commons.openshift.org/" target="_blank" rel="noopener"><img src="'+logoSrc+'" alt="OpenShift Commons"></a> '+
-      '<a href="https://commons.openshift.org/" target="_blank" rel="noopener">OpenShift Commons Gathering — Buenos Aires 2026</a>';
-    doc.appendChild(f);
+(function(){
+  var SCENES = {
+    onboarding: {
+      title: 'Developer Onboarding — From Zero to Production',
+      nodes: [
+        {name:'Developer',x:-7,y:0,z:0,c:0x00BCD4},
+        {name:'Developer Hub',x:-4,y:1.5,z:0,c:0xEE0000},
+        {name:'Software Templates',x:-2,y:3,z:-1,c:0xef7b4d},
+        {name:'Gitea',x:0,y:2,z:0,c:0x609926},
+        {name:'ArgoCD',x:2,y:3,z:-1,c:0xef7b4d},
+        {name:'Tekton Pipeline',x:2,y:1,z:1,c:0xfd495c},
+        {name:'OpenShift',x:4,y:2,z:0,c:0x326CE5},
+        {name:'Gateway + Kuadrant',x:6,y:2,z:-0.5,c:0x0066CC},
+        {name:'Lightspeed AI',x:-4,y:-1.5,z:1,c:0x6a1b9a},
+        {name:'Grafana / Kiali',x:6,y:0,z:1,c:0xFFD700},
+        {name:'Secured API',x:7,y:3,z:-1,c:0x0066CC}
+      ],
+      edges:[[0,1],[1,2],[2,3],[3,4],[3,5],[4,6],[5,6],[6,7],[7,10],[1,8],[6,9]]
+    },
+    gitops: {
+      title: 'GitOps CI/CD — Code to Production',
+      nodes: [
+        {name:'Developer',x:-7,y:0,z:0,c:0x00BCD4},
+        {name:'Dev Spaces IDE',x:-4,y:1,z:1,c:0x6a1b9a},
+        {name:'Gitea',x:-1,y:2,z:0,c:0x609926},
+        {name:'Webhook',x:1,y:1,z:1.5,c:0xFFD700},
+        {name:'Tekton Pipeline',x:3,y:1,z:1,c:0xfd495c},
+        {name:'Container Registry',x:5,y:2,z:0.5,c:0xef7b4d},
+        {name:'ArgoCD',x:1,y:3,z:-1,c:0xef7b4d},
+        {name:'OpenShift',x:5,y:0,z:-0.5,c:0x326CE5},
+        {name:'Running Pods',x:7,y:0,z:0,c:0xEE0000}
+      ],
+      edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,7],[2,6],[6,7],[7,8]]
+    },
+    auth: {
+      title: 'Authentication Flows — OIDC vs API Key',
+      nodes: [
+        {name:'Browser / Client',x:-6,y:0,z:0,c:0x00BCD4},
+        {name:'Istio Gateway',x:-2,y:0,z:0,c:0xef7b4d},
+        {name:'OIDCPolicy',x:0,y:2.5,z:-1,c:0x6a1b9a},
+        {name:'API Key AuthPolicy',x:0,y:-2.5,z:1,c:0xFFD700},
+        {name:'Keycloak',x:3,y:3,z:-2,c:0xEE0000},
+        {name:'RateLimitPolicy',x:3,y:0,z:0,c:0x0066CC},
+        {name:'Backend Service',x:6,y:0,z:0,c:0x609926}
+      ],
+      edges:[[0,1],[1,2],[1,3],[2,4],[4,2],[2,5],[3,5],[5,6]]
+    },
+    mcp: {
+      title: 'MCP Gateway — AI Tool Orchestration',
+      nodes: [
+        {name:'OpenShift Lightspeed',x:-6,y:2,z:0,c:0x0066CC},
+        {name:'LLM Model',x:-6,y:-1,z:1,c:0x0066CC},
+        {name:'MCP Gateway',x:-1,y:2,z:0,c:0xef7b4d},
+        {name:'Kuadrant Auth',x:-1,y:0,z:1.5,c:0xFFD700},
+        {name:'k8s-mcp-server',x:3,y:3,z:-1,c:0x326CE5},
+        {name:'ocp-mcp-server',x:3,y:1,z:-1,c:0xEE0000},
+        {name:'customer-svc-mcp',x:3,y:-1,z:0,c:0x6a1b9a},
+        {name:'OpenShift API',x:6,y:2,z:0,c:0x609926},
+        {name:'Neuralbank Backend',x:6,y:-1,z:1,c:0x609926}
+      ],
+      edges:[[0,1],[0,2],[2,3],[2,4],[2,5],[2,6],[4,7],[5,7],[6,8]]
+    }
+  };
+
+  var PAGE_MAP = [
+    {pattern:/index|01-|02-architecture/,scene:'onboarding'},
+    {pattern:/03-software|04-deploy|05-explore-pipe/,scene:'gitops'},
+    {pattern:/06-deploy-frontend|07-explore-argocd/,scene:'gitops'},
+    {pattern:/08-devspaces/,scene:'gitops'},
+    {pattern:/09-.*oidc|10-.*apikey/,scene:'auth'},
+    {pattern:/11-developer-light|12-openshift-light/,scene:'mcp'},
+    {pattern:/13-observability|14-full-stack/,scene:'onboarding'}
+  ];
+
+  function getSceneForPage() {
+    var path = window.location.pathname;
+    for (var i = 0; i < PAGE_MAP.length; i++) {
+      if (PAGE_MAP[i].pattern.test(path)) return PAGE_MAP[i].scene;
+    }
+    return 'onboarding';
   }
-  var btn=document.createElement('a');
-  btn.className='showcase-btn';
-  btn.href='https://maximilianopizarro.github.io/test-drive-pe-oscg/';
-  btn.target='_blank';
-  btn.rel='noopener';
-  btn.title='Workshop Showcase — 3D Experience';
-  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>3D';
-  document.body.appendChild(btn);
-});
+
+  function renderScene(containerId, sceneKey) {
+    var s = SCENES[sceneKey];
+    if (!s || typeof THREE === 'undefined') return;
+    var container = document.getElementById(containerId);
+    if (!container) return;
+
+    var w = window.innerWidth, h = window.innerHeight;
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0d0d0d);
+    var camera = new THREE.PerspectiveCamera(50, w/h, 0.1, 1000);
+    camera.position.set(0, 3, 14);
+    camera.lookAt(0, 0, 0);
+    var renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    s.nodes.forEach(function(nd) {
+      var geo = new THREE.SphereGeometry(0.35, 24, 24);
+      var mat = new THREE.MeshPhongMaterial({color:nd.c,emissive:nd.c,emissiveIntensity:0.35});
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(nd.x, nd.y, nd.z);
+      scene.add(mesh);
+      var cv = document.createElement('canvas');
+      cv.width = 320; cv.height = 64;
+      var ctx = cv.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(nd.name, 160, 40);
+      var tex = new THREE.CanvasTexture(cv);
+      var sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true}));
+      sp.position.set(nd.x, nd.y + 0.65, nd.z);
+      sp.scale.set(2.5, 0.5, 1);
+      scene.add(sp);
+    });
+
+    var particles = [];
+    s.edges.forEach(function(e) {
+      var a = s.nodes[e[0]], b = s.nodes[e[1]];
+      var geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(a.x,a.y,a.z), new THREE.Vector3(b.x,b.y,b.z)
+      ]);
+      scene.add(new THREE.Line(geo, new THREE.LineBasicMaterial({color:0x444444})));
+    });
+    for (var p = 0; p < 20; p++) {
+      var ei = p % s.edges.length;
+      var pmesh = new THREE.Mesh(new THREE.SphereGeometry(0.07,8,8), new THREE.MeshBasicMaterial({color:0x00ffcc}));
+      scene.add(pmesh);
+      particles.push({mesh:pmesh,edge:ei,t:Math.random(),speed:0.002+Math.random()*0.004});
+    }
+
+    scene.add(new THREE.AmbientLight(0x404040, 1.5));
+    var pl = new THREE.PointLight(0xffffff, 1, 50);
+    pl.position.set(0, 5, 10);
+    scene.add(pl);
+
+    var isDragging=false, prevX=0, rotY=0;
+    renderer.domElement.addEventListener('mousedown',function(e){isDragging=true;prevX=e.clientX;});
+    renderer.domElement.addEventListener('mousemove',function(e){if(isDragging){rotY+=(e.clientX-prevX)*0.005;prevX=e.clientX;}});
+    renderer.domElement.addEventListener('mouseup',function(){isDragging=false;});
+    renderer.domElement.addEventListener('mouseleave',function(){isDragging=false;});
+    renderer.domElement.addEventListener('touchstart',function(e){isDragging=true;prevX=e.touches[0].clientX;},{passive:true});
+    renderer.domElement.addEventListener('touchmove',function(e){if(isDragging){rotY+=(e.touches[0].clientX-prevX)*0.005;prevX=e.touches[0].clientX;}},{passive:true});
+    renderer.domElement.addEventListener('touchend',function(){isDragging=false;});
+
+    var animId;
+    function animate() {
+      animId = requestAnimationFrame(animate);
+      if (!isDragging) rotY += 0.0015;
+      scene.rotation.y = rotY;
+      particles.forEach(function(p) {
+        p.t += p.speed;
+        if (p.t > 1) { p.t = 0; p.edge = (p.edge + 1) % s.edges.length; }
+        var e = s.edges[p.edge], a = s.nodes[e[0]], b = s.nodes[e[1]];
+        p.mesh.position.set(a.x+(b.x-a.x)*p.t, a.y+(b.y-a.y)*p.t, a.z+(b.z-a.z)*p.t);
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    function onResize() {
+      var nw = window.innerWidth, nh = window.innerHeight;
+      camera.aspect = nw/nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    }
+    window.addEventListener('resize', onResize);
+
+    return function cleanup() {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', onResize);
+      renderer.dispose();
+      container.innerHTML = '';
+    };
+  }
+
+  window._viz3dCleanup = null;
+
+  window.openViz3D = function() {
+    var overlay = document.getElementById('viz3d-overlay');
+    if (!overlay) return;
+    var sceneKey = getSceneForPage();
+    var s = SCENES[sceneKey];
+    overlay.classList.add('active');
+    document.getElementById('viz3d-title').textContent = (s ? s.title : '') + ' — drag to rotate';
+    window._viz3dCleanup = renderScene('viz3d-canvas', sceneKey);
+  };
+
+  window.closeViz3D = function() {
+    var overlay = document.getElementById('viz3d-overlay');
+    if (overlay) overlay.classList.remove('active');
+    if (window._viz3dCleanup) { window._viz3dCleanup(); window._viz3dCleanup = null; }
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var doc = document.querySelector('.doc');
+    if (doc) {
+      var f = document.createElement('div');
+      f.className = 'author-footer';
+      var logoSrc = document.querySelector('link[rel=icon]')?.href?.replace('/img/favicon.ico','/img/Logo-OSC_with_padding.png') || '';
+      f.innerHTML = '<a href="https://commons.openshift.org/" target="_blank" rel="noopener"><img src="'+logoSrc+'" alt="OpenShift Commons"></a> '+
+        '<a href="https://commons.openshift.org/" target="_blank" rel="noopener">OpenShift Commons Gathering — Buenos Aires 2026</a>';
+      doc.appendChild(f);
+    }
+
+    var overlay = document.createElement('div');
+    overlay.id = 'viz3d-overlay';
+    overlay.className = 'viz3d-overlay';
+    overlay.innerHTML = '<button class="viz3d-close" onclick="closeViz3D()">✕ Cerrar</button><div id="viz3d-canvas" style="width:100%;height:100%"></div><div id="viz3d-title" class="viz3d-title"></div>';
+    document.body.appendChild(overlay);
+
+    var btn = document.createElement('button');
+    btn.className = 'viz3d-btn';
+    btn.onclick = window.openViz3D;
+    btn.title = 'Ver arquitectura 3D interactiva';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>3D';
+    document.body.appendChild(btn);
+  });
+})();
 </script>
