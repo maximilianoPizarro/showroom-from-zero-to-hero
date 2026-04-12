@@ -3,16 +3,19 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
-  document.querySelectorAll('.literalblock.mermaid pre, .listingblock.mermaid pre').forEach(function(pre, i) {
+  var keywords = /^\s*(graph\s|flowchart\s|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|gitGraph)/;
+  var idx = 0;
+  document.querySelectorAll('.literalblock pre').forEach(function(pre) {
     var code = pre.textContent.trim();
-    if (!code) return;
+    if (!keywords.test(code)) return;
     var div = document.createElement('div');
     div.className = 'mermaid-rendered';
-    var id = 'mermaid-' + i;
+    div.style.cssText = 'background:#fff;padding:16px;border-radius:8px;text-align:center;margin:16px 0;';
+    var id = 'mermaid-' + (idx++);
     mermaid.render(id, code).then(function(result) {
       div.innerHTML = result.svg;
       pre.parentElement.parentElement.replaceWith(div);
-    }).catch(function(err) { console.warn('Mermaid render error:', err); });
+    }).catch(function(err) { console.warn('Mermaid render error for ' + id + ':', err); });
   });
 });
 </script>
