@@ -85,11 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
 .author-footer{text-align:center;padding:16px 0 8px;margin-top:32px;border-top:1px solid #e0e0e0;font-size:0.75rem;color:#999;}
 .author-footer a{color:#999;text-decoration:none;}
 .author-footer a:hover{color:#0066cc;text-decoration:underline;}
-<<<<<<< HEAD
 .author-footer img{height:28px;vertical-align:middle;margin-right:6px;}
-=======
-.author-footer img{height:18px;vertical-align:middle;margin-right:4px;opacity:0.7;}
->>>>>>> df69073 (feat: add OpenShift Commons Gathering branding — Edición Buenos Aires, Argentina 2026)
+.showcase-btn{position:fixed;bottom:16px;right:16px;z-index:9999;background:#fff;border:1px solid #ddd;border-radius:12px;padding:8px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.12);cursor:pointer;display:flex;align-items:center;gap:6px;font-size:0.8rem;color:#333;text-decoration:none;transition:box-shadow 0.2s,transform 0.2s;}
+.showcase-btn:hover{box-shadow:0 4px 16px rgba(0,0,0,0.2);transform:translateY(-2px);color:#0066cc;}
+.showcase-btn svg{width:20px;height:20px;}
 </style>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
@@ -97,14 +96,18 @@ document.addEventListener('DOMContentLoaded',function(){
   if(doc){
     var f=document.createElement('div');
     f.className='author-footer';
-<<<<<<< HEAD
-    f.innerHTML='<img src="' + (document.querySelector('link[rel=icon]')?.href?.replace('/img/favicon.ico','/img/Logo-OSC_with_padding.png') || '') + '" alt="OSCG">' +
-      'OpenShift Commons Gathering — Buenos Aires 2026<br>' +
-      '<a href="https://maximilianopizarro.github.io/" target="_blank" rel="noopener">maximilianoPizarro</a>';
-=======
-    f.innerHTML='<img src="{{uiRootPath}}/../_images/Logo-OSC_with_padding.png" alt="OSC">OpenShift Commons Gathering — Edición Buenos Aires, Argentina 2026 · <a href="https://maximilianopizarro.github.io/" target="_blank" rel="noopener">maximilianoPizarro</a>';
->>>>>>> df69073 (feat: add OpenShift Commons Gathering branding — Edición Buenos Aires, Argentina 2026)
+    var logoSrc=document.querySelector('link[rel=icon]')?.href?.replace('/img/favicon.ico','/img/Logo-OSC_with_padding.png')||'';
+    f.innerHTML='<a href="https://commons.openshift.org/" target="_blank" rel="noopener"><img src="'+logoSrc+'" alt="OpenShift Commons"></a> '+
+      '<a href="https://commons.openshift.org/" target="_blank" rel="noopener">OpenShift Commons Gathering — Buenos Aires 2026</a>';
     doc.appendChild(f);
   }
+  var btn=document.createElement('a');
+  btn.className='showcase-btn';
+  btn.href='https://maximilianopizarro.github.io/test-drive-pe-oscg/';
+  btn.target='_blank';
+  btn.rel='noopener';
+  btn.title='Workshop Showcase — 3D Experience';
+  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>3D';
+  document.body.appendChild(btn);
 });
 </script>
