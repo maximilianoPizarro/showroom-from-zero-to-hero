@@ -64,7 +64,7 @@ graph LR
     style GW fill:#f9f,stroke:#333
     style BE fill:#9cf,stroke:#333
     style MCP fill:#9cf,stroke:#333
-----
+....
 
 == Jaeger: Distributed Tracing
 
