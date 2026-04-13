@@ -6,8 +6,8 @@
 <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);border-radius:12px;padding:20px 24px;margin:16px 0;color:#fff;cursor:pointer;display:flex;align-items:center;gap:16px;" onclick="openViz3D()">
   <div style="font-size:2rem;">🔮</div>
   <div>
-    <strong style="font-size:1.1rem;">Ver Arquitectura 3D Interactiva</strong><br>
-    <span style="opacity:0.8;font-size:0.9rem;">Click para explorar el grafo MCP Gateway con 5 servidores y 55 tools — arrastrar para rotar</span>
+    <strong style="font-size:1.1rem;">Interactive 3D Architecture</strong><br>
+    <span style="opacity:0.8;font-size:0.9rem;">Click to explore the MCP Gateway graph with 5 servers and 55 tools — drag to rotate</span>
   </div>
 </div>
 ++++
@@ -24,15 +24,15 @@
 graph TB
     USER[Platform Engineer] -->|Chat| OLS[OpenShift Lightspeed]
     OLS -->|LLM Inference| LLM[LLM Model Server]
-    OLS -->|Streamable HTTP| MCPGW[MCP Gateway — Kuadrant]
+    OLS -->|Streamable HTTP| MCPGW[MCP Gateway]
 
-    subgraph MCP Servers — 55 Tools
-        K8S[k8s-mcp-server — 22 tools]
-        OCPS[ocp-mcp-server — 19 tools]
-        ARGO[argocd-mcp-server — 14 tools]
+    subgraph MCP_Servers[MCP Servers - 55 Tools]
+        K8S[k8s-mcp-server - 22 tools]
+        OCPS[ocp-mcp-server - 19 tools]
+        ARGO[argocd-mcp-server - 14 tools]
     end
 
-    OLS -->|Direct SSE| RHDH[rhdh-mcp-server — 7 tools]
+    OLS -->|Direct SSE| RHDH[rhdh-mcp-server - 7 tools]
 
     MCPGW --> K8S
     MCPGW --> OCPS
