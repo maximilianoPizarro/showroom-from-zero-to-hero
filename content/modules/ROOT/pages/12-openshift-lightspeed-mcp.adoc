@@ -20,6 +20,7 @@
 
 == Architecture: OLS + MCP Gateway
 
+[mermaid]
 ....
 graph TB
     USER[Platform Engineer] -->|Chat| OLS[OpenShift Lightspeed]
